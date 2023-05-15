@@ -4,6 +4,8 @@ import iconDown from './down.svg';
 import iconRight from './right.svg';
 import iconTable from './table2.png';
 import iconClose from './close.svg';
+import iconLightBulb from './light_bulb.svg';
+import iconGreenKey from './green_key.svg';
 
 export default function Icon({ path }: { path: string }) {
   return <img src={path} />;
@@ -31,4 +33,12 @@ Icon.MySql = () => {
 
 Icon.Close = () => {
   return <Icon path={iconClose} />;
+};
+
+Icon.LightBulb = () => {
+  return <Icon path={iconLightBulb} />;
+};
+
+Icon.GreenKey = () => {
+  return <Icon path={iconGreenKey} />;
 };

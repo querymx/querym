@@ -2,6 +2,7 @@ import { QueryResult } from 'drivers/SQLLikeConnection';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/components/TableCell/TableCell';
+import Icon from 'renderer/components/Icon';
 
 function ResizeHandler({ idx }: { idx: number }) {
   const handlerRef = useRef<HTMLDivElement>(null);
@@ -74,7 +75,14 @@ function QueryResultViewer({ result }: { result?: QueryResult | null }) {
         <thead>
           {result.headers.map((header, idx) => (
             <th key={header.name}>
-              <span>{header.name}</span>
+              <div className={styles.headerContent}>
+                <div className={styles.headerContentTitle}>{header.name}</div>
+                {!!header?.schema?.primaryKey && (
+                  <div className={styles.headerContentIcon}>
+                    <Icon.GreenKey />
+                  </div>
+                )}
+              </div>
               <ResizeHandler idx={idx} />
             </th>
           ))}

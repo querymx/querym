@@ -9,6 +9,7 @@ export interface QueryResultHeader {
     database?: string;
     table?: string;
     column?: string;
+    primaryKey?: boolean;
   };
 }
 

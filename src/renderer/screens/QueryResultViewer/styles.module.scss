@@ -13,18 +13,47 @@
     display: contents;
   }
 
+  .headerContent {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .headerContentIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .headerContentIcon img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .headerContentTitle {
+    flex-grow: 1;
+    padding-left: 2px;
+    padding-right: 2px;
+    overflow: hidden;
+  }
+
   td, th {
     padding: 5px 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
     border-bottom: 1px solid #eee;
     border-right: 1px solid #eee;
+  }
+
+  td {
     overflow: hidden;
   }
 
   th {
     position: sticky;
     top: 0;
+    z-index: 5;
     background: #fff;
   }
 
