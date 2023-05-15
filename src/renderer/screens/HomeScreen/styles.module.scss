@@ -1,0 +1,32 @@
+.dashboard {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+
+  .connectionList {
+    background: #F3F3F3;
+    height: 100%;
+    width: 300px;
+  }
+
+  .connectionDetail {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.databaseDetailContainer {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.databaseActionFooter {
+  flex-shrink: 0;
+  flex-grow: 0;
+  padding: 10px 20px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0 1.95px 5px;
+}

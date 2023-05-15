@@ -1,0 +1,25 @@
+.toolbar {
+  ul {
+    list-style-type: none;
+    display: flex;
+    padding: 5px 10px;
+
+    li {
+      display: block;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      color: #555;
+
+      &:hover {
+        background: #eee;
+      }
+
+      span.icon {
+        display: inline-block;
+        color: #27ae60;
+        margin-right: 8px;
+      }
+    }
+  }
+}

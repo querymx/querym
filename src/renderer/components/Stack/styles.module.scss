@@ -1,0 +1,22 @@
+.stack {
+  display: flex;
+  gap: 20px;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.full {
+  width: 100%;
+  height: 100%;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.padding {
+  padding: 15px;
+}

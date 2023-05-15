@@ -1,0 +1,38 @@
+.button {
+  padding: 10px 20px;
+  border: 0;
+  background: #ecf0f1;
+  cursor: pointer;
+
+  border-radius: 4px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.plain {
+  background: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.disabled {
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 0.5;
+  }
+}
+
+.primary {
+  background: #1A64F4;
+  color: #fff;
+}
+
+.destructive {
+  background: #e74c3c;
+  color: #fff;
+}

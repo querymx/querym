@@ -1,0 +1,20 @@
+.sideMenu {
+  border-left: 2px solid #1A64F4;
+  margin-left: 20px;
+  padding: 20px;
+
+  ul {
+    margin-left: 10px;
+    padding: 0;
+
+    li {
+      cursor: pointer;
+      margin-bottom: 5px;
+      color: #1A64F4;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

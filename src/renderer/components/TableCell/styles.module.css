@@ -1,0 +1,28 @@
+.container {
+  width: 100%;
+}
+
+.typedContainer {
+  width: 100%;
+  display: flex;
+}
+
+.badge {
+  padding: 2px 5px;
+  background: #3498db;
+  color: #fff;
+  margin-right: 5px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.code {
+  font-family: CascadiaCode;
+  font-weight: 300;
+  color: #95a5a6;
+}
+
+.number {
+  text-align: right;
+  color: #2980b9;
+}

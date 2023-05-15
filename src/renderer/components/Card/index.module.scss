@@ -1,0 +1,26 @@
+.card {
+  padding: 14px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.card_wrap {
+  padding-bottom: 4px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card_wrap_inline {
+  display: inline-block;
+}
+
+.card_wrap_hover:hover {
+  padding-bottom: 8px;
+  margin-top: -4px;
+}
+
+.card_wrap_clickable {
+  cursor: pointer;
+}

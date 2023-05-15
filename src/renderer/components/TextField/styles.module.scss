@@ -1,0 +1,57 @@
+.input {
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  .content {
+    display: flex;
+    border: 2px solid #E8EAF0;
+    border-radius: 4px;
+
+    &:focus-within {
+      border: 2px solid #1A64F4;
+
+      .action_icon {
+        img {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  input, textarea {
+    font-size: 1rem;
+    padding: 10px;
+    width: 100%;
+    font-family: inherit;
+    outline: none;
+    border: 0;
+  }
+
+  .action_icon {
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    background: #E8EAF0;
+    border: 4px solid #fff;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background: #1A64F4;
+
+      img {
+        filter: invert(1);
+        opacity: 1;
+      }
+    }
+
+    img {
+      width: 24px;
+      height: 24px;
+      opacity: 0.3;
+    }
+  }
+}

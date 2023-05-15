@@ -1,0 +1,33 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: 'CascadiaCode';
+  src: url(./../../assets/fonts/CascadiaCode.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  src: url(./../../assets/fonts/OpenSans-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  font-weight: bold;
+  src: url(./../../assets/fonts/OpenSans-Bold.ttf) format('truetype');
+}
+
+html,
+body {
+  font-family: 'OpenSans';
+  font-size: 13px;
+  padding: 0;
+  margin: 0;
+}
+
+.mono {
+  font-family: 'CascadiaCode';
+}

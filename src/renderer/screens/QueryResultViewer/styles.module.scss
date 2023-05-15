@@ -1,0 +1,44 @@
+.container {
+  overflow-x: auto;
+  height: 100%;
+  white-space: nowrap;
+}
+
+.table {
+  display: grid;
+  position: relative;
+
+  thead, tbody, tr {
+    display: contents;
+  }
+
+  td, th {
+    padding: 5px 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+    overflow: hidden;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+  }
+
+  .handler {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    cursor: col-resize;
+    background: #f00;
+    opacity: 0;
+  }
+
+  .handler:hover {
+    opacity: 0.5;
+  }
+}
