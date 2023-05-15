@@ -39,8 +39,6 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     type = { type: 'number' };
   }
 
-  console.log(column);
-
   return {
     name: column.name,
     type,
