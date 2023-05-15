@@ -7,6 +7,7 @@
 .table {
   display: grid;
   position: relative;
+  user-select: none;
 
   thead, tbody, tr {
     display: contents;

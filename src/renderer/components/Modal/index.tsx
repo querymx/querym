@@ -6,6 +6,7 @@ interface ModalProps {
   title: string;
   open?: boolean;
   onClose?: () => void;
+  wide?: boolean;
 }
 
 export default function Modal({
@@ -13,6 +14,7 @@ export default function Modal({
   title,
   open,
   onClose,
+  wide,
 }: PropsWithChildren<ModalProps>) {
   return open ? (
     <>
@@ -21,7 +23,10 @@ export default function Modal({
         className={styles.modalContainer}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={styles.modal}>
+        <div
+          className={styles.modal}
+          style={{ width: wide ? '80%' : undefined }}
+        >
           <div className={styles.modalHeader}>
             <div className={styles.modalTitle}>{title}</div>
             <div className={styles.modalClose} onClick={onClose}>
@@ -35,8 +40,18 @@ export default function Modal({
   ) : null;
 }
 
-Modal.Body = ({ children }: PropsWithChildren) => {
-  return <div className={styles.modalBody}>{children}</div>;
+Modal.Body = ({
+  children,
+  noPadding,
+}: PropsWithChildren<{ noPadding?: boolean }>) => {
+  return (
+    <div
+      style={{ padding: noPadding ? 0 : undefined }}
+      className={styles.modalBody}
+    >
+      {children}
+    </div>
+  );
 };
 
 Modal.Footer = ({ children }: PropsWithChildren) => {
