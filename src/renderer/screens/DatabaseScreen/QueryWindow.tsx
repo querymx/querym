@@ -72,8 +72,10 @@ export default function QueryWindow({
     const selectTo = viewState?.selection?.main?.to || 0;
 
     return [
+      { text: 'Beautify SQL', separator: true },
       {
         text: 'Cut',
+        hotkey: 'Ctrl + X',
         onClick: () => {
           if (viewState) {
             window.navigator.clipboard.writeText(
@@ -89,6 +91,7 @@ export default function QueryWindow({
       },
       {
         text: 'Copy',
+        hotkey: 'Ctrl + C',
         onClick: () => {
           if (viewState) {
             window.navigator.clipboard.writeText(
@@ -101,6 +104,7 @@ export default function QueryWindow({
       },
       {
         text: 'Paste',
+        hotkey: 'Ctrl + V',
         onClick: async () => {
           if (viewState) {
             const pasteText = await window.navigator.clipboard.readText();

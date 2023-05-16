@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
 export interface ContextMenuItemProps {
   text: string;
   icon?: ReactNode;
+  hotkey?: string;
   disabled?: boolean;
   destructive?: boolean;
   onClick?: () => void;
@@ -72,6 +73,7 @@ ContextMenu.Item = function ({
   disabled,
   destructive,
   separator,
+  hotkey,
 }: ContextMenuItemProps) {
   const { handleClose } = useContext(ContextMenuContext);
 
@@ -94,8 +96,8 @@ ContextMenu.Item = function ({
         .join(' ')}
     >
       <span className={styles.icon}>{icon}</span>
-      <span>{text}</span>
-      <span className={styles.hotkey}></span>
+      <span className={styles.text}>{text}</span>
+      <span className={styles.hotkey}>{hotkey}</span>
     </li>
   );
 };
