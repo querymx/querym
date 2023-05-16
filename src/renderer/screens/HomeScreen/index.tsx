@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import ListView from 'renderer/components/ListView';
 import Icon from 'renderer/components/Icon';
-import ContextMenu, { useContextMenu } from 'renderer/components/ContextMenu';
 import generateDatabaseName from 'renderer/utils/generateDatabaseName';
 
 import {
@@ -19,6 +18,7 @@ import deepEqual from 'deep-equal';
 import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import WelcomeScreen from './WelcomeScreen';
+import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 
 interface HomeScreenProps {
   onNavigateToDatabaseConfig: (config: ConnectionStoreItem) => void;
@@ -34,7 +34,6 @@ export default function HomeScreen({
   const [selectedItem, setSelectedItem] = useState<ConnectionStoreItem>();
   const [selectedItemChanged, setSelectedItemChanged] =
     useState<ConnectionStoreItem>();
-  const { contextStatus, handleClose, handleContextMenu } = useContextMenu();
 
   useEffect(() => {
     window.electron.loadConnectionConfig().then(setConnectionList);
@@ -176,6 +175,39 @@ export default function HomeScreen({
     return true;
   }, [selectedItem, onSaveClick, hasChange]);
 
+  const { handleContextMenu } = useContextMenu(() => {
+    return [
+      {
+        text: 'New MySQL Database',
+        icon: <Icon.MySql />,
+        onClick: newMySQLDatabaseSetting,
+      },
+      {
+        text: 'New MariaDb Database',
+        icon: <Icon.MySql />,
+        onClick: newMariaDatabaseStting,
+        separator: true,
+      },
+      {
+        text: 'Duplicate',
+        onClick: onDuplicateClick,
+        disabled: !selectedItem,
+      },
+      {
+        text: 'Remove',
+        onClick: onRemoveClick,
+        disabled: !selectedItem,
+        destructive: true,
+      },
+    ];
+  }, [
+    newMySQLDatabaseSetting,
+    newMariaDatabaseStting,
+    onDuplicateClick,
+    onRemoveClick,
+    selectedItem,
+  ]);
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.connectionList}>
@@ -196,34 +228,6 @@ export default function HomeScreen({
           })}
           onContextMenu={handleContextMenu}
         />
-
-        <ContextMenu status={contextStatus} onClose={handleClose}>
-          <ContextMenu.Item
-            text="New MySQL Database"
-            icon={<Icon.MySql />}
-            onClick={newMySQLDatabaseSetting}
-          />
-
-          <ContextMenu.Item
-            text="New MariaDb Database"
-            icon={<Icon.MySql />}
-            onClick={newMariaDatabaseStting}
-            separator
-          />
-
-          <ContextMenu.Item
-            text="Duplicate"
-            onClick={onDuplicateClick}
-            disabled={!selectedItem}
-          />
-
-          <ContextMenu.Item
-            text="Remove"
-            destructive
-            onClick={onRemoveClick}
-            disabled={!selectedItem}
-          />
-        </ContextMenu>
       </div>
 
       <div className={styles.connectionDetail}>

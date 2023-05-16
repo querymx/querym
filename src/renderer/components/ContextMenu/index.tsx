@@ -5,11 +5,10 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useState,
 } from 'react';
 import styles from './styles.module.scss';
 
-interface ContextMenuItemProps {
+export interface ContextMenuItemProps {
   text: string;
   icon?: ReactNode;
   disabled?: boolean;
@@ -29,28 +28,6 @@ const ContextMenuContext = createContext<{ handleClose: () => void }>({
     return;
   },
 });
-
-export function useContextMenu() {
-  const [status, setStatus] = useState({ x: 0, y: 0, open: false });
-
-  const handleClose = useCallback(() => {
-    setStatus((prev) => ({ ...prev, open: false }));
-  }, [setStatus]);
-
-  const handleContextMenu = useCallback(
-    (e: React.MouseEvent) => {
-      setStatus((prev) => ({
-        ...prev,
-        open: true,
-        x: e.clientX,
-        y: e.clientY,
-      }));
-    },
-    [setStatus]
-  );
-
-  return { contextStatus: status, handleClose, handleContextMenu };
-}
 
 export default function ContextMenu({
   children,

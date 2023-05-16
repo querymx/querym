@@ -26,8 +26,6 @@ export function SchemaProvider({
     setting?.config?.database
   );
 
-  console.log(setting?.config?.database);
-
   return (
     <SchemaContext.Provider
       value={{ schema: schema, currentDatabase, setCurrentDatabase }}

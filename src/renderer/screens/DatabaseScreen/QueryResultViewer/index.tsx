@@ -10,7 +10,6 @@ import Button from 'renderer/components/Button';
 
 function QueryResultBody({ result }: { result?: QueryResult | null }) {
   const { changeCount } = useQueryResultChange();
-  console.log(changeCount);
 
   return (
     <div className={styles.result}>
