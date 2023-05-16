@@ -3,7 +3,7 @@ import TreeView, { TreeViewItemData } from '../TreeView';
 import { useState } from 'react';
 import Icon from '../Icon';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
-import QueryWindow from 'renderer/screens/QueryWindow';
+import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 
 export default function DatabaseTableList() {

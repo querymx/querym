@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import WindowTab from 'renderer/components/WindowTab';
 import DatabaseTableList from 'renderer/components/WindowTab/DatabaseTableList';
 import { SchemaProvider } from 'renderer/contexts/SchemaProvider';
-import QueryWindow from '../QueryWindow';
+import QueryWindow from './QueryWindow';
 import { v1 as uuidv1 } from 'uuid';
 import SqlDebugger from './SqlDebugger';
 import { DatabaseSettingProvider } from 'renderer/contexts/DatabaseSettingProvider';

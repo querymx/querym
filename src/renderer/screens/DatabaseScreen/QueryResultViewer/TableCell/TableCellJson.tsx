@@ -3,8 +3,8 @@ import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 
 import styles from './styles.module.css';
-import Modal from '../Modal';
-import Button from '../Button';
+import Modal from '../../../../components/Modal';
+import Button from '../../../../components/Button';
 
 interface TableCellJsonProps {
   value: unknown;

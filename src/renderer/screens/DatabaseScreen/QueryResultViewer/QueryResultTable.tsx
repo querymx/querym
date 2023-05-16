@@ -1,7 +1,7 @@
 import { QueryResult } from 'drivers/SQLLikeConnection';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
-import TableCell from 'renderer/components/TableCell/TableCell';
+import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import Icon from 'renderer/components/Icon';
 
 function ResizeHandler({ idx }: { idx: number }) {
@@ -55,7 +55,7 @@ function ResizeHandler({ idx }: { idx: number }) {
   );
 }
 
-function QueryResultViewer({ result }: { result?: QueryResult | null }) {
+function QueryResultTable({ result }: { result?: QueryResult | null }) {
   const tableRef = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
@@ -93,7 +93,12 @@ function QueryResultViewer({ result }: { result?: QueryResult | null }) {
             <tr key={idx}>
               {row.map((cell, cellIdx) => (
                 <td key={cellIdx}>
-                  <TableCell value={cell} header={result.headers[cellIdx]} />
+                  <TableCell
+                    value={cell}
+                    header={result.headers[cellIdx]}
+                    col={cellIdx}
+                    row={idx}
+                  />
                 </td>
               ))}
             </tr>
@@ -104,4 +109,4 @@ function QueryResultViewer({ result }: { result?: QueryResult | null }) {
   );
 }
 
-export default React.memo(QueryResultViewer);
+export default React.memo(QueryResultTable);

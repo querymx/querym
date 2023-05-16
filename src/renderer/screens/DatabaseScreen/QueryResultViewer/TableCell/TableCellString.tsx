@@ -5,5 +5,9 @@ interface TableCellStringProps {
 }
 
 export default function TableCellString({ text }: TableCellStringProps) {
-  return <div className={styles.container}>{text?.toString()}</div>;
+  return (
+    <div className={styles.container}>
+      <div className={styles.content}>{text?.toString()}</div>
+    </div>
+  );
 }

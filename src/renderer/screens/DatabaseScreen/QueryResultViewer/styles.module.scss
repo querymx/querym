@@ -1,6 +1,18 @@
+.result {
+  height: 100%;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  border-top: 1px solid #eee;
+  padding: 10px 15px;
+}
+
 .container {
   overflow-x: auto;
-  height: 100%;
+  flex-grow: 1;
   white-space: nowrap;
 }
 
@@ -39,7 +51,6 @@
   }
 
   td, th {
-    padding: 5px 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
     border-bottom: 1px solid #eee;
@@ -51,6 +62,7 @@
   }
 
   th {
+    padding: 5px 10px;
     position: sticky;
     top: 0;
     z-index: 5;

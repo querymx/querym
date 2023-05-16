@@ -1,6 +1,6 @@
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import WindowTab from 'renderer/components/WindowTab';
-import QueryResultViewer from '../QueryResultViewer';
+import QueryResultViewer from './QueryResultViewer';
 import { useState } from 'react';
 
 interface QueryMultipleResultViewerProps {

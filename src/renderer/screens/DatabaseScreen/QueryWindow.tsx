@@ -12,7 +12,7 @@ import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import Splitter from 'renderer/components/Splitter/Splitter';
 import { SqlProtectionLevel, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { splitQuery } from 'dbgate-query-splitter';
-import QueryMultipleResultViewer from './DatabaseScreen/QueryMultipleResultViewer';
+import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 
 const theme = createTheme({
   theme: 'light',

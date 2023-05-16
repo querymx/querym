@@ -2,8 +2,18 @@
   width: 100%;
 }
 
+.content {
+  padding: 5px 10px;
+  width: 100%;
+}
+
+.changed {
+  background: #f6e58d;
+}
+
 .typedContainer {
   width: 100%;
+  padding: 5px 10px;
   display: flex;
 }
 
@@ -25,4 +35,13 @@
 .number {
   text-align: right;
   color: #2980b9;
+}
+
+.input {
+  padding: 5px 10px;
+  border: 1px solid #000;
+  box-sizing: border;
+  text-align: right;
+  width: 100%;
+  outline: none;
 }
