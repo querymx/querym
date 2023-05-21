@@ -46,6 +46,7 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     type,
     schema: {
       table: tableName,
+      column: column.name,
       primaryKey: !!(column.flags & 0x2),
     },
   };
@@ -76,6 +77,20 @@ export default class MySQLConnection extends SQLLikeConnection {
   ): Promise<QueryResult> {
     const conn = await this.getConnection();
     const result = await conn.query(sql, params);
+
+    // If it is not array, it means
+    // it is not SELECT
+    if (!Array.isArray(result[0])) {
+      return {
+        resultHeader: {
+          affectedRows: result[0].affectedRows,
+          changedRows: result[0].changedRows || 0,
+        },
+        headers: [],
+        rows: [],
+        keys: {},
+      };
+    }
 
     const headers = (result[1] as unknown as ColumnDefinition[]).map(
       mapHeaderType

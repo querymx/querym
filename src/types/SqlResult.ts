@@ -16,6 +16,10 @@ export interface QueryResultHeader {
 export type QueryResultPrimary = Record<string, Record<string, unknown>>;
 
 export interface QueryResult {
+  resultHeader?: {
+    affectedRows: number;
+    changedRows: number;
+  };
   keys: QueryResultPrimary;
   headers: QueryResultHeader[];
   rows: unknown[][];

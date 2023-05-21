@@ -26,6 +26,10 @@ export default class ResultChangeCollector {
     this.changes[rowNumber][cellNumber] = value;
   }
 
+  clear() {
+    this.changes = {};
+  }
+
   getChange(rowNumber: number, cellNumber: number) {
     if (this.changes[rowNumber]) {
       return this.changes[rowNumber][cellNumber];

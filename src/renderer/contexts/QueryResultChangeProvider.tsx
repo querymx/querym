@@ -12,12 +12,18 @@ const QueryResultChangeContext = createContext<{
   setChange: (row: number, col: number, value: unknown) => void;
   removeChange: (row: number, col: number) => void;
   changeCount: number;
+  collector: ResultChangeCollector;
+  clearChange: () => void;
 }>({
+  collector: new ResultChangeCollector(),
   changeCount: 0,
   setChange: () => {
     throw 'Not implemented';
   },
   removeChange: () => {
+    throw 'Not implemented';
+  },
+  clearChange: () => {
     throw 'Not implemented';
   },
 });
@@ -46,9 +52,14 @@ export function QueryResultChangeProvider({ children }: PropsWithChildren) {
     [collector, setChangeCount]
   );
 
+  const clearChange = useCallback(() => {
+    collector.clear();
+    setChangeCount(collector.getChangesCount());
+  }, [collector, setChangeCount]);
+
   return (
     <QueryResultChangeContext.Provider
-      value={{ changeCount, removeChange, setChange }}
+      value={{ changeCount, removeChange, setChange, collector, clearChange }}
     >
       {children}
     </QueryResultChangeContext.Provider>

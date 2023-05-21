@@ -2,10 +2,12 @@ interface TableColumnSchema {
   name: string;
 }
 
+export type TableConstraintTypeSchema = 'PRIMARY KEY' | 'UNIQUE';
+
 interface TableConstraintSchema {
   name: string;
   columns: string[];
-  type: 'PRIMARY KEY' | 'UNIQUE';
+  type: TableConstraintTypeSchema;
 }
 
 interface TableSchema {
