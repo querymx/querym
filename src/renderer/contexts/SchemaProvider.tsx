@@ -1,6 +1,6 @@
-import { DatabaseSchemas } from 'drivers/SQLLikeConnection';
 import React, { useState, PropsWithChildren, useContext } from 'react';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
+import { DatabaseSchemas } from 'types/SqlSchema';
 
 const SchemaContext = React.createContext<{
   schema?: DatabaseSchemas;

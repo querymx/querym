@@ -1,7 +1,4 @@
-import {
-  ConnectionStoreItem,
-  DatabaseSchemas,
-} from 'drivers/SQLLikeConnection';
+import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
 import { useState, useEffect, useCallback } from 'react';
 import WindowTab from 'renderer/components/WindowTab';
 import DatabaseTableList from 'renderer/components/WindowTab/DatabaseTableList';
@@ -20,6 +17,7 @@ import {
 } from 'renderer/contexts/WindowTabProvider';
 import Splitter from 'renderer/components/Splitter/Splitter';
 import SqlProtectionProvider from 'renderer/contexts/SqlProtectionProvider';
+import { DatabaseSchemas } from 'types/SqlSchema';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();

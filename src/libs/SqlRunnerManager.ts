@@ -1,9 +1,6 @@
-import { QueryResult, SqlQueryCallback } from 'drivers/SQLLikeConnection';
-
-export interface SqlStatement {
-  sql: string;
-  params?: Record<string, unknown>;
-}
+import { SqlQueryCallback } from 'drivers/SQLLikeConnection';
+import { QueryResult } from 'types/SqlResult';
+import { SqlStatement } from 'types/SqlStatement';
 
 export enum SqlProtectionLevel {
   None = 0,

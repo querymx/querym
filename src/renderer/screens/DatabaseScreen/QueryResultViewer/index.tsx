@@ -1,4 +1,3 @@
-import { QueryResult } from 'drivers/SQLLikeConnection';
 import React from 'react';
 import {
   QueryResultChangeProvider,
@@ -7,6 +6,7 @@ import {
 import QueryResultTable from './QueryResultTable';
 import styles from './styles.module.scss';
 import Button from 'renderer/components/Button';
+import { QueryResult } from 'types/SqlResult';
 
 function QueryResultBody({ result }: { result?: QueryResult | null }) {
   const { changeCount } = useQueryResultChange();

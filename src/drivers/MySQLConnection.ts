@@ -1,8 +1,10 @@
-import SQLLikeConnection, {
-  DatabaseConnectionConfig,
-  QueryResult,
+import {
   QueryResultHeader,
   QueryResultHeaderType,
+  QueryResult,
+} from 'types/SqlResult';
+import SQLLikeConnection, {
+  DatabaseConnectionConfig,
 } from './SQLLikeConnection';
 import { Connection, createConnection, RowDataPacket } from 'mysql2/promise';
 
