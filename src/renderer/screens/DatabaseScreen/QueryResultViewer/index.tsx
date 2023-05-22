@@ -13,6 +13,7 @@ import generateSqlFromPlan from 'libs/GenerateSqlFromPlan';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { SqlProtectionLevel } from 'libs/SqlRunnerManager';
 import applyQueryResultChanges from 'libs/ApplyQueryResultChanges';
+import { TableCellManagerProvider } from './TableCellManager';
 
 function QueryResultBody({ result }: { result: QueryResult }) {
   const { changeCount, clearChange, collector } = useQueryResultChange();
@@ -38,19 +39,22 @@ function QueryResultBody({ result }: { result: QueryResult }) {
         runner
           .execute(SqlProtectionLevel.NeedConfirm, rawSql)
           .then(() => {
-            setCacheResult((prev) =>
-              applyQueryResultChanges(prev, collector.getChanges())
-            );
-            clearChange();
+            setCacheResult((prev) => {
+              const changes = collector.getChanges();
+              clearChange();
+              return applyQueryResultChanges(prev, changes);
+            });
           })
           .catch();
       }
     }
-  }, [collector, schema, currentDatabase, clearChange]);
+  }, [collector, schema, currentDatabase, clearChange, setCacheResult]);
 
   return (
     <div className={styles.result}>
-      <QueryResultTable result={cacheResult} />
+      <TableCellManagerProvider>
+        <QueryResultTable result={cacheResult} />
+      </TableCellManagerProvider>
       <div className={styles.footer}>
         <Button primary={!!changeCount} onClick={onCommit}>
           {changeCount ? `Commit (${changeCount})` : 'Commit'}

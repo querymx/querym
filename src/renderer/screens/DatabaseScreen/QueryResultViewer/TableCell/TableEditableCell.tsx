@@ -1,36 +1,58 @@
-import { useMemo, useState, useCallback } from 'react';
+import {
+  useMemo,
+  useState,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+  Ref,
+} from 'react';
 import styles from './styles.module.css';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 
-export interface TableEditableEditorProps<T> {
-  value: T;
-  onExit?: (discard: boolean, value: T) => void;
+export type TableEditableCellRef = Ref<{ discard: () => void }>;
+
+export interface TableEditableEditorProps {
+  value: unknown;
+  onExit?: (discard: boolean, value: unknown) => void;
 }
 
-export interface TableEditableContentProps<T> {
-  value: T;
+export interface TableEditableContentProps {
+  value: unknown;
 }
 
-interface TableEditableCellProps<T> {
-  diff: (prev: T, current: T) => boolean;
-  editor: React.FC<TableEditableEditorProps<T>>;
-  content: React.FC<TableEditableContentProps<T>>;
+interface TableEditableCellProps {
+  diff: (prev: unknown, current: unknown) => boolean;
+  editor: React.FC<TableEditableEditorProps>;
+  content: React.FC<TableEditableContentProps>;
   row: number;
   col: number;
-  value: T;
+  value: unknown;
 }
 
-export default function TableEditableCell<T>({
-  diff,
-  editor: Editor,
-  content: Content,
-  col,
-  row,
-  value,
-}: TableEditableCellProps<T>) {
+const TableEditableCell = forwardRef(function TableEditableCell(
+  {
+    diff,
+    editor: Editor,
+    content: Content,
+    col,
+    row,
+    value,
+  }: TableEditableCellProps,
+  ref: TableEditableCellRef
+) {
   const [afterValue, setAfterValue] = useState(value);
   const [onEditMode, setOnEditMode] = useState(false);
   const { setChange, removeChange } = useQueryResultChange();
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        discard: () => setAfterValue(value),
+      };
+    },
+    [setAfterValue, value]
+  );
 
   const hasChanged = useMemo(
     () => diff(afterValue, value),
@@ -44,7 +66,7 @@ export default function TableEditableCell<T>({
   }, [onEditMode, setOnEditMode]);
 
   const onExitEditMode = useCallback(
-    (discard: boolean, newValue: T) => {
+    (discard: boolean, newValue: unknown) => {
       setOnEditMode(false);
       if (!discard) {
         setAfterValue(newValue);
@@ -75,4 +97,6 @@ export default function TableEditableCell<T>({
       )}
     </div>
   );
-}
+});
+
+export default TableEditableCell;

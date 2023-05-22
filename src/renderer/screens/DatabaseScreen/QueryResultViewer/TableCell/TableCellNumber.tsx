@@ -1,21 +1,13 @@
 import styles from './styles.module.css';
 import { useState, useCallback } from 'react';
-import TableEditableCell, {
+import {
   TableEditableEditorProps,
   TableEditableContentProps,
 } from './TableEditableCell';
+import createTableCellType from './createTableCellType';
 
-interface TableCellNumberProps {
-  value: number;
-  row: number;
-  col: number;
-}
-
-function TableCellNumberEditor({
-  value,
-  onExit,
-}: TableEditableEditorProps<number>) {
-  const [editValue, setEditValue] = useState(value.toString());
+function TableCellNumberEditor({ value, onExit }: TableEditableEditorProps) {
+  const [editValue, setEditValue] = useState((value as number).toString());
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
@@ -40,27 +32,14 @@ function TableCellNumberEditor({
   );
 }
 
-function TableCellNumberContent({ value }: TableEditableContentProps<number>) {
-  return <div className={styles.content}>{value}</div>;
+function TableCellNumberContent({ value }: TableEditableContentProps) {
+  return <div className={styles.content}>{(value as number).toString()}</div>;
 }
 
-export default function TableCellNumber({
-  value,
-  row,
-  col,
-}: TableCellNumberProps) {
-  const diff = useCallback((prev: number, current: number) => {
-    return prev !== current;
-  }, []);
+const TableCellNumber = createTableCellType({
+  diff: (prev: number, current: number) => prev !== current,
+  content: TableCellNumberContent,
+  editor: TableCellNumberEditor,
+});
 
-  return (
-    <TableEditableCell
-      value={value}
-      diff={diff}
-      row={row}
-      col={col}
-      editor={TableCellNumberEditor}
-      content={TableCellNumberContent}
-    />
-  );
-}
+export default TableCellNumber;
