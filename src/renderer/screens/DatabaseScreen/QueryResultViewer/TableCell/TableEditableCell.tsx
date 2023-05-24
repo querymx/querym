@@ -27,6 +27,7 @@ interface TableEditableCellProps {
   row: number;
   col: number;
   value: unknown;
+  readOnly?: boolean;
 }
 
 const TableEditableCell = forwardRef(function TableEditableCell(
@@ -37,6 +38,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     col,
     row,
     value,
+    readOnly,
   }: TableEditableCellProps,
   ref: TableEditableCellRef
 ) {
@@ -60,10 +62,10 @@ const TableEditableCell = forwardRef(function TableEditableCell(
   );
 
   const onEnterEditMode = useCallback(() => {
-    if (!onEditMode) {
+    if (!onEditMode && !readOnly) {
       setOnEditMode(true);
     }
-  }, [onEditMode, setOnEditMode]);
+  }, [onEditMode, setOnEditMode, readOnly]);
 
   const onExitEditMode = useCallback(
     (discard: boolean, newValue: unknown) => {

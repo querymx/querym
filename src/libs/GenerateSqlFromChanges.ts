@@ -16,7 +16,7 @@ type UpdatableTableDict = Record<
  * @param schema
  * @returns
  */
-function getUpdatableTable(
+export function getUpdatableTable(
   headers: QueryResultHeader[],
   schema: DatabaseSchema
 ): UpdatableTableDict {

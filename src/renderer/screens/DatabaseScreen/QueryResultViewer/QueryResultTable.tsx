@@ -1,8 +1,10 @@
-import { QueryResult } from 'drivers/SQLLikeConnection';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import Icon from 'renderer/components/Icon';
+import { QueryResult } from 'types/SqlResult';
+import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
+import { useSchmea } from 'renderer/contexts/SchemaProvider';
 
 function ResizeHandler({ idx }: { idx: number }) {
   const handlerRef = useRef<HTMLDivElement>(null);
@@ -57,6 +59,14 @@ function ResizeHandler({ idx }: { idx: number }) {
 
 function QueryResultTable({ result }: { result?: QueryResult | null }) {
   const tableRef = useRef<HTMLTableElement>(null);
+  const { schema, currentDatabase } = useSchmea();
+
+  const updatableTables = useMemo(() => {
+    if (result?.headers && currentDatabase && schema) {
+      return getUpdatableTable(result?.headers, schema[currentDatabase]);
+    }
+    return {};
+  }, [result, schema, currentDatabase]);
 
   useEffect(() => {
     if (tableRef.current) {
@@ -98,6 +108,11 @@ function QueryResultTable({ result }: { result?: QueryResult | null }) {
                     header={result.headers[cellIdx]}
                     col={cellIdx}
                     row={idx}
+                    readOnly={
+                      !updatableTables[
+                        result.headers[cellIdx]?.schema?.table || ''
+                      ]
+                    }
                   />
                 </td>
               ))}

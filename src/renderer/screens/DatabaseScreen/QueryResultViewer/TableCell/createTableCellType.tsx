@@ -15,6 +15,7 @@ interface TableCellCustomTypeProps<T> {
   row: number;
   col: number;
   value: T;
+  readOnly?: boolean;
 }
 
 export default function createTableCellType<T>(
@@ -24,6 +25,7 @@ export default function createTableCellType<T>(
     row,
     col,
     value,
+    readOnly,
   }: TableCellCustomTypeProps<T>) {
     const ref = useRef(null);
     const { cellManager } = useTableCellManager();
@@ -42,6 +44,7 @@ export default function createTableCellType<T>(
         col={col}
         editor={options.editor}
         content={options.content}
+        readOnly={readOnly}
       />
     );
   };
