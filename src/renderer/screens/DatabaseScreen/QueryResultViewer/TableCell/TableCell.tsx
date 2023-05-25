@@ -2,6 +2,7 @@ import TableCellString from './TableCellString';
 import TableCellNumber from './TableCellNumber';
 import TableCellJson from './TableCellJson';
 import { QueryResultHeader } from 'types/SqlResult';
+import TableCellDecimal from './TableCellDecimal';
 
 interface TableCellProps {
   value: unknown;
@@ -29,6 +30,15 @@ export default function TableCell({
     );
   } else if (header.type.type === 'json') {
     return <TableCellJson value={value} />;
+  } else if (header.type.type === 'decimal') {
+    return (
+      <TableCellDecimal
+        value={value as string}
+        row={row}
+        col={col}
+        readOnly={readOnly}
+      />
+    );
   }
 
   return (

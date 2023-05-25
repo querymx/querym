@@ -59,6 +59,7 @@
     "@uiw/codemirror-theme-vscode": "^4.19.9",
     "@uiw/react-codemirror": "^4.19.9",
     "dbgate-query-splitter": "^4.9.3",
+    "decimal.js": "^10.4.3",
     "deep-equal": "^2.2.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",

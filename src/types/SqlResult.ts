@@ -1,5 +1,5 @@
 export interface QueryResultHeaderType {
-  type: 'string' | 'number' | 'json';
+  type: 'string' | 'number' | 'json' | 'decimal';
 }
 
 export interface QueryResultHeader {

@@ -37,8 +37,10 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
   // https://dev.mysql.com/doc/dev/mysql-server/latest/field__types_8h_source.html
   if (column.type === 245) {
     type = { type: 'json' };
-  } else if ([0, 1, 2, 3, 4, 5, 8, 9, 16, 246].includes(column.type)) {
+  } else if ([0, 1, 2, 3, 4, 5, 8, 9, 16].includes(column.type)) {
     type = { type: 'number' };
+  } else if ([0, 246].includes(column.type)) {
+    type = { type: 'decimal' };
   }
 
   return {
