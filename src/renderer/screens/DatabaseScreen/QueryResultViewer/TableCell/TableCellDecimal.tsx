@@ -7,7 +7,11 @@ import {
 import createTableCellType from './createTableCellType';
 import { Decimal } from 'decimal.js';
 
-function TableCellDecimalEditor({ value, onExit }: TableEditableEditorProps) {
+function TableCellDecimalEditor({
+  value,
+  onExit,
+  readOnly,
+}: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState(value);
 
   const onLostFocus = useCallback(() => {
@@ -23,6 +27,7 @@ function TableCellDecimalEditor({ value, onExit }: TableEditableEditorProps) {
           onLostFocus();
         }
       }}
+      readOnly={readOnly}
       autoFocus
       type="text"
       className={styles.input}
@@ -34,7 +39,11 @@ function TableCellDecimalEditor({ value, onExit }: TableEditableEditorProps) {
 }
 
 function TableCellDecimalContent({ value }: TableEditableContentProps) {
-  return <div className={styles.content}>{(value as number).toString()}</div>;
+  return (
+    <div className={`${styles.content} ${styles.number}`}>
+      {(value as number).toString()}
+    </div>
+  );
 }
 
 const TableCellDecimal = createTableCellType({

@@ -6,7 +6,11 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 
-function TableCellStringEditor({ value, onExit }: TableEditableEditorProps) {
+function TableCellStringEditor({
+  value,
+  onExit,
+  readOnly,
+}: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState(value);
 
   const onLostFocus = useCallback(() => {
@@ -24,6 +28,7 @@ function TableCellStringEditor({ value, onExit }: TableEditableEditorProps) {
       }}
       autoFocus
       type="text"
+      readOnly={readOnly}
       className={styles.input}
       onBlur={onLostFocus}
       onChange={(e) => setEditValue(e.currentTarget.value)}

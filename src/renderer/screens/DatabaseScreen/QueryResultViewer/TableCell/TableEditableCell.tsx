@@ -13,7 +13,8 @@ export type TableEditableCellRef = Ref<{ discard: () => void }>;
 
 export interface TableEditableEditorProps {
   value: unknown;
-  onExit?: (discard: boolean, value: unknown) => void;
+  readOnly?: boolean;
+  onExit: (discard: boolean, value: unknown) => void;
 }
 
 export interface TableEditableContentProps {
@@ -62,10 +63,10 @@ const TableEditableCell = forwardRef(function TableEditableCell(
   );
 
   const onEnterEditMode = useCallback(() => {
-    if (!onEditMode && !readOnly) {
+    if (!onEditMode) {
       setOnEditMode(true);
     }
-  }, [onEditMode, setOnEditMode, readOnly]);
+  }, [onEditMode, setOnEditMode]);
 
   const onExitEditMode = useCallback(
     (discard: boolean, newValue: unknown) => {
@@ -87,13 +88,17 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     <div
       className={
         hasChanged
-          ? `${styles.container} ${styles.number} ${styles.changed}`
-          : `${styles.container} ${styles.number}`
+          ? `${styles.container} ${styles.changed}`
+          : `${styles.container}`
       }
       onDoubleClick={onEnterEditMode}
     >
       {onEditMode ? (
-        <Editor value={afterValue} onExit={onExitEditMode} />
+        <Editor
+          value={afterValue}
+          onExit={onExitEditMode}
+          readOnly={readOnly}
+        />
       ) : (
         <Content value={afterValue} />
       )}

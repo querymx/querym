@@ -29,7 +29,14 @@ export default function TableCell({
       />
     );
   } else if (header.type.type === 'json') {
-    return <TableCellJson value={value} />;
+    return (
+      <TableCellJson
+        value={value as number}
+        row={row}
+        col={col}
+        readOnly={readOnly}
+      />
+    );
   } else if (header.type.type === 'decimal') {
     return (
       <TableCellDecimal

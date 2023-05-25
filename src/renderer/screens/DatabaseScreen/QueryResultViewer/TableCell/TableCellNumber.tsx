@@ -6,7 +6,11 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 
-function TableCellNumberEditor({ value, onExit }: TableEditableEditorProps) {
+function TableCellNumberEditor({
+  value,
+  onExit,
+  readOnly,
+}: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState((value as number).toString());
 
   const onLostFocus = useCallback(() => {
@@ -23,6 +27,7 @@ function TableCellNumberEditor({ value, onExit }: TableEditableEditorProps) {
         }
       }}
       autoFocus
+      readOnly={readOnly}
       type="text"
       className={styles.input}
       onBlur={onLostFocus}
@@ -33,7 +38,11 @@ function TableCellNumberEditor({ value, onExit }: TableEditableEditorProps) {
 }
 
 function TableCellNumberContent({ value }: TableEditableContentProps) {
-  return <div className={styles.content}>{(value as number).toString()}</div>;
+  return (
+    <div className={`${styles.content} ${styles.number}`}>
+      {(value as number).toString()}
+    </div>
+  );
 }
 
 const TableCellNumber = createTableCellType({
