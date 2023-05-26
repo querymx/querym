@@ -45,7 +45,7 @@ function QueryResultBody({ result }: { result: QueryResult }) {
               return applyQueryResultChanges(prev, changes);
             });
           })
-          .catch();
+          .catch(console.error);
       }
     }
   }, [collector, schema, currentDatabase, clearChange, setCacheResult]);

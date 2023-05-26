@@ -67,6 +67,7 @@ export default class MySQLConnection extends SQLLikeConnection {
     if (!this.connection) {
       this.connection = await createConnection({
         ...this.connectionConfig,
+        dateStrings: true,
         namedPlaceholders: true,
       });
     }
