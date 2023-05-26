@@ -1,5 +1,5 @@
 {
-  "name": "query-master",
+  "name": "querymaster",
   "description": "just another database graphical client",
   "version": "0.0.1",
   "keywords": [
@@ -145,8 +145,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "QueryMaster",
+    "appId": "com.invisal.querymaster",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -167,9 +167,11 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
+      "artifactName": "${name}-${version}-${platform}_${arch}.${ext}",
       "gatekeeperAssess": false
     },
     "dmg": {
+      "artifactName": "${name}-${version}-${platform}_${arch}.${ext}",
       "contents": [
         {
           "x": 130,
@@ -185,13 +187,15 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ]
     },
     "linux": {
       "target": [
         "AppImage"
       ],
+      "artifactName": "${name}-${version}-${platform}_${arch}.${ext}",
       "category": "Development"
     },
     "directories": {
