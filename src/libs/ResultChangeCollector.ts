@@ -3,11 +3,29 @@ export interface ResultChangeCollectorItem {
   cols: { col: number; value: unknown }[];
 }
 
+export type ResultChangeEventHandler = (count: number) => void;
+
 /**
  * Collect all the changes and arrange it in the friendly way
  */
 export default class ResultChangeCollector {
   protected changes: Record<string, Record<string, unknown>> = {};
+  protected onChangeListeners: ResultChangeEventHandler[] = [];
+
+  registerChange(cb: ResultChangeEventHandler) {
+    this.onChangeListeners.push(cb);
+  }
+
+  unregisterChange(cb: ResultChangeEventHandler) {
+    this.onChangeListeners = this.onChangeListeners.filter((cb2) => cb !== cb2);
+  }
+
+  protected triggerOnChange() {
+    for (const cb of this.onChangeListeners) {
+      const count = this.getChangesCount();
+      cb(count);
+    }
+  }
 
   remove(rowNumber: number, cellNumber: number) {
     if (this.changes[rowNumber]) {
@@ -16,6 +34,8 @@ export default class ResultChangeCollector {
         delete this.changes[rowNumber];
       }
     }
+
+    this.triggerOnChange();
   }
 
   add(rowNumber: number, cellNumber: number, value: unknown) {
@@ -24,10 +44,12 @@ export default class ResultChangeCollector {
     }
 
     this.changes[rowNumber][cellNumber] = value;
+    this.triggerOnChange();
   }
 
   clear() {
     this.changes = {};
+    this.triggerOnChange();
   }
 
   getChange(rowNumber: number, cellNumber: number) {

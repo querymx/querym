@@ -5,18 +5,15 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
 } from 'react';
 
 const QueryResultChangeContext = createContext<{
   setChange: (row: number, col: number, value: unknown) => void;
   removeChange: (row: number, col: number) => void;
-  changeCount: number;
   collector: ResultChangeCollector;
   clearChange: () => void;
 }>({
   collector: new ResultChangeCollector(),
-  changeCount: 0,
   setChange: () => {
     throw 'Not implemented';
   },
@@ -34,32 +31,28 @@ export function useQueryResultChange() {
 
 export function QueryResultChangeProvider({ children }: PropsWithChildren) {
   const collector = useMemo(() => new ResultChangeCollector(), []);
-  const [changeCount, setChangeCount] = useState(0);
 
   const setChange = useCallback(
     (row: number, col: number, value: unknown) => {
       collector.add(row, col, value);
-      setChangeCount(collector.getChangesCount());
     },
-    [collector, setChangeCount]
+    [collector]
   );
 
   const removeChange = useCallback(
     (row: number, col: number) => {
       collector.remove(row, col);
-      setChangeCount(collector.getChangesCount());
     },
-    [collector, setChangeCount]
+    [collector]
   );
 
   const clearChange = useCallback(() => {
     collector.clear();
-    setChangeCount(collector.getChangesCount());
-  }, [collector, setChangeCount]);
+  }, [collector]);
 
   return (
     <QueryResultChangeContext.Provider
-      value={{ changeCount, removeChange, setChange, collector, clearChange }}
+      value={{ removeChange, setChange, collector, clearChange }}
     >
       {children}
     </QueryResultChangeContext.Provider>

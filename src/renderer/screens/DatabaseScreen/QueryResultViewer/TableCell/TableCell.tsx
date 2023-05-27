@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import TableCellString from './TableCellString';
 import TableCellNumber from './TableCellNumber';
 import TableCellJson from './TableCellJson';
@@ -12,7 +13,7 @@ interface TableCellProps {
   readOnly?: boolean;
 }
 
-export default function TableCell({
+export default memo(function TableCell({
   value,
   header,
   row,
@@ -56,4 +57,4 @@ export default function TableCell({
       readOnly={readOnly}
     />
   );
-}
+});

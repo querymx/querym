@@ -60,9 +60,9 @@ function ResizeHandler({ idx }: { idx: number }) {
   );
 }
 
-function QueryResultTable({ result }: { result?: QueryResult | null }) {
+function QueryResultTable({ result }: { result: QueryResult }) {
   const tableRef = useRef<HTMLTableElement>(null);
-  const { changeCount, collector } = useQueryResultChange();
+  const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
   const { schema, currentDatabase } = useSchmea();
 
@@ -71,7 +71,7 @@ function QueryResultTable({ result }: { result?: QueryResult | null }) {
       {
         text: `Discard Changes`,
         destructive: true,
-        disabled: !changeCount,
+        disabled: !collector.getChangesCount(),
         onClick: () => {
           const rows = collector.getChanges();
           for (const row of rows) {
@@ -85,7 +85,7 @@ function QueryResultTable({ result }: { result?: QueryResult | null }) {
         },
       },
     ];
-  }, [changeCount, collector]);
+  }, [collector]);
 
   const updatableTables = useMemo(() => {
     if (result?.headers && currentDatabase && schema) {
