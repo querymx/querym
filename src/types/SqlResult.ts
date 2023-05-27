@@ -20,6 +20,9 @@ export interface QueryResult {
     affectedRows: number;
     changedRows: number;
   };
+  error: {
+    message: string;
+  } | null;
   keys: QueryResultPrimary;
   headers: QueryResultHeader[];
   rows: unknown[][];

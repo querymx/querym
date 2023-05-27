@@ -14,6 +14,7 @@ import { SqlProtectionLevel, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { splitQuery } from 'dbgate-query-splitter';
 import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import { useDialog } from 'renderer/contexts/DialogProvider';
 
 const theme = createTheme({
   theme: 'light',
@@ -49,6 +50,7 @@ export default function QueryWindow({
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const { runner } = useSqlExecute();
+  const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
   const { schema, currentDatabase } = useSchmea();
@@ -130,7 +132,11 @@ export default function QueryWindow({
         setResult(r);
         setQueryKeyCounter((prev) => prev + 1);
       })
-      .catch(console.error);
+      .catch((e) => {
+        if (e.message) {
+          showErrorDialog(e.message);
+        }
+      });
   }, [runner, setResult, code]);
 
   useEffect(() => {
@@ -143,7 +149,7 @@ export default function QueryWindow({
         })
         .catch(console.error);
     }
-  }, [runner, initialRun, setResult, initialSql]);
+  }, [runner, initialRun, setResult, initialSql, showErrorDialog]);
 
   return (
     <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>

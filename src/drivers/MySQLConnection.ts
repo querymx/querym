@@ -19,6 +19,10 @@ interface ColumnDefinition {
   flags: number;
 }
 
+interface MySQLError {
+  sqlMessage?: string;
+}
+
 function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
   // Document about MySQL header
   // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_text_resultset_column_definition.html
@@ -78,36 +82,49 @@ export default class MySQLConnection extends SQLLikeConnection {
     sql: string,
     params?: Record<string, unknown>
   ): Promise<QueryResult> {
-    const conn = await this.getConnection();
-    const result = await conn.query(sql, params);
+    try {
+      const conn = await this.getConnection();
+      const result = await conn.query(sql, params);
 
-    // If it is not array, it means
-    // it is not SELECT
-    if (!Array.isArray(result[0])) {
+      // If it is not array, it means
+      // it is not SELECT
+      if (!Array.isArray(result[0])) {
+        return {
+          resultHeader: {
+            affectedRows: result[0].affectedRows,
+            changedRows: result[0].changedRows || 0,
+          },
+          headers: [],
+          rows: [],
+          keys: {},
+          error: null,
+        };
+      }
+
+      const headers = (result[1] as unknown as ColumnDefinition[]).map(
+        mapHeaderType
+      );
+
+      const rows = (result[0] as RowDataPacket[]).map((row) =>
+        headers.map((header) => row[header.name])
+      );
+
       return {
-        resultHeader: {
-          affectedRows: result[0].affectedRows,
-          changedRows: result[0].changedRows || 0,
-        },
+        headers,
+        rows,
+        keys: {},
+        error: null,
+      };
+    } catch (e: unknown) {
+      return {
         headers: [],
         rows: [],
         keys: {},
+        error: {
+          message: (e as MySQLError).sqlMessage || (e as MySQLError).toString(),
+        },
       };
     }
-
-    const headers = (result[1] as unknown as ColumnDefinition[]).map(
-      mapHeaderType
-    );
-
-    const rows = (result[0] as RowDataPacket[]).map((row) =>
-      headers.map((header) => row[header.name])
-    );
-
-    return {
-      headers,
-      rows,
-      keys: {},
-    };
   }
 
   async close() {

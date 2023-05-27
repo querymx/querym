@@ -50,10 +50,19 @@ export class SqlRunnerManager {
         }
       }
 
-      result.push({
-        statement,
-        result: await this.executor(statement.sql, statement.params),
-      });
+      const returnedResult = await this.executor(
+        statement.sql,
+        statement.params
+      );
+
+      if (!returnedResult.error) {
+        result.push({
+          statement,
+          result: returnedResult,
+        });
+      } else {
+        throw returnedResult.error;
+      }
     }
 
     return result;
