@@ -9,10 +9,10 @@
       padding: 5px 10px;
       cursor: pointer;
       border-radius: 5px;
-      color: #555;
+      color: var(--color-text);
 
       &:hover {
-        background: #eee;
+        background: var(--color-surface-light);
       }
 
       span.icon {

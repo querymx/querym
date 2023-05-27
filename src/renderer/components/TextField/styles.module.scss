@@ -7,11 +7,11 @@
 
   .content {
     display: flex;
-    border: 2px solid #E8EAF0;
+    border: 2px solid var(--color-input-border);
     border-radius: 4px;
 
     &:focus-within {
-      border: 2px solid #1A64F4;
+      border: 2px solid var(--color-text-link);
 
       .action_icon {
         img {
@@ -34,13 +34,13 @@
     display: flex;
     align-items: center;
     padding: 0 5px;
-    background: #E8EAF0;
-    border: 4px solid #fff;
+    background: var(--color-input-border);
+    border: 4px solid var(--color-surface);
     border-radius: 8px;
     cursor: pointer;
 
     &:hover {
-      background: #1A64F4;
+      background: var(--color-text-link)
 
       img {
         filter: invert(1);

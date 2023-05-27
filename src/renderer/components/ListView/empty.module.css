@@ -1,5 +1,5 @@
 .empty {
-  color: #555;
+  color: var(--color-text-disabled);
   padding: 15px;
   display: flex;
   justify-content: center;

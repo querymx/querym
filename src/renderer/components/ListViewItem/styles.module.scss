@@ -6,7 +6,7 @@
 }
 
 .selected {
-  background: #E4E6F1;
+  background: var(--color-list-selected);
 }
 
 .changed {
@@ -15,7 +15,7 @@
 
 .hover {
   &:hover {
-    background: #E8E8E8
+    background: var(--color-list-hover)
   }
 }
 
@@ -41,7 +41,7 @@
 .depth {
   width: 15px;
   margin-left: 15px;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--color-list-line-guide);
   position: relative;
   flex-shrink: 0;
 
@@ -51,7 +51,7 @@
     position: absolute;
     top: 15px;
     height: 1px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-list-line-guide);
     width: 10px;
   }
 }

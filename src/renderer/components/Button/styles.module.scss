@@ -1,7 +1,7 @@
 .button {
   padding: 10px 20px;
   border: 0;
-  background: #ecf0f1;
+  background: var(--color-surface-light);
   cursor: pointer;
 
   border-radius: 4px;
@@ -28,11 +28,11 @@
 }
 
 .primary {
-  background: #1A64F4;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .destructive {
-  background: #e74c3c;
-  color: #fff;
+  background: var(--color-critical);
+  color: var(--color-primary-text);
 }

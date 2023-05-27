@@ -5,16 +5,3 @@
   user-select: none;
   overflow-x: hidden;
 }
-
-.treeViewItem {
-  padding: 5px 10px;
-  cursor: pointer;
-
-  &:hover {
-    background: #eee;
-  }
-
-  &.selected {
-    background: #f1c40f
-  }
-}

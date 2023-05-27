@@ -1,12 +1,12 @@
 .contextMenu {
   position: fixed;
-  background: #fff;
+  background: var(--color-surface);
   z-index: 90000;
 
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   padding: 3px;
   border-radius: 3px;;
-  border: 1px solid #aaa;
+  border: 1px solid var(--color-border);
 
   ul {
     list-style: none;
@@ -23,13 +23,13 @@
       }
 
       &:hover > span {
-        background: #eee;
+        background: var(--color-surface-hover);
       }
     }
 
     > li.disabled {
       > span { 
-      color: #555;
+        color: var(--color-text-disabled);
       }
 
       &:hover > span {
@@ -39,13 +39,13 @@
 
     > li.separator {
       > span {
-        border-bottom: 1px solid #aaa;
+        border-bottom: 1px solid var(--color-border);
       }
     }
 
     > li.destructive {
       > span {
-        color: #f00;
+        color: var(--color-critical);
       }
     }
   }

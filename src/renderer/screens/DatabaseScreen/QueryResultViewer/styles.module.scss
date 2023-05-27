@@ -53,8 +53,8 @@
   td, th {
     text-overflow: ellipsis;
     white-space: nowrap;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
+    border-bottom: 1px solid var(--color-table-grid);
+    border-right: 1px solid var(--color-table-grid);
   }
 
   td {
@@ -66,7 +66,7 @@
     position: sticky;
     top: 0;
     z-index: 5;
-    background: #fff;
+    background: var(--color-surface);
   }
 
   .handler {
@@ -76,7 +76,7 @@
     bottom: 0;
     width: 3px;
     cursor: col-resize;
-    background: #f00;
+    background: var(--color-critical);
     opacity: 0;
   }
 

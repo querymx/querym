@@ -1,5 +1,5 @@
 .sideMenu {
-  border-left: 2px solid #1A64F4;
+  border-left: 2px solid var(--color-text-link);
   margin-left: 20px;
   padding: 20px;
 
@@ -10,7 +10,7 @@
     li {
       cursor: pointer;
       margin-bottom: 5px;
-      color: #1A64F4;
+      color: var(--color-text-link);
 
       &:hover {
         text-decoration: underline;

@@ -14,7 +14,7 @@
 }
 
 .changed {
-  background: #f6e58d;
+  background: var(--color-table-change);
 }
 
 .focused {
@@ -39,12 +39,12 @@
 .code {
   font-family: CascadiaCode;
   font-weight: 300;
-  color: #95a5a6;
+  color: var(--color-table-cell-code);
 }
 
 .number {
   text-align: right;
-  color: #2980b9;
+  color: var(--color-table-cell-number);
 }
 
 .input {
