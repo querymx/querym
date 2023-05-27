@@ -1,11 +1,38 @@
 import { createContext, PropsWithChildren, useMemo, useContext } from 'react';
-import { TableEditableCellRef } from './TableCell/TableEditableCell';
+import { TableEditableCellHandler } from './TableCell/TableEditableCell';
 
 class TableCellManager {
-  protected cells: Record<string, Record<string, TableEditableCellRef | null>> =
-    {};
+  protected focused: [number, number] | null = null;
+  protected cells: Record<
+    string,
+    Record<string, TableEditableCellHandler | null>
+  > = {};
 
-  set(row: number, col: number, ref: TableEditableCellRef | null) {
+  setFocus(row: number, col: number) {
+    this.clearFocus();
+    this.focused = [row, col];
+
+    const cell = this.cells[row][col];
+    if (cell) {
+      cell.setFocus(true);
+    }
+  }
+
+  getFocus() {
+    return this.focused ? [...this.focused] : null;
+  }
+
+  clearFocus() {
+    if (this.focused) {
+      const cell = this.cells[this.focused[0]][this.focused[1]];
+      if (cell) {
+        cell.setFocus(false);
+      }
+    }
+    this.focused = null;
+  }
+
+  set(row: number, col: number, ref: TableEditableCellHandler | null) {
     if (this.cells[row]) {
       this.cells[row][col] = ref;
     } else {

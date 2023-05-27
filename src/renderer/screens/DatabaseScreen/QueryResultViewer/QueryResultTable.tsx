@@ -78,8 +78,7 @@ function QueryResultTable({ result }: { result?: QueryResult | null }) {
             for (const col of row.cols) {
               const cell = cellManager.get(row.row, col.col);
               if (cell) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (cell as any).discard();
+                cell.discard();
               }
             }
           }

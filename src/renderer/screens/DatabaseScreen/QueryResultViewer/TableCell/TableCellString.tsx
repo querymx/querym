@@ -26,6 +26,7 @@ function TableCellStringEditor({
           onLostFocus();
         }
       }}
+      spellCheck="false"
       autoFocus
       type="text"
       readOnly={readOnly}

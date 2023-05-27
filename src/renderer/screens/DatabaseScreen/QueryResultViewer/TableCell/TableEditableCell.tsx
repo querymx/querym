@@ -8,8 +8,12 @@ import {
 } from 'react';
 import styles from './styles.module.css';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
+import { useTableCellManager } from '../TableCellManager';
 
-export type TableEditableCellRef = Ref<{ discard: () => void }>;
+export interface TableEditableCellHandler {
+  discard: () => void;
+  setFocus: (focused: boolean) => void;
+}
 
 export interface TableEditableEditorProps {
   value: unknown;
@@ -41,10 +45,12 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     value,
     readOnly,
   }: TableEditableCellProps,
-  ref: TableEditableCellRef
+  ref: Ref<TableEditableCellHandler>
 ) {
   const [afterValue, setAfterValue] = useState(value);
   const [onEditMode, setOnEditMode] = useState(false);
+  const [onFocus, setFocus] = useState(false);
+  const { cellManager } = useTableCellManager();
   const { setChange, removeChange } = useQueryResultChange();
 
   useImperativeHandle(
@@ -55,9 +61,10 @@ const TableEditableCell = forwardRef(function TableEditableCell(
           setAfterValue(value);
           removeChange(row, col);
         },
+        setFocus,
       };
     },
-    [setAfterValue, value, row, col]
+    [setAfterValue, value, row, col, setFocus]
   );
 
   const hasChanged = useMemo(
@@ -70,6 +77,12 @@ const TableEditableCell = forwardRef(function TableEditableCell(
       setOnEditMode(true);
     }
   }, [onEditMode, setOnEditMode]);
+
+  const handleFocus = useCallback(() => {
+    if (!onFocus) {
+      cellManager.setFocus(row, col);
+    }
+  }, [setFocus, cellManager, onFocus, row, col]);
 
   const onExitEditMode = useCallback(
     (discard: boolean, newValue: unknown) => {
@@ -87,13 +100,18 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     [setOnEditMode, setAfterValue, diff, value]
   );
 
+  const className = [
+    styles.container,
+    hasChanged ? styles.changed : undefined,
+    onFocus ? styles.focused : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <div
-      className={
-        hasChanged
-          ? `${styles.container} ${styles.changed}`
-          : `${styles.container}`
-      }
+      className={className}
+      onClick={handleFocus}
       onDoubleClick={onEnterEditMode}
     >
       {onEditMode ? (
