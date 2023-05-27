@@ -29,7 +29,7 @@ function TableCellNumberEditor({
       autoFocus
       readOnly={readOnly}
       type="text"
-      className={styles.input}
+      className={`${styles.input} ${styles.number}`}
       onBlur={onLostFocus}
       onChange={(e) => setEditValue(e.currentTarget.value)}
       value={editValue}

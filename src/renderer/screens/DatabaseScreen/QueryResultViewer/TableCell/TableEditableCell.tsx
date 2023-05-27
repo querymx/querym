@@ -51,10 +51,13 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     ref,
     () => {
       return {
-        discard: () => setAfterValue(value),
+        discard: () => {
+          setAfterValue(value);
+          removeChange(row, col);
+        },
       };
     },
-    [setAfterValue, value]
+    [setAfterValue, value, row, col]
   );
 
   const hasChanged = useMemo(

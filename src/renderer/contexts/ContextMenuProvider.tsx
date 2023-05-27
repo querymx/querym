@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   useCallback,
-  useEffect,
 } from 'react';
 import ContextMenu, {
   ContextMenuItemProps,
@@ -32,13 +31,17 @@ export function useContextMenu(
   const createMenuCallback = useCallback(cb, deps);
   const { open, setMenuItem, handleContextMenu } = context;
 
-  useEffect(() => {
-    if (open) {
-      setMenuItem(createMenuCallback());
-    }
-  }, [setMenuItem, open, createMenuCallback]);
+  const handleContextMenuWithFreshData = useCallback(
+    (e: React.MouseEvent) => {
+      if (!open) {
+        setMenuItem(createMenuCallback());
+        handleContextMenu(e);
+      }
+    },
+    [createMenuCallback, setMenuItem, open, handleContextMenu]
+  );
 
-  return { handleContextMenu };
+  return { handleContextMenu: handleContextMenuWithFreshData };
 }
 
 export function ContextMenuProvider({ children }: PropsWithChildren) {

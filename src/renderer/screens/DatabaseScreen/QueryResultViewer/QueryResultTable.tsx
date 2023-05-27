@@ -5,6 +5,9 @@ import Icon from 'renderer/components/Icon';
 import { QueryResult } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
+import { useTableCellManager } from './TableCellManager';
 
 function ResizeHandler({ idx }: { idx: number }) {
   const handlerRef = useRef<HTMLDivElement>(null);
@@ -59,7 +62,31 @@ function ResizeHandler({ idx }: { idx: number }) {
 
 function QueryResultTable({ result }: { result?: QueryResult | null }) {
   const tableRef = useRef<HTMLTableElement>(null);
+  const { changeCount, collector } = useQueryResultChange();
+  const { cellManager } = useTableCellManager();
   const { schema, currentDatabase } = useSchmea();
+
+  const { handleContextMenu } = useContextMenu(() => {
+    return [
+      {
+        text: `Discard Changes`,
+        destructive: true,
+        disabled: !changeCount,
+        onClick: () => {
+          const rows = collector.getChanges();
+          for (const row of rows) {
+            for (const col of row.cols) {
+              const cell = cellManager.get(row.row, col.col);
+              if (cell) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (cell as any).discard();
+              }
+            }
+          }
+        },
+      },
+    ];
+  }, [changeCount, collector]);
 
   const updatableTables = useMemo(() => {
     if (result?.headers && currentDatabase && schema) {
@@ -80,7 +107,7 @@ function QueryResultTable({ result }: { result?: QueryResult | null }) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onContextMenu={handleContextMenu}>
       <table ref={tableRef} className={styles.table}>
         <thead>
           {result.headers.map((header, idx) => (
