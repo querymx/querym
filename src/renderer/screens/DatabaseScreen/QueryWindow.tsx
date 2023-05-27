@@ -142,7 +142,7 @@ export default function QueryWindow({
   useEffect(() => {
     if (initialRun && initialSql) {
       runner
-        .execute(SqlProtectionLevel.NeedConfirm, [{ sql: initialSql }])
+        .execute(SqlProtectionLevel.None, [{ sql: initialSql }])
         .then((r) => {
           setResult(r);
           setQueryKeyCounter((prev) => prev + 1);
