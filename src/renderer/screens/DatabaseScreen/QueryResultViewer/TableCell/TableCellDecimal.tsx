@@ -6,6 +6,7 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 import { Decimal } from 'decimal.js';
+import TableCellContent from './TableCellContent';
 
 function TableCellDecimalEditor({
   value,
@@ -39,11 +40,7 @@ function TableCellDecimalEditor({
 }
 
 function TableCellDecimalContent({ value }: TableEditableContentProps) {
-  return (
-    <div className={`${styles.content} ${styles.number}`}>
-      {(value as number).toString()}
-    </div>
-  );
+  return <TableCellContent right value={value} />;
 }
 
 const TableCellDecimal = createTableCellType({

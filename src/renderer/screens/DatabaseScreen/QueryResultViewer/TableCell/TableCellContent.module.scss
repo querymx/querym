@@ -1,0 +1,46 @@
+.wrap {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0px 10px;
+}
+
+.content {
+  flex-grow: 1;
+  line-height: 32px;
+}
+
+.badge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    padding: 2px 5px;
+    background: #3498db;
+    color: #fff;
+    margin-right: 5px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+}
+
+.mono {
+  font-family: CascadiaCode;
+  font-weight: 300;
+  color: var(--color-table-cell-code);
+}
+
+.null {
+  color: #27ae60;
+}
+
+.right {
+  text-align: right;
+}
+
+.number {
+  text-align: right;
+  color: var(--color-table-cell-number);
+}

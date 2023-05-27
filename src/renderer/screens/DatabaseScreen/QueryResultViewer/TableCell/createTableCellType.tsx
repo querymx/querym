@@ -9,6 +9,7 @@ interface TableCellCustomTypeOptions<T> {
   diff: (prev: T, current: T) => boolean;
   editor: React.FC<TableEditableEditorProps>;
   content: React.FC<TableEditableContentProps>;
+  detachEditor?: boolean;
 }
 
 interface TableCellCustomTypeProps<T> {
@@ -45,6 +46,7 @@ export default function createTableCellType<T>(
         editor={options.editor}
         content={options.content}
         readOnly={readOnly}
+        detactEditor={options.detachEditor}
       />
     );
   };

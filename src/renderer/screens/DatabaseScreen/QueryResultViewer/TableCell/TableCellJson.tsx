@@ -1,4 +1,3 @@
-import styles from './styles.module.css';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { useMemo, useState } from 'react';
@@ -10,8 +9,9 @@ import createTableCellType from './createTableCellType';
 import deepEqual from 'deep-equal';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
+import TableCellContent from './TableCellContent';
 
-function TableCellEditor({
+function TableCellJsonEditor({
   value,
   onExit,
   readOnly,
@@ -63,23 +63,22 @@ function TableCellEditor({
   );
 }
 
-function TableCellContent({ value }: TableEditableContentProps) {
+function TableCellJsonContent({ value }: TableEditableContentProps) {
   return (
-    <div className={styles.typedContainer}>
-      <div>
-        <div className={styles.badge}>json</div>
-      </div>
-      <div className={styles.code}>
-        {value ? JSON.stringify(value) : 'NULL'}
-      </div>
-    </div>
+    <TableCellContent
+      value={value}
+      badge="json"
+      mono
+      displayString={value ? JSON.stringify(value) : undefined}
+    />
   );
 }
 
 const TableCellJson = createTableCellType({
   diff: (prev: unknown, current: unknown) => !deepEqual(prev, current),
-  content: TableCellContent,
-  editor: TableCellEditor,
+  content: TableCellJsonContent,
+  editor: TableCellJsonEditor,
+  detachEditor: true,
 });
 
 export default TableCellJson;

@@ -5,6 +5,7 @@ import {
   TableEditableContentProps,
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
+import TableCellContent from './TableCellContent';
 
 function TableCellStringEditor({
   value,
@@ -39,7 +40,7 @@ function TableCellStringEditor({
 }
 
 function TableCellStringContent({ value }: TableEditableContentProps) {
-  return <div className={styles.content}>{(value as number).toString()}</div>;
+  return <TableCellContent value={value} />;
 }
 
 const TableCellString = createTableCellType({

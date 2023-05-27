@@ -28,6 +28,7 @@ export interface TableEditableContentProps {
 interface TableEditableCellProps {
   diff: (prev: unknown, current: unknown) => boolean;
   editor: React.FC<TableEditableEditorProps>;
+  detactEditor?: boolean;
   content: React.FC<TableEditableContentProps>;
   row: number;
   col: number;
@@ -38,6 +39,7 @@ interface TableEditableCellProps {
 const TableEditableCell = forwardRef(function TableEditableCell(
   {
     diff,
+    detactEditor,
     editor: Editor,
     content: Content,
     col,
@@ -115,11 +117,22 @@ const TableEditableCell = forwardRef(function TableEditableCell(
       onDoubleClick={onEnterEditMode}
     >
       {onEditMode ? (
-        <Editor
-          value={afterValue}
-          onExit={onExitEditMode}
-          readOnly={readOnly}
-        />
+        detactEditor ? (
+          <>
+            <Editor
+              value={afterValue}
+              onExit={onExitEditMode}
+              readOnly={readOnly}
+            />
+            <Content value={afterValue} />
+          </>
+        ) : (
+          <Editor
+            value={afterValue}
+            onExit={onExitEditMode}
+            readOnly={readOnly}
+          />
+        )
       ) : (
         <Content value={afterValue} />
       )}
