@@ -1,4 +1,4 @@
-import { DatabaseSchemas } from 'drivers/SQLLikeConnection';
+import { DatabaseSchemas } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 
 export default class NotImplementCommonInterface extends SQLCommonInterface {

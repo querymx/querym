@@ -55,7 +55,7 @@ export class SqlRunnerManager {
         statement.params
       );
 
-      if (!returnedResult.error) {
+      if (!returnedResult?.error) {
         result.push({
           statement,
           result: returnedResult,

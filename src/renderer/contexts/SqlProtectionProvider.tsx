@@ -3,10 +3,10 @@ import { useSqlExecute } from './SqlExecuteProvider';
 import {
   BeforeAllEventCallback,
   SqlProtectionLevel,
-  SqlStatement,
 } from 'libs/SqlRunnerManager';
 import Modal from 'renderer/components/Modal';
 import Button from 'renderer/components/Button';
+import { SqlStatement } from 'types/SqlStatement';
 
 export default function SqlProtectionProvider({ children }: PropsWithChildren) {
   const { runner } = useSqlExecute();

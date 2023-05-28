@@ -22,6 +22,7 @@ test('Generate Sql from changes with primary key', () => {
 
   const data: QueryResult = {
     keys: {},
+    error: null,
     headers: [
       {
         name: 'id',
