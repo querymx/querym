@@ -7,7 +7,7 @@
 /* --------------------------------
   Color Variables
 ----------------------------------- */
-:root {
+body {
   --color-surface: #fff;
   --color-surface-hover: #eee;
 
@@ -39,6 +39,46 @@
 
   --color-table-cell-number: #2980b9;
   --color-table-cell-code: #95a5a6;
+
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+body.dark {
+  --color-surface: #1f1f1f;
+  --color-surface-hover: #eee;
+
+  --color-border: #aaa;
+
+  --color-text: #fff;
+  --color-text-link: #1a64f4;
+  --color-text-disabled: #555;
+
+  /* For Button */
+  --color-surface-light: #ecf0f1;
+  --color-primary: #1a64f4;
+  --color-primary-text: #fff;
+
+  --color-critical: #e74c3c;
+
+  /* Input */
+  --color-input-border: #2a2d2e;
+
+  /* For Side List */
+  --color-list-surface: #181818;
+  --color-list-hover: #2a2d2e;
+  --color-list-selected: #37373d;
+  --color-list-line-guide: #555;
+
+  /* For Table */
+  --color-table-grid: #333;
+  --color-table-change: #f6e58d;
+
+  --color-table-cell-number: #2980b9;
+  --color-table-cell-code: #95a5a6;
+
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 @font-face {

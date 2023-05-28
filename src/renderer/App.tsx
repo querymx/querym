@@ -6,23 +6,26 @@ import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
 import { SqlExecuteProvider } from './contexts/SqlExecuteProvider';
 import { ContextMenuProvider } from './contexts/ContextMenuProvider';
 import { DialogProvider } from './contexts/DialogProvider';
+import ThemeProvider from './contexts/ThemeProvider';
 
 export default function App() {
   const [config, setConfig] = useState<ConnectionStoreItem | undefined>();
 
   return (
-    <ContextMenuProvider>
-      <DialogProvider>
-        <SqlExecuteProvider>
-          <div style={{ width: '100vw', height: '100vh' }}>
-            {config ? (
-              <DatabaseScreen config={config} />
-            ) : (
-              <HomeScreen onNavigateToDatabaseConfig={setConfig} />
-            )}
-          </div>
-        </SqlExecuteProvider>
-      </DialogProvider>
-    </ContextMenuProvider>
+    <ThemeProvider defaultTheme="dark">
+      <ContextMenuProvider>
+        <DialogProvider>
+          <SqlExecuteProvider>
+            <div style={{ width: '100vw', height: '100vh' }}>
+              {config ? (
+                <DatabaseScreen config={config} />
+              ) : (
+                <HomeScreen onNavigateToDatabaseConfig={setConfig} />
+              )}
+            </div>
+          </SqlExecuteProvider>
+        </DialogProvider>
+      </ContextMenuProvider>
+    </ThemeProvider>
   );
 }
