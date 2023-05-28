@@ -33,6 +33,7 @@ export default function createTableCellType<T>(
 
     useEffect(() => {
       cellManager.set(row, col, ref?.current || null);
+      return () => cellManager.set(row, col, null);
     }, [ref, cellManager, row, col]);
 
     return (

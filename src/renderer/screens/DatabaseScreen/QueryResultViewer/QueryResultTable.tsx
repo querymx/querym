@@ -9,6 +9,12 @@ import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from './TableCellManager';
 
+interface QueryResultTableProps {
+  result: QueryResult;
+  page: number;
+  pageSize: number;
+}
+
 function ResizeHandler({ idx }: { idx: number }) {
   const handlerRef = useRef<HTMLDivElement>(null);
   const [resizing, setResizing] = useState(false);
@@ -60,7 +66,7 @@ function ResizeHandler({ idx }: { idx: number }) {
   );
 }
 
-function QueryResultTable({ result }: { result: QueryResult }) {
+function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   const tableRef = useRef<HTMLTableElement>(null);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
@@ -105,6 +111,35 @@ function QueryResultTable({ result }: { result: QueryResult }) {
     return <div>No result</div>;
   }
 
+  const RowList = useMemo(() => {
+    const list = [];
+    const start = page * pageSize;
+    const end = Math.min(result.rows.length, start + pageSize);
+
+    for (let i = start; i < end; i++) {
+      const row = result.rows[i];
+      list.push(
+        <tr key={i}>
+          {row.map((cell, cellIdx) => (
+            <td key={cellIdx}>
+              <TableCell
+                value={cell}
+                header={result.headers[cellIdx]}
+                col={cellIdx}
+                row={i}
+                readOnly={
+                  !updatableTables[result.headers[cellIdx]?.schema?.table || '']
+                }
+              />
+            </td>
+          ))}
+        </tr>
+      );
+    }
+
+    return list;
+  }, [result, page, pageSize]);
+
   return (
     <div className={styles.container} onContextMenu={handleContextMenu}>
       <table ref={tableRef} className={styles.table}>
@@ -124,27 +159,7 @@ function QueryResultTable({ result }: { result: QueryResult }) {
           ))}
         </thead>
 
-        <tbody>
-          {result.rows.map((row, idx) => (
-            <tr key={idx}>
-              {row.map((cell, cellIdx) => (
-                <td key={cellIdx}>
-                  <TableCell
-                    value={cell}
-                    header={result.headers[cellIdx]}
-                    col={cellIdx}
-                    row={idx}
-                    readOnly={
-                      !updatableTables[
-                        result.headers[cellIdx]?.schema?.table || ''
-                      ]
-                    }
-                  />
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
+        <tbody>{RowList}</tbody>
       </table>
     </div>
   );

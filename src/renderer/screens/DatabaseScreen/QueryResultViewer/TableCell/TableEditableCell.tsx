@@ -49,11 +49,13 @@ const TableEditableCell = forwardRef(function TableEditableCell(
   }: TableEditableCellProps,
   ref: Ref<TableEditableCellHandler>
 ) {
-  const [afterValue, setAfterValue] = useState(value);
+  const { cellManager } = useTableCellManager();
+  const { setChange, removeChange, collector } = useQueryResultChange();
+  const [afterValue, setAfterValue] = useState(
+    collector.getChange(row, col, value)
+  );
   const [onEditMode, setOnEditMode] = useState(false);
   const [onFocus, setFocus] = useState(false);
-  const { cellManager } = useTableCellManager();
-  const { setChange, removeChange } = useQueryResultChange();
 
   useImperativeHandle(
     ref,

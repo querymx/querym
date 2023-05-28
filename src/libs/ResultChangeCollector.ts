@@ -52,11 +52,17 @@ export default class ResultChangeCollector {
     this.triggerOnChange();
   }
 
-  getChange(rowNumber: number, cellNumber: number) {
-    if (this.changes[rowNumber]) {
-      return this.changes[rowNumber][cellNumber];
+  getChange<T>(
+    rowNumber: number,
+    cellNumber: number,
+    defaultValue: T | undefined | null = undefined
+  ) {
+    if (this.changes[rowNumber] !== undefined) {
+      if (this.changes[rowNumber][cellNumber] !== undefined) {
+        return this.changes[rowNumber][cellNumber];
+      }
     }
-    return undefined;
+    return defaultValue;
   }
 
   getChangesCount() {

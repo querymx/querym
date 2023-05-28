@@ -13,16 +13,25 @@ import styles from './styles.module.scss';
 interface QueryResultActionProps {
   result: QueryResult;
   onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  page: number;
+  pageSize: number;
+  onPageChange: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function QueryResultAction({
   result,
   onResultChange,
+  page,
+  pageSize,
+  onPageChange,
 }: QueryResultActionProps) {
   const [changeCount, setChangeCount] = useState(0);
   const { clearChange, collector } = useQueryResultChange();
   const { schema, currentDatabase } = useSchmea();
   const { runner } = useSqlExecute();
+
+  const rowStart = page * pageSize;
+  const rowEnd = Math.min(result.rows.length, rowStart + pageSize);
 
   useEffect(() => {
     const cb = (count: number) => {
@@ -64,9 +73,31 @@ export default function QueryResultAction({
 
   return (
     <div className={styles.footer}>
-      <Button primary={!!changeCount} onClick={onCommit}>
-        {changeCount ? `Commit (${changeCount})` : 'Commit'}
-      </Button>
+      <div className={styles.footerAction}>
+        <Button primary={!!changeCount} onClick={onCommit}>
+          {changeCount ? `Commit (${changeCount})` : 'Commit'}
+        </Button>
+      </div>
+
+      <div className={styles.footerPage}>
+        <Button
+          disabled={page === 0}
+          primary
+          onClick={() => onPageChange(page - 1)}
+        >
+          Prev
+        </Button>
+        <div>
+          &nbsp;&nbsp;{rowStart}-{rowEnd} / {result.rows.length}&nbsp;&nbsp;
+        </div>
+        <Button
+          primary
+          disabled={rowStart + pageSize >= result.rows.length}
+          onClick={() => onPageChange(page + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }

@@ -8,6 +8,17 @@
 .footer {
   border-top: 1px solid #eee;
   padding: 10px 15px;
+  display: flex;
+}
+
+.footerPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footerAction {
+  flex-grow: 1;
 }
 
 .container {

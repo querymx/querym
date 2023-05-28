@@ -8,13 +8,22 @@ import QueryResultAction from './QueryResultAction';
 
 function QueryResultViewer({ result }: { result: QueryResult }) {
   const [cacheResult, setCacheResult] = useState(result);
+  const [page, setPage] = useState(0);
+  const pageSize = 100;
 
   return (
     <QueryResultChangeProvider>
       <div className={styles.result}>
         <TableCellManagerProvider>
-          <QueryResultTable result={cacheResult} />
+          <QueryResultTable
+            result={cacheResult}
+            page={page}
+            pageSize={pageSize}
+          />
           <QueryResultAction
+            page={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
             result={cacheResult}
             onResultChange={setCacheResult}
           />
