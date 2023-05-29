@@ -71,10 +71,7 @@ const createWindow = async () => {
     },
   });
 
-  // Disable all menu in production
-  if (process.env.NODE_ENV !== 'development') {
-    mainWindow.setMenu(null);
-  }
+  mainWindow.setMenu(null);
 
   otherIpcHandler.attachWindow(mainWindow);
 

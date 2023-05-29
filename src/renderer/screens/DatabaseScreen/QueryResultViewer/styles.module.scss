@@ -3,6 +3,8 @@
   white-space: nowrap;
   display: flex;
   flex-direction: column;
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .footer {

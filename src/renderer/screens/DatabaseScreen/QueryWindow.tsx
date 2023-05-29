@@ -1,7 +1,4 @@
-import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
-import { sql } from '@codemirror/lang-sql';
-import { tags as t } from '@lezer/highlight';
-import { createTheme } from '@uiw/codemirror-themes';
+import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -15,29 +12,7 @@ import { splitQuery } from 'dbgate-query-splitter';
 import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useDialog } from 'renderer/contexts/DialogProvider';
-
-const theme = createTheme({
-  theme: 'light',
-  settings: {
-    background: '#ffffff',
-    foreground: '#000',
-    caret: '#AEAFAD',
-    selection: '#f1c40f',
-    selectionMatch: '#f1c40f',
-    gutterBackground: '#FFFFFF',
-    gutterForeground: '#4D4D4C',
-    gutterBorder: '#fff',
-    gutterActiveForeground: '#000',
-  },
-  styles: [
-    { tag: t.keyword, color: '#2980b9' },
-    { tag: t.comment, color: '#27ae60' },
-    { tag: t.definition(t.typeName), color: '#27ae60' },
-    { tag: t.typeName, color: '#194a7b' },
-    { tag: t.tagName, color: '#008a02' },
-    { tag: t.variableName, color: '#1a00db' },
-  ],
-});
+import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -165,19 +140,14 @@ export default function QueryWindow({
         </div>
 
         <div className={styles.queryEditor}>
-          <CodeMirror
+          <SqlCodeEditor
             ref={editorRef}
             onContextMenu={handleContextMenu}
             style={{ fontSize: 20, height: '100%' }}
             value={code}
             onChange={(newCode) => setCode(newCode)}
             height="100%"
-            theme={theme}
-            extensions={[
-              sql({
-                schema: codeMirrorSchema,
-              }),
-            ]}
+            schema={codeMirrorSchema}
           />
         </div>
       </div>

@@ -6,9 +6,14 @@ import {
   ipcRenderer,
   IpcRendererEvent,
   MessageBoxSyncOptions,
+  MenuItemConstructorOptions,
 } from 'electron';
 
 export type Channels = 'ipc-example' | 'create-connection';
+
+let cacheHandleMenuClickCb:
+  | ((event: IpcRendererEvent, id: string) => void)
+  | null = null;
 
 const electronHandler = {
   ipcRenderer: {
@@ -45,6 +50,19 @@ const electronHandler = {
 
   showMessageBox: (options: MessageBoxSyncOptions) =>
     ipcRenderer.invoke('show-message-box', [options]),
+
+  setNativeMenu: (options: MenuItemConstructorOptions[]) =>
+    ipcRenderer.invoke('set-menu', [options]),
+
+  handleMenuClick: (
+    callback: (event: IpcRendererEvent, id: string) => void
+  ) => {
+    if (cacheHandleMenuClickCb) {
+      ipcRenderer.off('native-menu-click', cacheHandleMenuClickCb);
+    }
+    cacheHandleMenuClickCb = callback;
+    return ipcRenderer.on('native-menu-click', callback);
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
