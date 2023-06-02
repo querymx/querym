@@ -141,7 +141,10 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   }, [result, page, pageSize]);
 
   return (
-    <div className={styles.container} onContextMenu={handleContextMenu}>
+    <div
+      className={`${styles.container} scroll`}
+      onContextMenu={handleContextMenu}
+    >
       <table ref={tableRef} className={styles.table}>
         <thead>
           {result.headers.map((header, idx) => (
