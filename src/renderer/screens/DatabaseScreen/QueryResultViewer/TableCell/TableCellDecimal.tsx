@@ -45,9 +45,12 @@ function TableCellDecimalContent({ value }: TableEditableContentProps) {
 
 const TableCellDecimal = createTableCellType({
   diff: (prev: string, current: string) => {
-    const dprev = new Decimal(prev);
-    const dcur = new Decimal(current);
-    return !dprev.eq(dcur);
+    if (prev && current) {
+      const dprev = new Decimal(prev);
+      const dcur = new Decimal(current);
+      return !dprev.eq(dcur);
+    }
+    return prev === current;
   },
   content: TableCellDecimalContent,
   editor: TableCellDecimalEditor,
