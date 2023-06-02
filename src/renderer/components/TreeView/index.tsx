@@ -112,7 +112,7 @@ export default function TreeView<T>({
   onDoubleClick,
 }: TreeViewProps<T>) {
   return (
-    <div className={styles.treeView}>
+    <div className={`${styles.treeView} scroll`}>
       {items.map((item) => {
         return (
           <TreeViewItem
