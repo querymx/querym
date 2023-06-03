@@ -11,6 +11,7 @@ body {
   --color-surface: #fff;
   --color-surface-hover: #eee;
 
+  --color-shadow: rgba(0, 0, 0, 0.25);
   --color-border: #aaa;
 
   --color-text: #000;
@@ -45,6 +46,10 @@ body {
   --color-scrollbar-track: #0001;
   --color-scrollbar-hover: #0005;
 
+  /* Splitter */
+  --color-splitter: #eee;
+  --color-splitter-hover: #f39c12;
+
   background: var(--color-surface);
   color: var(--color-text);
 }
@@ -53,6 +58,7 @@ body.dark {
   --color-surface: #1f1f1f;
   --color-surface-hover: #eee;
 
+  --color-shadow: rgba(255, 255, 255, 0.55);
   --color-border: #aaa;
 
   --color-text: #fff;
@@ -86,6 +92,10 @@ body.dark {
   --color-scrollbar-track: #fff1;
   --color-scrollbar: #fff1;
   --color-scrollbar-hover: #fff3;
+
+  /* Splitter */
+  --color-splitter: #444;
+  --color-splitter-hover: #f39c12;
 
   background: var(--color-surface);
   color: var(--color-text);

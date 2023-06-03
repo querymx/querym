@@ -37,8 +37,6 @@ export default function useNativeMenu(
       }
     });
 
-    console.log(menuWithoutEvent);
-
     window.electron.setNativeMenu(menuWithoutEvent);
   }, [menuItems]);
 }

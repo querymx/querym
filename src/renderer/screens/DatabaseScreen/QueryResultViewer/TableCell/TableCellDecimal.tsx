@@ -50,7 +50,7 @@ const TableCellDecimal = createTableCellType({
       const dcur = new Decimal(current);
       return !dprev.eq(dcur);
     }
-    return prev === current;
+    return prev !== current;
   },
   content: TableCellDecimalContent,
   editor: TableCellDecimalEditor,

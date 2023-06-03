@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
+import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
@@ -33,6 +34,8 @@ export default function ListViewItem({
   collapsed,
   onCollapsedClick,
 }: ListViewItemProps) {
+  const { theme } = useAppFeature();
+
   return (
     <div
       className={[
@@ -54,11 +57,21 @@ export default function ListViewItem({
           ))}
       {hasCollapsed &&
         (collapsed ? (
-          <div className={styles.icon} onClick={onCollapsedClick}>
+          <div
+            className={
+              theme === 'dark' ? `${styles.icon} ${styles.dark}` : styles.icon
+            }
+            onClick={onCollapsedClick}
+          >
             <Icon.Down />
           </div>
         ) : (
-          <div className={styles.icon} onClick={onCollapsedClick}>
+          <div
+            className={
+              theme === 'dark' ? `${styles.icon} ${styles.dark}` : styles.icon
+            }
+            onClick={onCollapsedClick}
+          >
             <Icon.Right />
           </div>
         ))}

@@ -19,6 +19,7 @@ import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import WelcomeScreen from './WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import { ConfigurationFileFormat } from 'types/FileFormatType';
 
 interface HomeScreenProps {
   onNavigateToDatabaseConfig: (config: ConnectionStoreItem) => void;
@@ -36,7 +37,11 @@ export default function HomeScreen({
     useState<ConnectionStoreItem>();
 
   useEffect(() => {
-    window.electron.loadConnectionConfig().then(setConnectionList);
+    window.electron
+      .loadConnectionConfig()
+      .then((config: ConfigurationFileFormat) => {
+        setConnectionList(JSON.parse(config.config));
+      });
   }, []);
 
   // Save on every change except the save loading

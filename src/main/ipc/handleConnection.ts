@@ -4,7 +4,8 @@ import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from './../../drivers/SQLLikeConnection';
 import fs from 'fs';
-import { ipcMain } from 'electron';
+import { ipcMain, safeStorage } from 'electron';
+import { ConfigurationFileFormat } from 'types/FileFormatType';
 
 export default class ConnectionIpcHandler {
   protected connection: SQLLikeConnection | undefined;
@@ -12,12 +13,33 @@ export default class ConnectionIpcHandler {
   register() {
     ipcMain.handle(
       'load-connection-config',
-      async (): Promise<ConnectionStoreItem[]> => {
+      async (): Promise<ConfigurationFileFormat> => {
         try {
-          return JSON.parse(fs.readFileSync('./connections.json', 'utf8'));
-        } catch {
-          return [];
+          const json: ConfigurationFileFormat = JSON.parse(
+            fs.readFileSync('./connections.json', 'utf8')
+          );
+
+          if (json.encrypted) {
+            return {
+              ...json,
+              config: safeStorage.decryptString(
+                Buffer.from(json.config, 'base64')
+              ),
+            };
+          }
+        } catch (ee) {
+          return {
+            version: 1,
+            encrypted: safeStorage.isEncryptionAvailable(),
+            config: '[]',
+          };
         }
+
+        return {
+          version: 1,
+          encrypted: safeStorage.isEncryptionAvailable(),
+          config: '[]',
+        };
       }
     );
 
@@ -26,7 +48,19 @@ export default class ConnectionIpcHandler {
       async (_, [configs]: [ConnectionStoreItem[]]): Promise<void> => {
         fs.writeFileSync(
           './connections.json',
-          JSON.stringify(configs, undefined, 2)
+          JSON.stringify(
+            {
+              version: 1,
+              encrypted: safeStorage.isEncryptionAvailable(),
+              config: safeStorage.isEncryptionAvailable()
+                ? safeStorage
+                    .encryptString(JSON.stringify(configs))
+                    .toString('base64')
+                : JSON.stringify,
+            },
+            undefined,
+            2
+          )
         );
       }
     );

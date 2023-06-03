@@ -38,6 +38,12 @@
   }
 }
 
+.icon.dark {
+  img {
+    filter: invert(1);
+  }
+}
+
 .depth {
   width: 15px;
   margin-left: 15px;

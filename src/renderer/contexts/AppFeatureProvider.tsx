@@ -6,25 +6,34 @@ import {
   useContext,
 } from 'react';
 
-const ThemeContext = createContext<{
+const AppFeatureContext = createContext<{
   theme: 'dark' | 'light';
+  enableDebug: boolean;
+
   setTheme: (theme: 'dark' | 'light') => void;
+  setEnableDebug: (value: boolean) => void;
 }>({
   theme: 'light',
+  enableDebug: false,
+
   setTheme: () => {
+    throw 'Not implemented';
+  },
+  setEnableDebug: () => {
     throw 'Not implemented';
   },
 });
 
-export function useTheme() {
-  return useContext(ThemeContext);
+export function useAppFeature() {
+  return useContext(AppFeatureContext);
 }
 
-export default function ThemeProvider({
+export default function AppFeatureProvider({
   children,
   defaultTheme,
 }: PropsWithChildren<{ defaultTheme?: 'dark' | 'light' }>) {
   const [theme, setTheme] = useState<'dark' | 'light'>(defaultTheme || 'light');
+  const [enableDebug, setEnableDebug] = useState(false);
 
   useEffect(() => {
     if (theme === 'light') {
@@ -37,8 +46,10 @@ export default function ThemeProvider({
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <AppFeatureContext.Provider
+      value={{ theme, enableDebug, setTheme, setEnableDebug }}
+    >
       {children}
-    </ThemeContext.Provider>
+    </AppFeatureContext.Provider>
   );
 }

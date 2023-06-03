@@ -1,10 +1,10 @@
 import { tags as t } from '@lezer/highlight';
 import { createTheme } from '@uiw/codemirror-themes';
-import { useTheme } from 'renderer/contexts/ThemeProvider';
+import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useMemo } from 'react';
 
 export default function useCodeEditorTheme() {
-  const { theme } = useTheme();
+  const { theme } = useAppFeature();
 
   return useMemo(() => {
     if (theme === 'light') {

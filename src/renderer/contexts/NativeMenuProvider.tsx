@@ -1,9 +1,9 @@
 import { PropsWithChildren } from 'react';
 import useNativeMenu from 'renderer/hooks/useNativeMenu';
-import { useTheme } from './ThemeProvider';
+import { useAppFeature } from './AppFeatureProvider';
 
 export default function NativeMenuProvider({ children }: PropsWithChildren) {
-  const { theme, setTheme } = useTheme();
+  const { theme, enableDebug, setTheme, setEnableDebug } = useAppFeature();
 
   useNativeMenu(
     () => [
@@ -37,10 +37,20 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
               setTheme('light');
             },
           },
+          {
+            type: 'separator',
+          },
+          {
+            label: enableDebug ? 'Stop SQL Debugger' : 'Start SQL Debugger',
+            id: 'enable-debug',
+            click: () => {
+              setEnableDebug(!enableDebug);
+            },
+          },
         ],
       },
     ],
-    [theme, setTheme]
+    [theme, enableDebug, setTheme, setEnableDebug]
   );
 
   return <>{children}</>;

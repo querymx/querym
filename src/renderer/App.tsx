@@ -6,14 +6,14 @@ import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
 import { SqlExecuteProvider } from './contexts/SqlExecuteProvider';
 import { ContextMenuProvider } from './contexts/ContextMenuProvider';
 import { DialogProvider } from './contexts/DialogProvider';
-import ThemeProvider from './contexts/ThemeProvider';
+import AppFeatureContext from './contexts/AppFeatureProvider';
 import NativeMenuProvider from './contexts/NativeMenuProvider';
 
 export default function App() {
   const [config, setConfig] = useState<ConnectionStoreItem | undefined>();
 
   return (
-    <ThemeProvider>
+    <AppFeatureContext>
       <ContextMenuProvider>
         <DialogProvider>
           <NativeMenuProvider>
@@ -29,6 +29,6 @@ export default function App() {
           </NativeMenuProvider>
         </DialogProvider>
       </ContextMenuProvider>
-    </ThemeProvider>
+    </AppFeatureContext>
   );
 }
