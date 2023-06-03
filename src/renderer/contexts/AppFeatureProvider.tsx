@@ -5,6 +5,7 @@ import {
   useState,
   useContext,
 } from 'react';
+import { useAppConfig } from './AppConfigProvider';
 
 const AppFeatureContext = createContext<{
   theme: 'dark' | 'light';
@@ -32,8 +33,11 @@ export default function AppFeatureProvider({
   children,
   defaultTheme,
 }: PropsWithChildren<{ defaultTheme?: 'dark' | 'light' }>) {
-  const [theme, setTheme] = useState<'dark' | 'light'>(defaultTheme || 'light');
-  const [enableDebug, setEnableDebug] = useState(false);
+  const { config, saveConfig } = useAppConfig();
+  const [theme, setTheme] = useState<'dark' | 'light'>(
+    config?.theme || defaultTheme || 'light'
+  );
+  const [enableDebug, setEnableDebug] = useState(config.debug || false);
 
   useEffect(() => {
     if (theme === 'light') {
@@ -44,6 +48,13 @@ export default function AppFeatureProvider({
       body.classList.add('dark');
     }
   }, [theme]);
+
+  useEffect(() => {
+    saveConfig({
+      theme,
+      debug: enableDebug,
+    });
+  }, [saveConfig, enableDebug, theme]);
 
   return (
     <AppFeatureContext.Provider

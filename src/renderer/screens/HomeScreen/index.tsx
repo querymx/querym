@@ -19,7 +19,7 @@ import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import WelcomeScreen from './WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
-import { ConfigurationFileFormat } from 'types/FileFormatType';
+import { useAppConfig } from 'renderer/contexts/AppConfigProvider';
 
 interface HomeScreenProps {
   onNavigateToDatabaseConfig: (config: ConnectionStoreItem) => void;
@@ -28,26 +28,22 @@ interface HomeScreenProps {
 export default function HomeScreen({
   onNavigateToDatabaseConfig,
 }: HomeScreenProps) {
+  const { config, saveConfig } = useAppConfig();
+
   const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
-    []
+    JSON.parse(config.config)
   );
   const [firstChange, setFirstChange] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ConnectionStoreItem>();
   const [selectedItemChanged, setSelectedItemChanged] =
     useState<ConnectionStoreItem>();
 
-  useEffect(() => {
-    window.electron
-      .loadConnectionConfig()
-      .then((config: ConfigurationFileFormat) => {
-        setConnectionList(JSON.parse(config.config));
-      });
-  }, []);
-
   // Save on every change except the save loading
   useEffect(() => {
     if (connectionList.length > 0 && !firstChange) {
-      window.electron.saveConnectionConfig(connectionList).then();
+      saveConfig({
+        config: JSON.stringify(connectionList),
+      });
     } else if (connectionList.length > 0) {
       setFirstChange(false);
     }

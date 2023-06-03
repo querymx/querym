@@ -8,6 +8,7 @@ import {
   MessageBoxSyncOptions,
   MenuItemConstructorOptions,
 } from 'electron';
+import { ConfigurationFileFormat } from 'types/FileFormatType';
 
 export type Channels = 'ipc-example' | 'create-connection';
 
@@ -37,7 +38,7 @@ const electronHandler = {
   },
 
   loadConnectionConfig: () => ipcRenderer.invoke('load-connection-config'),
-  saveConnectionConfig: (configs: ConnectionStoreItem[]) =>
+  saveConnectionConfig: (configs: ConfigurationFileFormat) =>
     ipcRenderer.invoke('save-connection-config', [configs]),
 
   connect: (storeConfig: ConnectionStoreItem) =>

@@ -45,18 +45,17 @@ export default class ConnectionIpcHandler {
 
     ipcMain.handle(
       'save-connection-config',
-      async (_, [configs]: [ConnectionStoreItem[]]): Promise<void> => {
+      async (_, [configs]: [ConfigurationFileFormat]): Promise<void> => {
         fs.writeFileSync(
           './connections.json',
           JSON.stringify(
             {
+              ...configs,
               version: 1,
               encrypted: safeStorage.isEncryptionAvailable(),
               config: safeStorage.isEncryptionAvailable()
-                ? safeStorage
-                    .encryptString(JSON.stringify(configs))
-                    .toString('base64')
-                : JSON.stringify,
+                ? safeStorage.encryptString(configs.config).toString('base64')
+                : configs.config,
             },
             undefined,
             2
