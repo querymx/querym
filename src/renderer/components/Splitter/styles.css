@@ -22,11 +22,11 @@
   width: 4px;
   height: 100%;
   cursor: col-resize;
-  background-color: #ccc;
+  background-color: var(--color-splitter);
 }
 
 .splitter-layout .layout-splitter:hover {
-  background-color: #bbb;
+  background-color: var(--color-splitter-hover);
 }
 
 .splitter-layout.layout-changing {
