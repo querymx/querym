@@ -19,8 +19,6 @@ export default class ConnectionIpcHandler {
             fs.readFileSync('./connections.json', 'utf8')
           );
 
-          console.log('sss', Buffer.from(json.config, 'base64'));
-
           if (json.encrypted) {
             return {
               ...json,
@@ -29,10 +27,7 @@ export default class ConnectionIpcHandler {
               ),
             };
           }
-
-          console.log(json);
         } catch (ee) {
-          console.log(ee);
           return {
             version: 1,
             encrypted: safeStorage.isEncryptionAvailable(),

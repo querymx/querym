@@ -40,7 +40,6 @@ export default function HomeScreen({
     window.electron
       .loadConnectionConfig()
       .then((config: ConfigurationFileFormat) => {
-        console.log('load', JSON.parse(config.config));
         setConnectionList(JSON.parse(config.config));
       });
   }, []);
