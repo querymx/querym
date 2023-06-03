@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
-import { useTheme } from 'renderer/contexts/ThemeProvider';
+import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
@@ -34,7 +34,7 @@ export default function ListViewItem({
   collapsed,
   onCollapsedClick,
 }: ListViewItemProps) {
-  const { theme } = useTheme();
+  const { theme } = useAppFeature();
 
   return (
     <div

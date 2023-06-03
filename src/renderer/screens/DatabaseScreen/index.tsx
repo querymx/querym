@@ -18,12 +18,14 @@ import {
 import Splitter from 'renderer/components/Splitter/Splitter';
 import SqlProtectionProvider from 'renderer/contexts/SqlProtectionProvider';
 import { DatabaseSchemas } from 'types/SqlSchema';
+import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
   const { tabs, setTabs, selectedTab, setSelectedTab, newWindow } =
     useWindowTab();
   const [schema, setSchema] = useState<DatabaseSchemas | undefined>();
+  const { enableDebug } = useAppFeature();
 
   useEffect(() => {
     newWindow('Unnamed Query', <QueryWindow />);
@@ -81,9 +83,11 @@ function DatabaseScreenBody() {
               onAddTab={onNewTabClick}
               tabs={tabs}
             />
-            <div>
-              <SqlDebugger />
-            </div>
+            {enableDebug && (
+              <div>
+                <SqlDebugger />
+              </div>
+            )}
           </Splitter>
         </div>
       </Splitter>
