@@ -16,14 +16,14 @@ export default class ConnectionIpcHandler {
       async (): Promise<ConfigurationFileFormat> => {
         try {
           const json: ConfigurationFileFormat = JSON.parse(
-            fs.readFileSync('./connections.json', 'utf8')
+            fs.readFileSync('./configs.json', 'utf8')
           );
 
           if (json.encrypted) {
             return {
               ...json,
-              config: safeStorage.decryptString(
-                Buffer.from(json.config, 'base64')
+              connections: safeStorage.decryptString(
+                Buffer.from(json.connections, 'base64')
               ),
             };
           }
@@ -31,14 +31,14 @@ export default class ConnectionIpcHandler {
           return {
             version: 1,
             encrypted: safeStorage.isEncryptionAvailable(),
-            config: '[]',
+            connections: '[]',
           };
         }
 
         return {
           version: 1,
           encrypted: safeStorage.isEncryptionAvailable(),
-          config: '[]',
+          connections: '[]',
         };
       }
     );
@@ -47,15 +47,17 @@ export default class ConnectionIpcHandler {
       'save-connection-config',
       async (_, [configs]: [ConfigurationFileFormat]): Promise<void> => {
         fs.writeFileSync(
-          './connections.json',
+          './configs.json',
           JSON.stringify(
             {
               ...configs,
               version: 1,
               encrypted: safeStorage.isEncryptionAvailable(),
-              config: safeStorage.isEncryptionAvailable()
-                ? safeStorage.encryptString(configs.config).toString('base64')
-                : configs.config,
+              connections: safeStorage.isEncryptionAvailable()
+                ? safeStorage
+                    .encryptString(configs.connections)
+                    .toString('base64')
+                : configs.connections,
             },
             undefined,
             2

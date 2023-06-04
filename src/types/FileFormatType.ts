@@ -3,5 +3,5 @@ export interface ConfigurationFileFormat {
   encrypted: boolean;
   theme?: 'light' | 'dark';
   debug?: boolean;
-  config: string;
+  connections: string;
 }

@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useContext,
+  useCallback,
 } from 'react';
 import { useAppConfig } from './AppConfigProvider';
 
@@ -49,16 +50,34 @@ export default function AppFeatureProvider({
     }
   }, [theme]);
 
-  useEffect(() => {
-    saveConfig({
-      theme,
-      debug: enableDebug,
-    });
-  }, [saveConfig, enableDebug, theme]);
+  const setThemeCallback = useCallback(
+    (value: 'dark' | 'light') => {
+      saveConfig({
+        theme: value,
+      });
+      setTheme(value);
+    },
+    [saveConfig, setTheme]
+  );
+
+  const setEnableDebugCallback = useCallback(
+    (value: boolean) => {
+      saveConfig({
+        debug: value,
+      });
+      setEnableDebug(value);
+    },
+    [saveConfig, setEnableDebug]
+  );
 
   return (
     <AppFeatureContext.Provider
-      value={{ theme, enableDebug, setTheme, setEnableDebug }}
+      value={{
+        theme,
+        enableDebug,
+        setTheme: setThemeCallback,
+        setEnableDebug: setEnableDebugCallback,
+      }}
     >
       {children}
     </AppFeatureContext.Provider>

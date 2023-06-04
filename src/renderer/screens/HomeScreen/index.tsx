@@ -31,7 +31,7 @@ export default function HomeScreen({
   const { config, saveConfig } = useAppConfig();
 
   const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
-    JSON.parse(config.config)
+    JSON.parse(config.connections)
   );
   const [firstChange, setFirstChange] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ConnectionStoreItem>();
@@ -42,7 +42,7 @@ export default function HomeScreen({
   useEffect(() => {
     if (connectionList.length > 0 && !firstChange) {
       saveConfig({
-        config: JSON.stringify(connectionList),
+        connections: JSON.stringify(connectionList),
       });
     } else if (connectionList.length > 0) {
       setFirstChange(false);
