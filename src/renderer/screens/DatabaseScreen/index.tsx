@@ -28,7 +28,9 @@ function DatabaseScreenBody() {
   const { enableDebug } = useAppFeature();
 
   useEffect(() => {
-    newWindow('Unnamed Query', <QueryWindow />);
+    newWindow('Unnamed Query', (key, name) => (
+      <QueryWindow tabKey={key} name={name} />
+    ));
   }, [newWindow]);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ function DatabaseScreenBody() {
       {
         name: 'Unnamed Query',
         key: id,
-        component: <QueryWindow />,
+        component: <QueryWindow tabKey={id} name={'Unnamed Query'} />,
       },
       ...prev,
     ]);

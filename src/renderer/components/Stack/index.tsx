@@ -6,6 +6,7 @@ interface StackProps {
   center?: boolean;
   full?: boolean;
   padding?: boolean;
+  spacing?: 'none' | 'md';
 }
 
 export default memo(function Stack({
@@ -13,6 +14,7 @@ export default memo(function Stack({
   center,
   full,
   padding,
+  spacing,
   children,
 }: PropsWithChildren<StackProps>) {
   const className = [
@@ -21,6 +23,7 @@ export default memo(function Stack({
     vertical ? styles.vertical : undefined,
     full ? styles.full : undefined,
     padding ? styles.padding : undefined,
+    spacing === 'none' ? styles.spaceNone : undefined,
   ]
     .filter(Boolean)
     .join(' ');

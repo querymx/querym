@@ -20,7 +20,10 @@ const WindowTabContext = createContext<{
   selectedTab?: string;
   setSelectedTab: React.Dispatch<React.SetStateAction<string | undefined>>;
 
-  newWindow: (name: string, component: ReactElement) => void;
+  newWindow: (
+    name: string,
+    createComponent: (key: string, name: string) => ReactElement
+  ) => void;
 }>({
   tabs: [],
   setTabs: () => {
@@ -43,14 +46,17 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
   const [selectedTab, setSelectedTab] = useState<string>();
 
   const newWindow = useCallback(
-    (name: string, component: ReactElement) => {
+    (
+      name: string,
+      createComponent: (key: string, name: string) => ReactElement
+    ) => {
       const key = uuidv1();
       setTabs((prev) => {
         return [
           {
             key,
             name,
-            component,
+            component: createComponent(key, name),
           },
           ...prev,
         ];

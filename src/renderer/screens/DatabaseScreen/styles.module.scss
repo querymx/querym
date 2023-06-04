@@ -8,3 +8,24 @@
   flex-grow: 1;
   overflow-y: auto;
 }
+
+.queryNameEditor {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  padding: 0px 10px;
+  border-right: 1px solid var(--color-border);
+  margin: 7px 0;
+
+  input {
+    font-weight: bold;
+    outline: none;
+    border: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+}

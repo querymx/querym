@@ -1,3 +1,4 @@
+import styles from './styles.module.scss';
 import iconMore from './more.svg';
 import iconMySql from './mysql.svg';
 import iconDown from './down.svg';
@@ -7,38 +8,64 @@ import iconClose from './close.svg';
 import iconLightBulb from './light_bulb.svg';
 import iconGreenKey from './green_key.svg';
 
-export default function Icon({ path }: { path: string }) {
-  return <img src={path} />;
+interface IconProps {
+  size?: 'sm' | 'md' | 'lg';
+  followTheme?: boolean;
+  inline?: boolean;
 }
 
-Icon.Down = () => {
-  return <Icon path={iconDown} />;
+interface IconPropsWithPath extends IconProps {
+  path: string;
+}
+
+const Icon = function Icon({ path, size, inline }: IconPropsWithPath) {
+  const className = [];
+
+  if (size === 'sm') {
+    className.push(styles.sm);
+  } else if (size === 'md') {
+    className.push(styles.md);
+  } else if (size === 'lg') {
+    className.push(styles.lg);
+  }
+
+  if (inline) {
+    className.push(styles.inline);
+  }
+
+  return <img src={path} className={className.join(' ')} />;
 };
 
-Icon.Right = () => {
-  return <Icon path={iconRight} />;
+export default Icon;
+
+Icon.Down = (props: IconProps) => {
+  return <Icon path={iconDown} {...props} />;
 };
 
-Icon.Table = () => {
-  return <Icon path={iconTable} />;
+Icon.Right = (props: IconProps) => {
+  return <Icon path={iconRight} {...props} />;
 };
 
-Icon.More = () => {
-  return <Icon path={iconMore} />;
+Icon.Table = (props: IconProps) => {
+  return <Icon path={iconTable} {...props} />;
 };
 
-Icon.MySql = () => {
-  return <Icon path={iconMySql} />;
+Icon.More = (props: IconProps) => {
+  return <Icon path={iconMore} {...props} />;
 };
 
-Icon.Close = () => {
-  return <Icon path={iconClose} />;
+Icon.MySql = (props: IconProps) => {
+  return <Icon path={iconMySql} {...props} />;
 };
 
-Icon.LightBulb = () => {
-  return <Icon path={iconLightBulb} />;
+Icon.Close = (props: IconProps) => {
+  return <Icon path={iconClose} {...props} />;
 };
 
-Icon.GreenKey = () => {
-  return <Icon path={iconGreenKey} />;
+Icon.LightBulb = (props: IconProps) => {
+  return <Icon path={iconLightBulb} {...props} />;
+};
+
+Icon.GreenKey = (props: IconProps) => {
+  return <Icon path={iconGreenKey} {...props} />;
 };

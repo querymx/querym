@@ -26,13 +26,14 @@ export default function DatabaseTableList() {
         onCollapsedChange={setCollapsed}
         onDoubleClick={(item) => {
           if (item.data) {
-            newWindow(
-              `SELECT ${item.data.name}`,
+            newWindow(`SELECT ${item.data.name}`, (key, name) => (
               <QueryWindow
-                initialSql={`SELECT * FROM ${item.data.name} LIMIT 200;`}
+                initialSql={`SELECT * FROM ${item.data?.name || ''} LIMIT 200;`}
                 initialRun
+                tabKey={key}
+                name={name}
               />
-            );
+            ));
           }
         }}
         items={Object.values(schema).map((database) => ({

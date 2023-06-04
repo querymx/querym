@@ -13,15 +13,20 @@ import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useDialog } from 'renderer/contexts/DialogProvider';
 import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
+import QueryWindowNameEditor from './QueryWindowNameEditor';
+import Stack from 'renderer/components/Stack';
 
 interface QueryWindowProps {
   initialSql?: string;
   initialRun?: boolean;
+  tabKey: string;
+  name: string;
 }
 
 export default function QueryWindow({
   initialSql,
   initialRun,
+  tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const { runner } = useSqlExecute();
@@ -130,13 +135,16 @@ export default function QueryWindow({
     <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>
       <div className={styles.queryContainer}>
         <div>
-          <Toolbar>
-            <Toolbar.Item
-              icon={<FontAwesomeIcon icon={faPlay} />}
-              text="Run"
-              onClick={onRun}
-            />
-          </Toolbar>
+          <Stack spacing="none">
+            <QueryWindowNameEditor tabKey={tabKey} />
+            <Toolbar>
+              <Toolbar.Item
+                icon={<FontAwesomeIcon icon={faPlay} />}
+                text="Run"
+                onClick={onRun}
+              />
+            </Toolbar>
+          </Stack>
         </div>
 
         <div className={styles.queryEditor}>
