@@ -5,3 +5,8 @@ export interface ConfigurationFileFormat {
   debug?: boolean;
   connections: string;
 }
+
+export interface DatabaseSavedState {
+  tabs: { key: string; name: string; sql: string }[];
+  selectedTabKey: string;
+}

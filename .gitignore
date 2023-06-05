@@ -30,3 +30,4 @@ npm-debug.log.*
 
 connections.json
 configs.json
+query-master-data/

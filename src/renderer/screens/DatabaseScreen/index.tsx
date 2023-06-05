@@ -22,16 +22,9 @@ import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
-  const { tabs, setTabs, selectedTab, setSelectedTab, newWindow } =
-    useWindowTab();
+  const { tabs, setTabs, selectedTab, setSelectedTab } = useWindowTab();
   const [schema, setSchema] = useState<DatabaseSchemas | undefined>();
   const { enableDebug } = useAppFeature();
-
-  useEffect(() => {
-    newWindow('Unnamed Query', (key, name) => (
-      <QueryWindow tabKey={key} name={name} />
-    ));
-  }, [newWindow]);
 
   useEffect(() => {
     common.getSchema().then((data) => {
