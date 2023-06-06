@@ -31,7 +31,7 @@ export default function Button({
   }, [plain, primary, destructive, disabled]);
 
   return (
-    <button className={className} onClick={onClick}>
+    <button className={className} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );
