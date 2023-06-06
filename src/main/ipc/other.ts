@@ -51,6 +51,7 @@ export default class OtherIpcHandler {
             recursiveAttachClick(options, this.window)
           );
           this.window.setMenu(menu);
+          Menu.setApplicationMenu(menu);
         }
       }
     );

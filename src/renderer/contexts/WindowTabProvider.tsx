@@ -25,6 +25,8 @@ const WindowTabContext = createContext<{
   selectedTab?: string;
   setSelectedTab: React.Dispatch<React.SetStateAction<string | undefined>>;
 
+  setTabData: (key: string, data: unknown) => void;
+
   newWindow: (
     name: string,
     createComponent: (key: string, name: string) => ReactElement
@@ -40,6 +42,10 @@ const WindowTabContext = createContext<{
   newWindow: () => {
     throw 'Not implemented';
   },
+
+  setTabData: () => {
+    throw 'Not implemented';
+  },
 });
 
 export function useWindowTab() {
@@ -51,6 +57,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
   const [allowedClose, setAllowedClose] = useState(false);
   const [tabs, setTabs] = useState<WindowTabItemProps[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>();
+  const [tabData] = useState<{ data: Record<string, unknown> }>({ data: {} });
 
   const newWindow = useCallback(
     (
@@ -103,6 +110,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
                 component: <QueryWindow tabKey={key} name={'Unnamed Query'} />,
               },
             ]);
+            setSelectedTab(key);
           }
         });
     }
@@ -123,7 +131,11 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
               tabs: tabs.map((tab) => {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { component, ...rest } = tab;
-                return rest;
+                return {
+                  ...rest,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  sql: (tabData.data[tab.key] as any)?.sql || undefined,
+                };
               }),
             })
             .then(() => {
@@ -137,11 +149,25 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
         return () => window.removeEventListener('beforeunload', beforeUnload);
       }
     }
-  }, [tabs, selectedTab, setting, setAllowedClose, allowedClose]);
+  }, [tabs, selectedTab, setting, setAllowedClose, allowedClose, tabData]);
+
+  const setTabData = useCallback(
+    (key: string, data: unknown) => {
+      tabData.data[key] = data;
+    },
+    [tabData]
+  );
 
   return (
     <WindowTabContext.Provider
-      value={{ tabs, setTabs, selectedTab, setSelectedTab, newWindow }}
+      value={{
+        tabs,
+        setTabs,
+        selectedTab,
+        setSelectedTab,
+        newWindow,
+        setTabData,
+      }}
     >
       {children}
     </WindowTabContext.Provider>

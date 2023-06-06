@@ -15,6 +15,7 @@ import { useDialog } from 'renderer/contexts/DialogProvider';
 import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
+import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -29,6 +30,7 @@ export default function QueryWindow({
   tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
+  const { setTabData } = useWindowTab();
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementResult[]>([]);
@@ -131,6 +133,10 @@ export default function QueryWindow({
     }
   }, [runner, initialRun, setResult, initialSql, showErrorDialog]);
 
+  useEffect(() => {
+    setTabData(tabKey, { sql: initialSql });
+  }, [tabKey, setTabData, initialSql]);
+
   return (
     <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>
       <div className={styles.queryContainer}>
@@ -153,7 +159,10 @@ export default function QueryWindow({
             onContextMenu={handleContextMenu}
             style={{ fontSize: 20, height: '100%' }}
             value={code}
-            onChange={(newCode) => setCode(newCode)}
+            onChange={(newCode) => {
+              setCode(newCode);
+              setTabData(tabKey, { sql: newCode });
+            }}
             height="100%"
             schema={codeMirrorSchema}
           />

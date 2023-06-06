@@ -47,6 +47,17 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
               setEnableDebug(!enableDebug);
             },
           },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Reload',
+            role: 'reload',
+          },
+          {
+            label: 'Developer Tool',
+            role: 'toggleDevTools',
+          },
         ],
       },
     ],
