@@ -6,7 +6,8 @@ import {
   useContext,
   useCallback,
 } from 'react';
-import { useAppConfig } from './AppConfigProvider';
+
+type ThemeOption = 'dark' | 'light';
 
 const AppFeatureContext = createContext<{
   theme: 'dark' | 'light';
@@ -33,12 +34,13 @@ export function useAppFeature() {
 export default function AppFeatureProvider({
   children,
   defaultTheme,
-}: PropsWithChildren<{ defaultTheme?: 'dark' | 'light' }>) {
-  const { config, saveConfig } = useAppConfig();
-  const [theme, setTheme] = useState<'dark' | 'light'>(
-    config?.theme || defaultTheme || 'light'
+}: PropsWithChildren<{ defaultTheme?: ThemeOption }>) {
+  const [theme, setTheme] = useState<ThemeOption>(
+    (localStorage.getItem('theme') as ThemeOption) || defaultTheme || 'light'
   );
-  const [enableDebug, setEnableDebug] = useState(config.debug || false);
+  const [enableDebug, setEnableDebug] = useState(
+    localStorage.getItem('debug') === '1' || false
+  );
 
   useEffect(() => {
     if (theme === 'light') {
@@ -51,23 +53,19 @@ export default function AppFeatureProvider({
   }, [theme]);
 
   const setThemeCallback = useCallback(
-    (value: 'dark' | 'light') => {
-      saveConfig({
-        theme: value,
-      });
+    (value: ThemeOption) => {
+      localStorage.setItem('theme', value);
       setTheme(value);
     },
-    [saveConfig, setTheme]
+    [setTheme]
   );
 
   const setEnableDebugCallback = useCallback(
     (value: boolean) => {
-      saveConfig({
-        debug: value,
-      });
+      localStorage.setItem('debug', value ? '1' : '0');
       setEnableDebug(value);
     },
-    [saveConfig, setEnableDebug]
+    [setEnableDebug]
   );
 
   return (

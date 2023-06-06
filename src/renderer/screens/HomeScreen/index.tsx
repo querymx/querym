@@ -19,7 +19,7 @@ import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import WelcomeScreen from './WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
-import { useAppConfig } from 'renderer/contexts/AppConfigProvider';
+import { db } from 'renderer/db';
 
 interface HomeScreenProps {
   onNavigateToDatabaseConfig: (config: ConnectionStoreItem) => void;
@@ -28,26 +28,12 @@ interface HomeScreenProps {
 export default function HomeScreen({
   onNavigateToDatabaseConfig,
 }: HomeScreenProps) {
-  const { config, saveConfig } = useAppConfig();
-
   const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
-    JSON.parse(config.connections)
+    []
   );
-  const [firstChange, setFirstChange] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ConnectionStoreItem>();
   const [selectedItemChanged, setSelectedItemChanged] =
     useState<ConnectionStoreItem>();
-
-  // Save on every change except the save loading
-  useEffect(() => {
-    if (connectionList.length > 0 && !firstChange) {
-      saveConfig({
-        connections: JSON.stringify(connectionList),
-      });
-    } else if (connectionList.length > 0) {
-      setFirstChange(false);
-    }
-  }, [connectionList, setFirstChange]);
 
   useEffect(() => {
     setSelectedItemChanged(selectedItem);
@@ -60,6 +46,10 @@ export default function HomeScreen({
       !deepEqual(selectedItem, selectedItemChanged),
     200
   );
+
+  useEffect(() => {
+    db.table('database_config').toArray().then(setConnectionList);
+  }, [setConnectionList]);
 
   // ----------------------------------------------
   // Handle duplicated database
@@ -83,6 +73,7 @@ export default function HomeScreen({
       });
 
       setSelectedItem(newDuplicateDatabase);
+      db.table('database_config').put(newDuplicateDatabase);
     }
   }, [selectedItem, setConnectionList, connectionList, setSelectedItem]);
 
@@ -95,6 +86,7 @@ export default function HomeScreen({
         prev.filter((db) => db.id !== selectedItem.id)
       );
       setSelectedItem(undefined);
+      db.table('database_config').delete(selectedItem.id);
     }
   }, [selectedItem, setSelectedItem, setConnectionList]);
 
@@ -110,6 +102,7 @@ export default function HomeScreen({
           return db;
         })
       );
+      db.table('database_config').put(selectedItemChanged);
     }
   }, [selectedItem, selectedItemChanged, setSelectedItem, setConnectionList]);
 

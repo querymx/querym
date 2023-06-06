@@ -60,6 +60,14 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
           },
         ],
       },
+      {
+        label: 'Edit',
+        submenu: [
+          { label: 'Copy', role: 'copy' },
+          { label: 'Cut', role: 'cut' },
+          { label: 'Paste', role: 'paste' },
+        ],
+      },
     ],
     [theme, enableDebug, setTheme, setEnableDebug]
   );
