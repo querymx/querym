@@ -17,3 +17,7 @@
   display: inline-block;
   vertical-align: middle;
 }
+
+:global(.dark) .followTheme {
+  filter: invert(1);
+}

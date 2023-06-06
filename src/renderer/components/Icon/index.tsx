@@ -18,7 +18,12 @@ interface IconPropsWithPath extends IconProps {
   path: string;
 }
 
-const Icon = function Icon({ path, size, inline }: IconPropsWithPath) {
+const Icon = function Icon({
+  path,
+  size,
+  inline,
+  followTheme,
+}: IconPropsWithPath) {
   const className = [];
 
   if (size === 'sm') {
@@ -31,6 +36,10 @@ const Icon = function Icon({ path, size, inline }: IconPropsWithPath) {
 
   if (inline) {
     className.push(styles.inline);
+  }
+
+  if (followTheme) {
+    className.push(styles.followTheme);
   }
 
   return <img src={path} className={className.join(' ')} />;

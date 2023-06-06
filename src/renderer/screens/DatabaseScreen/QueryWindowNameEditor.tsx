@@ -61,6 +61,14 @@ export default function QueryWindowNameEditor({
               autoFocus
               type="text"
               value={editValue}
+              onKeyDown={(e) => {
+                if (e.key === 'Esc') {
+                  setEditValue(name);
+                  setEditMode(false);
+                } else if (e.key === 'Enter') {
+                  onCompleteEdit();
+                }
+              }}
               onChange={(e) => setEditValue(e.currentTarget.value)}
               onBlur={onCompleteEdit}
             />
@@ -70,7 +78,7 @@ export default function QueryWindowNameEditor({
         )}
       </div>
       <div onClick={onEditClick}>
-        <Icon.More size="md" inline />
+        <Icon.More size="md" inline followTheme />
       </div>
     </div>
   );
