@@ -1,13 +1,13 @@
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import WindowTab from 'renderer/components/WindowTab';
 import QueryResultViewer from './QueryResultViewer';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 
 interface QueryMultipleResultViewerProps {
   value: SqlStatementResult[];
 }
 
-export default function QueryMultipleResultViewer({
+export default memo(function QueryMultipleResultViewer({
   value,
 }: QueryMultipleResultViewerProps) {
   const queryResultOnly = useMemo(() => {
@@ -32,4 +32,4 @@ export default function QueryMultipleResultViewer({
       })}
     />
   );
-}
+});

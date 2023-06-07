@@ -127,7 +127,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, code, setLoading]
+    [runner, setResult, setLoading]
   );
 
   const onRun = useCallback(() => {

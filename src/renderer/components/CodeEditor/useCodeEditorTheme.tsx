@@ -45,12 +45,13 @@ export default function useCodeEditorTheme() {
           gutterActiveForeground: 'var(--color-text)',
         },
         styles: [
-          { tag: t.keyword, color: '#2980b9' },
+          { tag: t.keyword, color: '#3498db' },
           { tag: t.comment, color: '#27ae60' },
           { tag: t.definition(t.typeName), color: '#27ae60' },
           { tag: t.typeName, color: '#194a7b' },
           { tag: t.tagName, color: '#008a02' },
           { tag: t.variableName, color: '#1a00db' },
+          { tag: t.string, color: '#e67e22' },
         ],
       });
     }

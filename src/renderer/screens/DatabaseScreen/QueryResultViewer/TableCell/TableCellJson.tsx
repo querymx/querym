@@ -10,6 +10,7 @@ import deepEqual from 'deep-equal';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
 import TableCellContent from './TableCellContent';
+import useCodeEditorTheme from 'renderer/components/CodeEditor/useCodeEditorTheme';
 
 function TableCellJsonEditor({
   value,
@@ -21,6 +22,7 @@ function TableCellJsonEditor({
   }, [value]);
 
   const [editValue, setEditValue] = useState(jsonStringAfterBeautify);
+  const theme = useCodeEditorTheme();
 
   return (
     <Modal
@@ -39,6 +41,7 @@ function TableCellJsonEditor({
           onChange={setEditValue}
           readOnly={readOnly}
           maxHeight="50vh"
+          theme={theme}
           extensions={[json()]}
         />
       </Modal.Body>
