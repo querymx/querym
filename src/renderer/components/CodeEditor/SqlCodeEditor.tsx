@@ -2,6 +2,9 @@ import CodeMirror, {
   ReactCodeMirrorProps,
   ReactCodeMirrorRef,
 } from '@uiw/react-codemirror';
+import { acceptCompletion, completionStatus } from '@codemirror/autocomplete';
+import { defaultKeymap, insertTab } from '@codemirror/commands';
+import { keymap } from '@codemirror/view';
 import { sql } from '@codemirror/lang-sql';
 import { Ref, forwardRef } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
@@ -18,7 +21,24 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
     <CodeMirror
       ref={ref}
       theme={theme}
+      indentWithTab={false}
+      basicSetup={{ defaultKeymap: false, completionKeymap: false }}
       extensions={[
+        keymap.of([
+          {
+            key: 'Tab',
+            preventDefault: true,
+            run: (target) => {
+              if (completionStatus(target.state) === 'active') {
+                acceptCompletion(target);
+              } else {
+                insertTab(target);
+              }
+              return true;
+            },
+          },
+          ...defaultKeymap,
+        ]),
         sql({
           schema,
         }),
