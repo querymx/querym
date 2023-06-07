@@ -35,7 +35,13 @@ export default function WindowTab({
           </div>
         )}
 
-        <ul>
+        <ul
+          onWheel={(e) => {
+            if (e.currentTarget) {
+              e.currentTarget.scrollLeft += e.deltaY;
+            }
+          }}
+        >
           {tabs.map((tab) => {
             return (
               <li
