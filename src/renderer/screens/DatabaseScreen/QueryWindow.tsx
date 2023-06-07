@@ -16,6 +16,7 @@ import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
+import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -35,6 +36,7 @@ export default function QueryWindow({
   const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
+  const [loading, setLoading] = useState(false);
   const { schema, currentDatabase } = useSchmea();
   const codeMirrorSchema = useMemo(() => {
     return currentDatabase && schema
@@ -102,36 +104,41 @@ export default function QueryWindow({
     ];
   }, [editorRef]);
 
-  const onRun = useCallback(() => {
-    const splittedSql = splitQuery(code);
+  const executeSql = useCallback(
+    (protectionLevel: SqlProtectionLevel, code: string) => {
+      const splittedSql = splitQuery(code);
 
-    runner
-      .execute(
-        SqlProtectionLevel.NeedConfirm,
-        splittedSql.map((sql) => ({ sql: sql.toString() }))
-      )
-      .then((r) => {
-        setResult(r);
-        setQueryKeyCounter((prev) => prev + 1);
-      })
-      .catch((e) => {
-        if (e.message) {
-          showErrorDialog(e.message);
-        }
-      });
-  }, [runner, setResult, code]);
-
-  useEffect(() => {
-    if (initialRun && initialSql) {
       runner
-        .execute(SqlProtectionLevel.None, [{ sql: initialSql }])
+        .execute(
+          protectionLevel,
+          splittedSql.map((sql) => ({ sql: sql.toString() })),
+          () => setLoading(true)
+        )
         .then((r) => {
           setResult(r);
           setQueryKeyCounter((prev) => prev + 1);
         })
-        .catch(console.error);
+        .catch((e) => {
+          if (e.message) {
+            showErrorDialog(e.message);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [runner, setResult, code, setLoading]
+  );
+
+  const onRun = useCallback(() => {
+    executeSql(SqlProtectionLevel.NeedConfirm, code);
+  }, [executeSql, code]);
+
+  useEffect(() => {
+    if (initialRun && initialSql) {
+      executeSql(SqlProtectionLevel.None, initialSql);
     }
-  }, [runner, initialRun, setResult, initialSql, showErrorDialog]);
+  }, [executeSql, initialSql, initialRun]);
 
   useEffect(() => {
     setTabData(tabKey, { sql: initialSql });
@@ -169,7 +176,11 @@ export default function QueryWindow({
         </div>
       </div>
       <div style={{ height: '100%' }}>
-        <QueryMultipleResultViewer key={queryKeyCounter} value={result} />
+        {loading ? (
+          <QueryResultLoading />
+        ) : (
+          <QueryMultipleResultViewer key={queryKeyCounter} value={result} />
+        )}
       </div>
     </Splitter>
   );

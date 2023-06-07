@@ -33,7 +33,8 @@ export class SqlRunnerManager {
 
   async execute(
     level: SqlProtectionLevel,
-    statements: SqlStatement[]
+    statements: SqlStatement[],
+    onStart?: () => void
   ): Promise<SqlStatementResult[]> {
     const result: SqlStatementResult[] = [];
 
@@ -49,6 +50,8 @@ export class SqlRunnerManager {
           throw 'Cancel';
         }
       }
+
+      if (onStart) onStart();
 
       const returnedResult = await this.executor(
         statement.sql,
