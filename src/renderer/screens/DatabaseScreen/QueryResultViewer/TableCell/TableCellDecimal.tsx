@@ -32,6 +32,7 @@ function TableCellDecimalEditor({
       autoFocus
       type="text"
       className={`${styles.input} ${styles.number}`}
+      style={{ textAlign: 'right' }}
       onBlur={onLostFocus}
       onChange={(e) => setEditValue(e.currentTarget.value)}
       value={editValue as string}

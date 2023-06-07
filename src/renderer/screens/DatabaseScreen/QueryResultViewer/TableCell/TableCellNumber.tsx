@@ -12,11 +12,13 @@ function TableCellNumberEditor({
   onExit,
   readOnly,
 }: TableEditableEditorProps) {
-  const [editValue, setEditValue] = useState((value as number).toString());
+  const [editValue, setEditValue] = useState<string | null>(
+    value !== null ? (value as number).toString() : null
+  );
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
-      onExit(false, Number(editValue));
+      onExit(false, editValue === null ? editValue : Number(editValue));
     }
   }, [onExit, editValue]);
 
@@ -32,8 +34,10 @@ function TableCellNumberEditor({
       type="text"
       className={`${styles.input} ${styles.number}`}
       onBlur={onLostFocus}
+      style={{ textAlign: 'right' }}
+      placeholder={editValue === null ? 'NULL' : ''}
       onChange={(e) => setEditValue(e.currentTarget.value)}
-      value={editValue}
+      value={editValue || ''}
     />
   );
 }
