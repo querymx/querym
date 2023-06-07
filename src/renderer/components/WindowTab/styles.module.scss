@@ -3,7 +3,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-
 }
 
 .content {
@@ -21,7 +20,7 @@
 
   .add {
     padding: 5px 10px;
-    background: #ddd;
+    background: var(--color-surface-hover);
     cursor: pointer;
     display: flex;
     color: #27ae60;
@@ -34,7 +33,7 @@
     span {
       display: block;
       padding: 2px;
-      align-self: center;;
+      align-self: center;
     }
   }
 
@@ -42,14 +41,33 @@
     list-style: none;
     display: flex;
     flex-grow: 1;
-    background: #eee;
+    background: var(--color-surface-hover);
+    overflow-x: overlay;
+
+    &::-webkit-scrollbar {
+      width: 3px;
+      height: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--color-scrollbar-track);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-scrollbar);
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      background: var(--color-scrollbar-hover);
+    }
 
     li {
       padding: 5px 10px;
       display: flex;
       cursor: pointer;
-      background: #ddd;
-      color: #333;
+      background: var(--color-surface-light);
+      color: var(--color-text);
+      white-space: nowrap;
 
       img {
         display: inline-block;
@@ -58,7 +76,7 @@
       span {
         display: block;
         padding: 2px;
-        align-self: center;;
+        align-self: center;
       }
 
       span.close {
@@ -67,16 +85,17 @@
         width: 25px;
         text-align: center;
         border-radius: 2px;
-        color: #555;
+        color: var(--color-text);
       }
 
       span.icon {
         color: #f39c12;
-        margin-right: 5px
+        margin-right: 5px;
       }
 
       &.selected {
-        background: #fff;
+        background: var(--color-surface);
+        color: var(--color-text);
       }
 
       &:hover {
@@ -88,7 +107,7 @@
       }
 
       span.close:hover {
-        background: #eee;
+        background: var(--color-surface-hover);
       }
     }
   }
