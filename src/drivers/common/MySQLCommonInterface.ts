@@ -1,6 +1,6 @@
 import { DatabaseSchemas, TableConstraintTypeSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
-import { SqlProtectionLevel, SqlRunnerManager } from 'libs/SqlRunnerManager';
+import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
   protected runner: SqlRunnerManager;
@@ -13,19 +13,25 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
   }
 
   async getSchema(): Promise<DatabaseSchemas> {
-    const response = await this.runner.execute(SqlProtectionLevel.None, [
+    const response = await this.runner.execute(
+      [
+        {
+          sql: this.currentDatabaseName
+            ? `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=:database_name`
+            : `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS`,
+          params: this.currentDatabaseName
+            ? { database_name: this.currentDatabaseName }
+            : undefined,
+        },
+        {
+          sql: 'SELECT kc.CONSTRAINT_SCHEMA, kc.CONSTRAINT_NAME, kc.TABLE_SCHEMA, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kc INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc ON (kc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND kc.TABLE_NAME = tc.TABLE_NAME AND kc.TABLE_SCHEMA = tc.TABLE_SCHEMA)',
+        },
+      ],
       {
-        sql: this.currentDatabaseName
-          ? `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=:database_name`
-          : `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS`,
-        params: this.currentDatabaseName
-          ? { database_name: this.currentDatabaseName }
-          : undefined,
-      },
-      {
-        sql: 'SELECT kc.CONSTRAINT_SCHEMA, kc.CONSTRAINT_NAME, kc.TABLE_SCHEMA, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kc INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc ON (kc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND kc.TABLE_NAME = tc.TABLE_NAME AND kc.TABLE_SCHEMA = tc.TABLE_SCHEMA)',
-      },
-    ]);
+        disableAnalyze: true,
+        skipProtection: true,
+      }
+    );
 
     const databases: DatabaseSchemas = {};
     const data = response[0].result;

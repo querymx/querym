@@ -28,6 +28,7 @@ export interface ConnectionStoreItem {
   id: string;
   name: string;
   type?: string;
+  protectionLevel?: number;
   config: ConnectionStoreConfig;
 }
 

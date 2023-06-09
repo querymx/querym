@@ -7,7 +7,7 @@ import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import Splitter from 'renderer/components/Splitter/Splitter';
-import { SqlProtectionLevel, SqlStatementResult } from 'libs/SqlRunnerManager';
+import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { splitQuery } from 'dbgate-query-splitter';
 import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -105,14 +105,16 @@ export default function QueryWindow({
   }, [editorRef]);
 
   const executeSql = useCallback(
-    (protectionLevel: SqlProtectionLevel, code: string) => {
+    (code: string, skipProtection?: boolean) => {
       const splittedSql = splitQuery(code);
 
       runner
         .execute(
-          protectionLevel,
           splittedSql.map((sql) => ({ sql: sql.toString() })),
-          () => setLoading(true)
+          {
+            onStart: () => setLoading(true),
+            skipProtection,
+          }
         )
         .then((r) => {
           setResult(r);
@@ -131,12 +133,12 @@ export default function QueryWindow({
   );
 
   const onRun = useCallback(() => {
-    executeSql(SqlProtectionLevel.NeedConfirm, code);
+    executeSql(code);
   }, [executeSql, code]);
 
   useEffect(() => {
     if (initialRun && initialSql) {
-      executeSql(SqlProtectionLevel.None, initialSql);
+      executeSql(initialSql, true);
     }
   }, [executeSql, initialSql, initialRun]);
 

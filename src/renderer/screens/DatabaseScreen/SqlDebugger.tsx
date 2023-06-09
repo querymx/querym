@@ -7,8 +7,8 @@ export default function SqlDebugger() {
   const [statements, setStatements] = useState<string[]>([]);
 
   useEffect(() => {
-    const cb: BeforeEachEventCallback = async (_, statement) => {
-      setStatements((prev) => [statement.sql, ...prev]);
+    const cb: BeforeEachEventCallback = async (statement) => {
+      setStatements((prev) => [statement.sql || '', ...prev]);
       return true;
     };
 

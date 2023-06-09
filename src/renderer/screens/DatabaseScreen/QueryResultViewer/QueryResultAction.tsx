@@ -2,7 +2,6 @@ import { useCallback, useState, useEffect } from 'react';
 import applyQueryResultChanges from 'libs/ApplyQueryResultChanges';
 import generateSqlFromChanges from 'libs/GenerateSqlFromChanges';
 import generateSqlFromPlan from 'libs/GenerateSqlFromPlan';
-import { SqlProtectionLevel } from 'libs/SqlRunnerManager';
 import Button from 'renderer/components/Button';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
@@ -58,7 +57,7 @@ export default function QueryResultAction({
         }));
 
         runner
-          .execute(SqlProtectionLevel.NeedConfirm, rawSql)
+          .execute(rawSql)
           .then(() => {
             onResultChange((prev) => {
               const changes = collector.getChanges();

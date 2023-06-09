@@ -1,30 +1,21 @@
 import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
-import { useState, useEffect, useCallback } from 'react';
-import WindowTab from 'renderer/components/WindowTab';
-import DatabaseTableList from 'renderer/components/WindowTab/DatabaseTableList';
+import { useState, useEffect } from 'react';
 import { SchemaProvider } from 'renderer/contexts/SchemaProvider';
-import QueryWindow from './QueryWindow';
-import { v1 as uuidv1 } from 'uuid';
-import SqlDebugger from './SqlDebugger';
 import { DatabaseSettingProvider } from 'renderer/contexts/DatabaseSettingProvider';
 import {
   SqlExecuteProvider,
   useSqlExecute,
 } from 'renderer/contexts/SqlExecuteProvider';
-import {
-  WindowTabProvider,
-  useWindowTab,
-} from 'renderer/contexts/WindowTabProvider';
-import Splitter from 'renderer/components/Splitter/Splitter';
+import { WindowTabProvider } from 'renderer/contexts/WindowTabProvider';
 import SqlProtectionProvider from 'renderer/contexts/SqlProtectionProvider';
 import { DatabaseSchemas } from 'types/SqlSchema';
-import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
+import Layout from 'renderer/components/Layout';
+import MainToolbar from './MainToolbar';
+import MainView from './MainView';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
-  const { tabs, setTabs, selectedTab, setSelectedTab } = useWindowTab();
   const [schema, setSchema] = useState<DatabaseSchemas | undefined>();
-  const { enableDebug } = useAppFeature();
 
   useEffect(() => {
     common.getSchema().then((data) => {
@@ -32,60 +23,16 @@ function DatabaseScreenBody() {
     });
   }, [setSchema, common]);
 
-  const onNewTabClick = useCallback(() => {
-    const id = uuidv1();
-    setTabs((prev) => [
-      {
-        name: 'Unnamed Query',
-        key: id,
-        component: <QueryWindow tabKey={id} name={'Unnamed Query'} />,
-      },
-      ...prev,
-    ]);
-    setSelectedTab(id);
-  }, [setTabs, selectedTab]);
-
   return (
     <SchemaProvider schema={schema}>
-      <Splitter primaryIndex={1} secondaryInitialSize={200}>
-        <DatabaseTableList />
-        <div style={{ width: '100%', height: '100%' }}>
-          <Splitter vertical primaryIndex={0} secondaryInitialSize={100}>
-            <WindowTab
-              selected={selectedTab}
-              onTabChanged={(item) => {
-                setSelectedTab(item.key);
-              }}
-              onTabClosed={(closedTab) => {
-                // Close current tab will select other available tab
-                if (closedTab.key === selectedTab) {
-                  const closedTabIndex = tabs.findIndex(
-                    (tab) => closedTab.key === tab.key
-                  );
-
-                  const nextTabKey =
-                    closedTabIndex + 1 >= tabs.length
-                      ? tabs[closedTabIndex - 1].key
-                      : tabs[closedTabIndex + 1].key;
-
-                  setSelectedTab(nextTabKey);
-                }
-
-                setTabs((prev) =>
-                  prev.filter((tab) => tab.key !== closedTab.key)
-                );
-              }}
-              onAddTab={onNewTabClick}
-              tabs={tabs}
-            />
-            {enableDebug && (
-              <div>
-                <SqlDebugger />
-              </div>
-            )}
-          </Splitter>
-        </div>
-      </Splitter>
+      <Layout>
+        <Layout.Fixed>
+          <MainToolbar />
+        </Layout.Fixed>
+        <Layout.Grow>
+          <MainView />
+        </Layout.Grow>
+      </Layout>
     </SchemaProvider>
   );
 }

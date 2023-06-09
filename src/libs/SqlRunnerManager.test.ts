@@ -1,10 +1,10 @@
-import { SqlProtectionLevel, SqlRunnerManager } from './SqlRunnerManager';
+import { SqlRunnerManager } from './SqlRunnerManager';
 
 test('Testing running multiple statement', async () => {
   const executor = jest.fn();
   const runner = new SqlRunnerManager(executor);
 
-  await runner.execute(SqlProtectionLevel.NeedConfirm, [
+  await runner.execute([
     { sql: 'SELECT * FROM users' },
     { sql: 'SELECT * FROM customers' },
   ]);
@@ -20,9 +20,7 @@ test('Testing running statements with non-block beforeAll event', async () => {
     return true;
   });
 
-  await runner.execute(SqlProtectionLevel.NeedConfirm, [
-    { sql: 'SELECT * FROM users' },
-  ]);
+  await runner.execute([{ sql: 'SELECT * FROM users' }]);
 
   expect(executor).toBeCalledTimes(1);
 });
@@ -36,9 +34,7 @@ test('Testing block statements from running at beforeAll event', async () => {
   });
 
   try {
-    await runner.execute(SqlProtectionLevel.NeedConfirm, [
-      { sql: 'SELECT * FROM users' },
-    ]);
+    await runner.execute([{ sql: 'SELECT * FROM users' }]);
   } catch (e) {
     expect(e).toBeTruthy();
   }
@@ -55,9 +51,7 @@ test('Testing unregister beforeAll callback', async () => {
   runner.registerBeforeAll(cb);
   runner.unregisterBeforeAll(cb);
 
-  await runner.execute(SqlProtectionLevel.NeedConfirm, [
-    { sql: 'SELECT * FROM users' },
-  ]);
+  await runner.execute([{ sql: 'SELECT * FROM users' }]);
 
   expect(cb).toBeCalledTimes(0);
 });

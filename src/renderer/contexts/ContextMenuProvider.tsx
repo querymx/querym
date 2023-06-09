@@ -11,10 +11,14 @@ import ContextMenu, {
 
 const ContextMenuContext = createContext<{
   handleContextMenu: (e: React.MouseEvent) => void;
+  handleClick: (e: React.MouseEvent) => void;
   setMenuItem: (items: ContextMenuItemProps[]) => void;
   open: boolean;
 }>({
   handleContextMenu: () => {
+    throw 'Not implemented';
+  },
+  handleClick: () => {
     throw 'Not implemented';
   },
   setMenuItem: () => {
@@ -29,7 +33,7 @@ export function useContextMenu(
 ) {
   const context = useContext(ContextMenuContext);
   const createMenuCallback = useCallback(cb, deps);
-  const { open, setMenuItem, handleContextMenu } = context;
+  const { open, setMenuItem, handleContextMenu, handleClick } = context;
 
   const handleContextMenuWithFreshData = useCallback(
     (e: React.MouseEvent) => {
@@ -41,7 +45,20 @@ export function useContextMenu(
     [createMenuCallback, setMenuItem, open, handleContextMenu]
   );
 
-  return { handleContextMenu: handleContextMenuWithFreshData };
+  const handleClickWithFreshData = useCallback(
+    (e: React.MouseEvent) => {
+      if (!open) {
+        setMenuItem(createMenuCallback());
+        handleClick(e);
+      }
+    },
+    [createMenuCallback, setMenuItem, open, handleClick]
+  );
+
+  return {
+    handleContextMenu: handleContextMenuWithFreshData,
+    handleClick: handleClickWithFreshData,
+  };
 }
 
 export function ContextMenuProvider({ children }: PropsWithChildren) {
@@ -66,9 +83,27 @@ export function ContextMenuProvider({ children }: PropsWithChildren) {
     [setStatus]
   );
 
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const bound = e.currentTarget.getBoundingClientRect();
+
+      console.log('click', bound);
+
+      setStatus((prev) => ({
+        ...prev,
+        open: true,
+        x: bound.left,
+        y: bound.bottom,
+      }));
+
+      e.preventDefault();
+    },
+    [setStatus]
+  );
+
   return (
     <ContextMenuContext.Provider
-      value={{ handleContextMenu, setMenuItem, open: status.open }}
+      value={{ handleContextMenu, setMenuItem, open: status.open, handleClick }}
     >
       {children}
       <ContextMenu status={status} onClose={onClose}>

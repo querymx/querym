@@ -7,6 +7,8 @@ import {
   useEffect,
 } from 'react';
 import styles from './styles.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 export interface ContextMenuItemProps {
   text: string;
@@ -16,6 +18,7 @@ export interface ContextMenuItemProps {
   destructive?: boolean;
   onClick?: () => void;
   separator?: boolean;
+  tick?: boolean;
 }
 
 interface ContextMenuStatus {
@@ -70,6 +73,7 @@ ContextMenu.Item = function ({
   text,
   onClick,
   icon,
+  tick,
   disabled,
   destructive,
   separator,
@@ -95,7 +99,9 @@ ContextMenu.Item = function ({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className={styles.icon}>{icon}</span>
+      <span className={styles.icon}>
+        {tick ? <FontAwesomeIcon icon={faCheck} /> : icon}
+      </span>
       <span className={styles.text}>{text}</span>
       <span className={styles.hotkey}>{hotkey}</span>
     </li>

@@ -1,25 +1,31 @@
 import { SqlQueryCallback } from 'drivers/SQLLikeConnection';
 import { QueryResult } from 'types/SqlResult';
 import { SqlStatement } from 'types/SqlStatement';
+import { Parser, AST } from 'node-sql-parser';
 
-export enum SqlProtectionLevel {
-  None = 0,
-  NeedConfirm = 1,
+export interface SqlStatementWithAnalyze extends SqlStatement {
+  analyze?: AST;
 }
 
 export type BeforeAllEventCallback = (
-  level: SqlProtectionLevel,
-  statements: SqlStatement[]
+  statements: SqlStatementWithAnalyze[],
+  skipProtection?: boolean
 ) => Promise<boolean>;
 
 export type BeforeEachEventCallback = (
-  level: SqlProtectionLevel,
-  statements: SqlStatement
+  statements: SqlStatementWithAnalyze,
+  skipProtection?: boolean
 ) => Promise<boolean>;
 
 export interface SqlStatementResult {
   statement: SqlStatement;
   result: QueryResult;
+}
+
+interface SqlExecuteOption {
+  onStart?: () => void;
+  skipProtection?: boolean;
+  disableAnalyze?: boolean;
 }
 
 export class SqlRunnerManager {
@@ -32,26 +38,41 @@ export class SqlRunnerManager {
   }
 
   async execute(
-    level: SqlProtectionLevel,
     statements: SqlStatement[],
-    onStart?: () => void
+    options?: SqlExecuteOption
   ): Promise<SqlStatementResult[]> {
     const result: SqlStatementResult[] = [];
+    const parser = new Parser();
+
+    const finalStatements: SqlStatementWithAnalyze[] = options?.disableAnalyze
+      ? statements
+      : statements.map((statement) => {
+          try {
+            return {
+              ...statement,
+              analyze: parser.astify(statement.sql),
+            };
+          } catch (e) {
+            console.error(e);
+          }
+
+          return statement;
+        });
 
     for (const cb of this.beforeAllCallbacks) {
-      if (!(await cb(level, statements))) {
+      if (!(await cb(finalStatements, options?.skipProtection))) {
         throw 'Cancel';
       }
     }
 
-    for (const statement of statements) {
+    for (const statement of finalStatements) {
       for (const cb of this.beforeEachCallbacks) {
-        if (!(await cb(level, statement))) {
+        if (!(await cb(statement, options?.skipProtection))) {
           throw 'Cancel';
         }
       }
 
-      if (onStart) onStart();
+      if (options?.onStart) options.onStart();
 
       const returnedResult = await this.executor(
         statement.sql,

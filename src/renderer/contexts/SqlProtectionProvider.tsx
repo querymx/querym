@@ -1,15 +1,14 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useSqlExecute } from './SqlExecuteProvider';
-import {
-  BeforeAllEventCallback,
-  SqlProtectionLevel,
-} from 'libs/SqlRunnerManager';
+import { BeforeAllEventCallback } from 'libs/SqlRunnerManager';
 import Modal from 'renderer/components/Modal';
 import Button from 'renderer/components/Button';
 import { SqlStatement } from 'types/SqlStatement';
+import { useDatabaseSetting } from './DatabaseSettingProvider';
 
 export default function SqlProtectionProvider({ children }: PropsWithChildren) {
   const { runner } = useSqlExecute();
+  const { protectionLevel } = useDatabaseSetting();
   const [openSafetyConfirmation, setOpenSafetyConfirmation] = useState(false);
   const [confirmPromise, setConfirmPromise] = useState<{
     resolve?: (v: boolean) => void;
@@ -20,9 +19,23 @@ export default function SqlProtectionProvider({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    const cb: BeforeAllEventCallback = async (safetyLevel, statements) => {
-      if (safetyLevel === SqlProtectionLevel.None) {
+    const cb: BeforeAllEventCallback = async (statements, skipProtection) => {
+      if (skipProtection) {
         return true;
+      }
+
+      if (protectionLevel === 0) {
+        return true;
+      } else if (protectionLevel === 1) {
+        // If there is non-SELECT, then we need protection
+        if (
+          statements.some((statement) => {
+            if (!statement.analyze) return false;
+            return statement.analyze.type === 'select';
+          })
+        ) {
+          return true;
+        }
       }
 
       setConfirmStatements(statements);
@@ -37,6 +50,7 @@ export default function SqlProtectionProvider({ children }: PropsWithChildren) {
     return () => runner.unregisterBeforeAll(cb);
   }, [
     runner,
+    protectionLevel,
     setConfirmPromise,
     setConfirmStatements,
     setOpenSafetyConfirmation,
