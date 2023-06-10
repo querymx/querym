@@ -1,22 +1,11 @@
 import { SqlStatementPlan } from 'types/SqlStatement';
-import { update } from 'sql-bricks';
-
-function convertUnsupportedValue(value: Record<string, unknown>) {
-  const result = { ...value };
-  for (const key of Object.keys(result)) {
-    if (typeof result[key] === 'object') {
-      result[key] = JSON.stringify(result[key]);
-    }
-  }
-
-  return result;
-}
+import { QueryBuilder } from './QueryBuilder';
 
 export default function generateSqlFromPlan(plan: SqlStatementPlan) {
   if (plan.type === 'update') {
-    return update(plan.table, convertUnsupportedValue(plan.values))
-      .where(convertUnsupportedValue(plan.where || {}))
-      .toString();
+    const qb = new QueryBuilder('mysql').table(plan.table).update(plan.values);
+    if (plan.where) qb.where(plan.where);
+    return qb.toRawSQL();
   }
   return '';
 }
