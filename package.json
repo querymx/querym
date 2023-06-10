@@ -78,7 +78,6 @@
     "dmg-license": "^1.0.11"
   },
   "devDependencies": {
-    "@types/sqlstring": "^2.3.0",
     "@electron/notarize": "^1.2.3",
     "@electron/rebuild": "^3.2.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
@@ -93,6 +92,7 @@
     "@types/react-dom": "^18.0.10",
     "@types/react-test-renderer": "^18.0.0",
     "@types/source-map-support": "^0.5.6",
+    "@types/sqlstring": "^2.3.0",
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/uuid": "^9.0.1",
     "@types/webpack-bundle-analyzer": "^4.6.0",
@@ -107,7 +107,7 @@
     "css-minimizer-webpack-plugin": "^4.2.2",
     "detect-port": "^1.5.1",
     "electron": "^23.0.0",
-    "electron-builder": "^23.6.0",
+    "electron-builder": "^24.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
     "eslint": "^8.33.0",
