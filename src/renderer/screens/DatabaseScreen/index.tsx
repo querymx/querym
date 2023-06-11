@@ -1,5 +1,5 @@
 import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SchemaProvider } from 'renderer/contexts/SchemaProvider';
 import { DatabaseSettingProvider } from 'renderer/contexts/DatabaseSettingProvider';
 import {
@@ -12,16 +12,81 @@ import { DatabaseSchemas } from 'types/SqlSchema';
 import Layout from 'renderer/components/Layout';
 import MainToolbar from './MainToolbar';
 import MainView from './MainView';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCloudBolt, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import Stack from 'renderer/components/Stack';
+import Button from 'renderer/components/Button';
+import ButtonGroup from 'renderer/components/ButtonGroup';
+import { useConnection } from 'renderer/App';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
+  const { disconnect } = useConnection();
   const [schema, setSchema] = useState<DatabaseSchemas | undefined>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const fetchSchema = useCallback(() => {
+    setLoading(true);
+    common
+      .getSchema()
+      .then((data) => {
+        setSchema(data);
+      })
+      .catch((e) => {
+        setError(true);
+        setErrorMessage(e.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [setSchema, setError, setErrorMessage, common, setLoading]);
 
   useEffect(() => {
-    common.getSchema().then((data) => {
-      setSchema(data);
-    });
-  }, [setSchema, common]);
+    fetchSchema();
+  }, [fetchSchema]);
+
+  if (loading) {
+    return (
+      <Stack full center>
+        <Stack vertical center>
+          <FontAwesomeIcon icon={faSpinner} spin fontSize={40} />
+        </Stack>
+      </Stack>
+    );
+  }
+
+  if (error) {
+    return (
+      <Stack full center>
+        <Stack vertical center>
+          <FontAwesomeIcon icon={faCloudBolt} fontSize={40} />
+          <div>{errorMessage}</div>
+
+          <div>
+            <ButtonGroup>
+              <Button
+                primary
+                onClick={() => {
+                  disconnect();
+                }}
+              >
+                Go Back
+              </Button>
+              <Button
+                onClick={() => {
+                  fetchSchema();
+                }}
+              >
+                Retry
+              </Button>
+            </ButtonGroup>
+          </div>
+        </Stack>
+      </Stack>
+    );
+  }
 
   return (
     <SchemaProvider schema={schema}>
