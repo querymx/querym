@@ -44,7 +44,7 @@ const electronHandler = {
     ipcRenderer.invoke('close');
   },
 
-  showMessageBox: (options: MessageBoxSyncOptions) =>
+  showMessageBox: (options: MessageBoxSyncOptions): Promise<number> =>
     ipcRenderer.invoke('show-message-box', [options]),
 
   setNativeMenu: (options: MenuItemConstructorOptions[]) =>

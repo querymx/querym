@@ -230,7 +230,24 @@ export default function HomeScreen({
             <ButtonGroup>
               <Button
                 primary
-                onClick={() => onNavigateToDatabaseConfig(selectedItemChanged)}
+                onClick={() => {
+                  if (hasChange) {
+                    window.electron
+                      .showMessageBox({
+                        title: 'Save Your Change',
+                        message: 'Do you want to save this connection setting?',
+                        buttons: ['Yes', 'No'],
+                      })
+                      .then((buttonIdx) => {
+                        if (buttonIdx === 0) {
+                          onSaveClick();
+                        }
+                        onNavigateToDatabaseConfig(selectedItemChanged);
+                      });
+                  } else {
+                    onNavigateToDatabaseConfig(selectedItemChanged);
+                  }
+                }}
               >
                 Connect
               </Button>

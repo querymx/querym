@@ -28,7 +28,7 @@ export default function DatabaseConfigEditor({
     (v: ConnectionStoreConfig) => {
       onChange({ ...value, config: v });
     },
-    [onChange]
+    [value, onChange]
   );
 
   const onImportConnectionStringClicked = useCallback(() => {
