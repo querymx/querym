@@ -1,13 +1,22 @@
-import { faShield } from '@fortawesome/free-solid-svg-icons';
+import { faPlugCircleXmark, faShield } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useConnection } from 'renderer/App';
 import Toolbar from 'renderer/components/Toolbar';
 import { useDatabaseSetting } from 'renderer/contexts/DatabaseSettingProvider';
 
 export default function MainToolbar() {
+  const { disconnect } = useConnection();
   const { protectionLevel, setProductionLevel } = useDatabaseSetting();
 
   return (
     <Toolbar shadow>
+      <Toolbar.Item
+        text="Disconnect"
+        icon={<FontAwesomeIcon icon={faPlugCircleXmark} />}
+        onClick={() => {
+          disconnect();
+        }}
+      />
       <Toolbar.ContextMenu
         text={`Protection: Level ${protectionLevel}`}
         icon={<FontAwesomeIcon icon={faShield} />}

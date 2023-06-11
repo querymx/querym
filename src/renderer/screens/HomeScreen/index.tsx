@@ -20,14 +20,10 @@ import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState'
 import WelcomeScreen from './WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { db } from 'renderer/db';
+import { useConnection } from 'renderer/App';
 
-interface HomeScreenProps {
-  onNavigateToDatabaseConfig: (config: ConnectionStoreItem) => void;
-}
-
-export default function HomeScreen({
-  onNavigateToDatabaseConfig,
-}: HomeScreenProps) {
+export default function HomeScreen() {
+  const { connect } = useConnection();
   const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
     []
   );
@@ -214,7 +210,7 @@ export default function HomeScreen({
           changeItemKeys={hasChange && selectedItem ? [selectedItem.id] : []}
           onSelectChange={setSelectedItem}
           onBeforeSelectChange={onBeforeSelectChange}
-          onDoubleClick={(item) => onNavigateToDatabaseConfig(item)}
+          onDoubleClick={(item) => connect(item)}
           extractMeta={(item) => ({
             icon: <Icon.MySql />,
             text: item.name,
@@ -242,10 +238,10 @@ export default function HomeScreen({
                         if (buttonIdx === 0) {
                           onSaveClick();
                         }
-                        onNavigateToDatabaseConfig(selectedItemChanged);
+                        connect(selectedItemChanged);
                       });
                   } else {
-                    onNavigateToDatabaseConfig(selectedItemChanged);
+                    connect(selectedItemChanged);
                   }
                 }}
               >
