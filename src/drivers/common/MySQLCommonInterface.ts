@@ -1,6 +1,7 @@
 import { DatabaseSchemas, TableConstraintTypeSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
+import { qb } from 'libs/QueryBuilder';
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
   protected runner: SqlRunnerManager;
@@ -16,15 +17,21 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     const response = await this.runner.execute(
       [
         {
-          sql: this.currentDatabaseName
-            ? `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=:database_name`
-            : `SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS`,
-          params: this.currentDatabaseName
-            ? { database_name: this.currentDatabaseName }
-            : undefined,
+          sql: qb()
+            .table('information_schema.columns')
+            .select('table_schema', 'table_name', 'column_name')
+            .where({ table_schema: this.currentDatabaseName })
+            .toRawSQL(),
         },
         {
           sql: 'SELECT kc.CONSTRAINT_SCHEMA, kc.CONSTRAINT_NAME, kc.TABLE_SCHEMA, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kc INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc ON (kc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND kc.TABLE_NAME = tc.TABLE_NAME AND kc.TABLE_SCHEMA = tc.TABLE_SCHEMA)',
+        },
+        {
+          sql: qb()
+            .table('information_schema.tables')
+            .select('table_schema', 'table_name', 'table_type')
+            .where({ table_schema: this.currentDatabaseName })
+            .toRawSQL(),
         },
       ],
       {
@@ -36,6 +43,25 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     const databases: DatabaseSchemas = {};
     const data = response[0].result;
     const constraints = response[1].result;
+    const tableDict: Record<
+      string,
+      Record<string, string>
+    > = response[2].result.rows.reduce(
+      (a: Record<string, Record<string, string>>, row) => {
+        const databaseName = row[0] as string;
+        const tableName = row[1] as string;
+        const tableType = row[2] as string;
+
+        if (a[databaseName]) {
+          a[databaseName][tableName] = tableType;
+        } else {
+          a[databaseName] = { [tableName]: tableType };
+        }
+
+        return a;
+      },
+      {}
+    );
 
     for (const row of data.rows) {
       const databaseName = row[0] as string;
@@ -52,6 +78,8 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       const database = databases[databaseName];
       if (!database.tables[tableName]) {
         database.tables[tableName] = {
+          type:
+            tableDict[databaseName][tableName] === 'VIEW' ? 'VIEW' : 'TABLE',
           name: tableName,
           columns: {},
           constraints: [],

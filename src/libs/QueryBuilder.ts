@@ -195,3 +195,7 @@ export class QueryBuilder {
     return this.dialect.format(sql, binding);
   }
 }
+
+export function qb(dialect?: 'mysql') {
+  return new QueryBuilder(dialect || 'mysql');
+}

@@ -2,6 +2,8 @@ interface TableColumnSchema {
   name: string;
 }
 
+export type TableType = 'VIEW' | 'TABLE';
+
 export type TableConstraintTypeSchema = 'PRIMARY KEY' | 'UNIQUE';
 
 interface TableConstraintSchema {
@@ -12,6 +14,7 @@ interface TableConstraintSchema {
 
 interface TableSchema {
   name: string;
+  type: TableType;
   columns: Record<string, TableColumnSchema>;
   constraints: TableConstraintSchema[];
   primaryKey: string[];
