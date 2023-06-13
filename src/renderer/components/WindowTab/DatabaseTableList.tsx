@@ -5,6 +5,7 @@ import Icon from '../Icon';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { QueryBuilder } from 'libs/QueryBuilder';
 
 export default function DatabaseTableList() {
   const { schema, currentDatabase } = useSchmea();
@@ -25,10 +26,14 @@ export default function DatabaseTableList() {
         collapsedKeys={collapsed}
         onCollapsedChange={setCollapsed}
         onDoubleClick={(item) => {
-          if (item.data) {
-            newWindow(`SELECT ${item.data.name}`, (key, name) => (
+          const tableName = item.data?.name;
+          if (tableName) {
+            newWindow(`SELECT ${tableName}`, (key, name) => (
               <QueryWindow
-                initialSql={`SELECT * FROM ${item.data?.name || ''} LIMIT 200;`}
+                initialSql={new QueryBuilder('mysql')
+                  .table(tableName)
+                  .limit(200)
+                  .toRawSQL()}
                 initialRun
                 tabKey={key}
                 name={name}

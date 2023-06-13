@@ -22,6 +22,8 @@ interface QueryStates {
   insert?: Record<string, unknown>[];
   update?: Record<string, unknown>;
   where: QueryWhere[];
+  select: string[];
+  limit?: number;
 }
 
 abstract class QueryDialect {
@@ -44,6 +46,7 @@ export class QueryBuilder {
   protected states: QueryStates = {
     type: 'select',
     where: [],
+    select: [],
   };
 
   constructor(dialect: 'mysql') {
@@ -80,6 +83,16 @@ export class QueryBuilder {
       });
     }
 
+    return this;
+  }
+
+  select(...columns: string[]) {
+    this.states.select = this.states.select.concat(columns);
+    return this;
+  }
+
+  limit(n: number) {
+    this.states.limit = n;
     return this;
   }
 
@@ -138,6 +151,35 @@ export class QueryBuilder {
           commandPart,
           'SET ' + setPart.join(','),
           whereSql ? 'WHERE ' + whereSql : whereSql,
+        ]
+          .filter(Boolean)
+          .join(' ') + ';';
+
+      return { sql, binding };
+    } else if (this.states.type === 'select') {
+      if (!this.states.table) throw 'no table specified';
+      let binding: unknown[] = [];
+
+      const selectFieldPart =
+        this.states.select.length === 0
+          ? '*'
+          : this.states.select
+              .map((field) => this.dialect.escapeIdentifier(field))
+              .join(',');
+
+      const { sql: whereSql, binding: whereBinding } = this.buildWhere(
+        this.states.where
+      );
+      binding = binding.concat(...whereBinding);
+
+      const sql =
+        [
+          'SELECT',
+          selectFieldPart,
+          'FROM',
+          this.dialect.escapeIdentifier(this.states.table),
+          whereSql ? 'WHERE ' + whereSql : whereSql,
+          this.states.limit ? `LIMIT ${this.states.limit}` : null,
         ]
           .filter(Boolean)
           .join(' ') + ';';
