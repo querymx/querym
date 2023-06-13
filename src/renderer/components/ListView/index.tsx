@@ -42,7 +42,7 @@ export default function ListView<T>({
 
   return (
     <div
-      style={{ height: '100%' }}
+      style={{ height: '100%', userSelect: 'none' }}
       onContextMenu={(e) => {
         if (onContextMenu) {
           onContextMenu(e);
