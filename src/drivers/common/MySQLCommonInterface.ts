@@ -33,6 +33,20 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
             .where({ table_schema: this.currentDatabaseName })
             .toRawSQL(),
         },
+        {
+          sql: qb()
+            .table('information_schema.triggers')
+            .select('trigger_schema', 'trigger_name')
+            .where({ trigger_schema: this.currentDatabaseName })
+            .toRawSQL(),
+        },
+        {
+          sql: qb()
+            .table('information_schema.events')
+            .select('event_schema', 'event_name')
+            .where({ event_schema: this.currentDatabaseName })
+            .toRawSQL(),
+        },
       ],
       {
         disableAnalyze: true,
@@ -63,6 +77,9 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       {}
     );
 
+    const events = response[4].result.rows;
+    const trigger = response[3].result.rows;
+
     for (const row of data.rows) {
       const databaseName = row[0] as string;
       const tableName = row[1] as string;
@@ -72,6 +89,12 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
         databases[databaseName] = {
           tables: {},
           name: databaseName,
+          events: events
+            .filter((row) => row[0] === databaseName)
+            .map((row) => row[1] as string),
+          triggers: trigger
+            .filter((row) => row[0] === databaseName)
+            .map((row) => row[1] as string),
         };
       }
 

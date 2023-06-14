@@ -23,6 +23,8 @@ interface TableSchema {
 export interface DatabaseSchema {
   name: string;
   tables: Record<string, TableSchema>;
+  events: string[];
+  triggers: string[];
 }
 
 export type DatabaseSchemas = Record<string, DatabaseSchema>;

@@ -6,12 +6,21 @@ import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { QueryBuilder } from 'libs/QueryBuilder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faTableList } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCalendar,
+  faEye,
+  faGear,
+  faTableList,
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function DatabaseTableList() {
   const { schema, currentDatabase } = useSchmea();
-  const [selected, setSelected] =
-    useState<TreeViewItemData<{ name: string }>>();
+  const [selected, setSelected] = useState<
+    TreeViewItemData<{
+      name: string;
+      type: string;
+    }>
+  >();
   const { newWindow } = useWindowTab();
   const [collapsed, setCollapsed] = useState<string[] | undefined>(
     currentDatabase ? [`database/${currentDatabase}`] : []
@@ -20,27 +29,60 @@ export default function DatabaseTableList() {
   const schemaListItem = useMemo(() => {
     if (!schema) return [];
 
-    return Object.values(schema).map((database) => ({
-      id: `database/${database.name}`,
-      text: database.name,
-      children: Object.values(database.tables)
-        .map((table) => ({
-          id: `database/${database.name}/table/${table.name}`,
-          text: table.name,
-          icon:
-            table.type === 'TABLE' ? (
-              <FontAwesomeIcon icon={faTableList} color="#3498db" />
-            ) : (
-              <FontAwesomeIcon icon={faEye} color="#e67e22" />
-            ),
-          data: {
-            name: table.name,
-          },
-        }))
-        .sort((item1, item2) => {
-          return item1.text.localeCompare(item2.text);
-        }),
-    }));
+    return Object.values(schema).map((database) => {
+      let children = Object.values(database.tables).map((table) => ({
+        id: `database/${database.name}/table/${table.name}`,
+        text: table.name,
+        icon:
+          table.type === 'TABLE' ? (
+            <FontAwesomeIcon icon={faTableList} color="#3498db" />
+          ) : (
+            <FontAwesomeIcon icon={faEye} color="#e67e22" />
+          ),
+        data: {
+          name: table.name,
+          type: table.type === 'TABLE' ? 'table' : 'view',
+        },
+      }));
+
+      if (database.events.length > 0) {
+        children = children.concat(
+          database.events.map((event) => ({
+            id: `database/${database.name}/event/${event}`,
+            text: event,
+            icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
+            data: {
+              name: event,
+              type: 'event',
+            },
+          }))
+        );
+      }
+
+      if (database.triggers.length > 0) {
+        children = children.concat(
+          database.triggers.map((trigger) => ({
+            id: `database/${database.name}/trigger/${trigger}`,
+            text: trigger,
+            icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
+            data: {
+              name: trigger,
+              type: 'trigger',
+            },
+          }))
+        );
+      }
+
+      children.sort((item1, item2) => {
+        return item1.text.localeCompare(item2.text);
+      });
+
+      return {
+        id: `database/${database.name}`,
+        text: database.name,
+        children,
+      };
+    });
   }, [schema]);
 
   if (!schema) return <div />;
@@ -54,7 +96,8 @@ export default function DatabaseTableList() {
         onCollapsedChange={setCollapsed}
         onDoubleClick={(item) => {
           const tableName = item.data?.name;
-          if (tableName) {
+          const type = item.data?.type;
+          if (type === 'table' && tableName) {
             newWindow(`SELECT ${tableName}`, (key, name) => (
               <QueryWindow
                 initialSql={new QueryBuilder('mysql')
