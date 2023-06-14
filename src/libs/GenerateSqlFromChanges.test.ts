@@ -2,13 +2,17 @@ import { QueryResult } from 'types/SqlResult';
 import generateSqlFromChanges from './GenerateSqlFromChanges';
 import ResultChangeCollector from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
+import { TableType } from 'types/SqlSchema';
 
 test('Generate Sql from changes with primary key', () => {
   const schema = {
     name: 'testing',
+    events: [],
+    triggers: [],
     tables: {
       users: {
         name: 'users',
+        type: 'TABLE' as TableType,
         columns: {
           id: { name: 'id' },
           name: { name: 'name' },
