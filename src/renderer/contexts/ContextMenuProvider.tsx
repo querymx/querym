@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useCallback,
+  useEffect,
 } from 'react';
 import ContextMenu, {
   ContextMenuItemProps,
@@ -33,16 +34,24 @@ export function useContextMenu(
 ) {
   const context = useContext(ContextMenuContext);
   const createMenuCallback = useCallback(cb, deps);
+  const [intentToOpenCounter, setIntentToOpenCounter] = useState(0);
   const { open, setMenuItem, handleContextMenu, handleClick } = context;
+
+  useEffect(() => {
+    if (intentToOpenCounter > 0) {
+      const r = createMenuCallback();
+      setMenuItem(r);
+    }
+  }, [intentToOpenCounter, createMenuCallback, setMenuItem]);
 
   const handleContextMenuWithFreshData = useCallback(
     (e: React.MouseEvent) => {
       if (!open) {
-        setMenuItem(createMenuCallback());
-        handleContextMenu(e);
+        setIntentToOpenCounter((prev) => prev + 1);
+        setTimeout(() => handleContextMenu(e), 50);
       }
     },
-    [createMenuCallback, setMenuItem, open, handleContextMenu]
+    [setIntentToOpenCounter, open, handleContextMenu]
   );
 
   const handleClickWithFreshData = useCallback(
@@ -86,8 +95,6 @@ export function ContextMenuProvider({ children }: PropsWithChildren) {
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       const bound = e.currentTarget.getBoundingClientRect();
-
-      console.log('click', bound);
 
       setStatus((prev) => ({
         ...prev,

@@ -7,6 +7,13 @@ export interface ConfigurationFileFormat {
 }
 
 export interface DatabaseSavedState {
-  tabs: { key: string; name: string; sql: string }[];
+  tabs: {
+    key: string;
+    name: string;
+    sql: string;
+    type: string;
+    database: string;
+    table: string;
+  }[];
   selectedTabKey: string;
 }

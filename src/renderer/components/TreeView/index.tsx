@@ -17,6 +17,7 @@ interface TreeViewProps<T> {
   onCollapsedChange?: (value?: string[]) => void;
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
+  onContextMenu?: React.MouseEventHandler;
 }
 
 function TreeViewItem<T>({
@@ -28,7 +29,6 @@ function TreeViewItem<T>({
 
   collapsedKeys,
   onCollapsedChange,
-
   onDoubleClick,
 }: {
   item: TreeViewItemData<T>;
@@ -39,7 +39,6 @@ function TreeViewItem<T>({
 
   onCollapsedChange?: (value?: string[]) => void;
   collapsedKeys?: string[];
-
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
 }) {
   const hasCollapsed = item.children && item.children.length > 0;
@@ -67,6 +66,7 @@ function TreeViewItem<T>({
         collapsed={isCollapsed}
         selected={selected?.id === item.id}
         onClick={onSelectChangeCallback}
+        onContextMenu={onSelectChangeCallback}
         onCollapsedClick={() => {
           if (onCollapsedChange) {
             if (isCollapsed) {
@@ -110,9 +110,10 @@ export default function TreeView<T>({
   onCollapsedChange,
   collapsedKeys,
   onDoubleClick,
+  onContextMenu,
 }: TreeViewProps<T>) {
   return (
-    <div className={`${styles.treeView} scroll`}>
+    <div className={`${styles.treeView} scroll`} onContextMenu={onContextMenu}>
       {items.map((item) => {
         return (
           <TreeViewItem

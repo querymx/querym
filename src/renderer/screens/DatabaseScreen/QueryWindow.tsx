@@ -143,7 +143,7 @@ export default function QueryWindow({
   }, [executeSql, initialSql, initialRun]);
 
   useEffect(() => {
-    setTabData(tabKey, { sql: initialSql });
+    setTabData(tabKey, { sql: initialSql, type: 'query' });
   }, [tabKey, setTabData, initialSql]);
 
   return (

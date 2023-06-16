@@ -12,11 +12,14 @@ import {
   faGear,
   faTableList,
 } from '@fortawesome/free-solid-svg-icons';
+import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
 
 export default function DatabaseTableList() {
   const { schema, currentDatabase } = useSchmea();
   const [selected, setSelected] = useState<
     TreeViewItemData<{
+      database: string;
       name: string;
       type: string;
     }>
@@ -25,6 +28,40 @@ export default function DatabaseTableList() {
   const [collapsed, setCollapsed] = useState<string[] | undefined>(
     currentDatabase ? [`database/${currentDatabase}`] : []
   );
+
+  const { handleContextMenu } = useContextMenu(() => {
+    const tableName = selected?.data?.name;
+    const databaseName = selected?.data?.database;
+
+    if (
+      selected &&
+      selected.data &&
+      selected.data.type === 'table' &&
+      tableName &&
+      databaseName
+    ) {
+      return [
+        { text: 'Select 200 Rows' },
+        {
+          text: 'Open Structure',
+          onClick: () => {
+            newWindow(tableName, (key, name) => {
+              return (
+                <SqlTableSchemaTab
+                  tabKey={key}
+                  name={name}
+                  database={databaseName}
+                  table={tableName}
+                />
+              );
+            });
+          },
+        },
+      ];
+    }
+
+    return [];
+  }, [selected, newWindow]);
 
   const schemaListItem = useMemo(() => {
     if (!schema) return [];
@@ -42,6 +79,7 @@ export default function DatabaseTableList() {
         data: {
           name: table.name,
           type: table.type === 'TABLE' ? 'table' : 'view',
+          database: database.name,
         },
       }));
 
@@ -54,6 +92,7 @@ export default function DatabaseTableList() {
             data: {
               name: event,
               type: 'event',
+              database: database.name,
             },
           }))
         );
@@ -67,6 +106,7 @@ export default function DatabaseTableList() {
             icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
             data: {
               name: trigger,
+              database: database.name,
               type: 'trigger',
             },
           }))
@@ -94,10 +134,11 @@ export default function DatabaseTableList() {
         onSelectChange={setSelected}
         collapsedKeys={collapsed}
         onCollapsedChange={setCollapsed}
+        onContextMenu={handleContextMenu}
         onDoubleClick={(item) => {
           const tableName = item.data?.name;
           const type = item.data?.type;
-          if (type === 'table' && tableName) {
+          if ((type === 'table' || type === 'view') && tableName) {
             newWindow(`SELECT ${tableName}`, (key, name) => (
               <QueryWindow
                 initialSql={new QueryBuilder('mysql')

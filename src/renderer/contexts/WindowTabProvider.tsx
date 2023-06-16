@@ -12,6 +12,7 @@ import { useDatabaseSetting } from './DatabaseSettingProvider';
 import { db } from 'renderer/db';
 import { DatabaseSavedState } from 'types/FileFormatType';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
+import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
 
 interface WindowTabItemProps {
   key: string;
@@ -88,17 +89,34 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
         .then((result: DatabaseSavedState | null) => {
           if (result) {
             setTabs(
-              result.tabs.map((tab) => ({
-                key: tab.key,
-                name: tab.name,
-                component: (
-                  <QueryWindow
-                    tabKey={tab.key}
-                    name={tab.name}
-                    initialSql={tab.sql}
-                  />
-                ),
-              }))
+              result.tabs.map((tab) => {
+                let component: ReactElement = <div />;
+
+                if (tab.type === 'query' || !tab.type) {
+                  component = (
+                    <QueryWindow
+                      tabKey={tab.key}
+                      name={tab.name}
+                      initialSql={tab.sql}
+                    />
+                  );
+                } else if (tab.type === 'table-schema') {
+                  component = (
+                    <SqlTableSchemaTab
+                      tabKey={tab.key}
+                      name={tab.name}
+                      database={tab.database}
+                      table={tab.table}
+                    />
+                  );
+                }
+
+                return {
+                  key: tab.key,
+                  name: tab.name,
+                  component,
+                };
+              })
             );
             setSelectedTab(result.selectedTabKey);
           } else {
@@ -128,15 +146,17 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
             .put({
               id: setting?.id || '',
               selectedTabKey: selectedTab,
-              tabs: tabs.map((tab) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { component, ...rest } = tab;
-                return {
-                  ...rest,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  sql: (tabData.data[tab.key] as any)?.sql || undefined,
-                };
-              }),
+              tabs: tabs
+                .map((tab) => {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { component, ...rest } = tab;
+                  return {
+                    ...rest,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    ...(tabData.data[tab.key] as any),
+                  };
+                })
+                .filter((tab) => !!tab.type),
             })
             .then(() => {
               setAllowedClose(true);
