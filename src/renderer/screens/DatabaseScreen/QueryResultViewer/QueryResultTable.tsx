@@ -71,6 +71,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
   const { schema, currentDatabase } = useSchmea();
+  const [isGridCSSPrepared, setGridCSSPrepared] = useState(false);
 
   const { handleContextMenu } = useContextMenu(() => {
     return [
@@ -104,8 +105,9 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     if (tableRef.current) {
       tableRef.current.style.gridTemplateColumns =
         result?.headers.map(() => '150px').join(' ') || '';
+      setGridCSSPrepared(true);
     }
-  }, [result, tableRef]);
+  }, [result, tableRef, setGridCSSPrepared]);
 
   if (!result?.headers || !result?.rows) {
     return <div>No result</div>;
@@ -146,25 +148,31 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
       onContextMenu={handleContextMenu}
     >
       <table ref={tableRef} className={styles.table}>
-        <thead>
-          <tr>
-            {result.headers.map((header, idx) => (
-              <th key={header.name}>
-                <div className={styles.headerContent}>
-                  <div className={styles.headerContentTitle}>{header.name}</div>
-                  {!!header?.schema?.primaryKey && (
-                    <div className={styles.headerContentIcon}>
-                      <Icon.GreenKey />
+        {isGridCSSPrepared && (
+          <>
+            <thead>
+              <tr>
+                {result.headers.map((header, idx) => (
+                  <th key={header.name}>
+                    <div className={styles.headerContent}>
+                      <div className={styles.headerContentTitle}>
+                        {header.name}
+                      </div>
+                      {!!header?.schema?.primaryKey && (
+                        <div className={styles.headerContentIcon}>
+                          <Icon.GreenKey />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <ResizeHandler idx={idx} />
-              </th>
-            ))}
-          </tr>
-        </thead>
+                    <ResizeHandler idx={idx} />
+                  </th>
+                ))}
+              </tr>
+            </thead>
 
-        <tbody>{RowList}</tbody>
+            <tbody>{RowList}</tbody>
+          </>
+        )}
       </table>
     </div>
   );
