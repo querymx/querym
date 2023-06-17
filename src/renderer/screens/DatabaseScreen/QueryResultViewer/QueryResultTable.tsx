@@ -21,7 +21,7 @@ function ResizeHandler({ idx }: { idx: number }) {
 
   useEffect(() => {
     if (handlerRef.current && resizing) {
-      const table = handlerRef.current?.parentNode?.parentNode
+      const table = handlerRef.current?.parentNode?.parentNode?.parentNode
         ?.parentNode as HTMLTableElement;
 
       if (table) {
@@ -147,19 +147,21 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     >
       <table ref={tableRef} className={styles.table}>
         <thead>
-          {result.headers.map((header, idx) => (
-            <th key={header.name}>
-              <div className={styles.headerContent}>
-                <div className={styles.headerContentTitle}>{header.name}</div>
-                {!!header?.schema?.primaryKey && (
-                  <div className={styles.headerContentIcon}>
-                    <Icon.GreenKey />
-                  </div>
-                )}
-              </div>
-              <ResizeHandler idx={idx} />
-            </th>
-          ))}
+          <tr>
+            {result.headers.map((header, idx) => (
+              <th key={header.name}>
+                <div className={styles.headerContent}>
+                  <div className={styles.headerContentTitle}>{header.name}</div>
+                  {!!header?.schema?.primaryKey && (
+                    <div className={styles.headerContentIcon}>
+                      <Icon.GreenKey />
+                    </div>
+                  )}
+                </div>
+                <ResizeHandler idx={idx} />
+              </th>
+            ))}
+          </tr>
         </thead>
 
         <tbody>{RowList}</tbody>
