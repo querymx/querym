@@ -73,14 +73,16 @@ export class QueryBuilder {
 
   where(conditions: Record<string, unknown>) {
     for (const [field, value] of Object.entries(conditions)) {
-      this.states.where.push({
-        mode: 'AND',
-        condition: {
-          field,
-          value,
-          op: '=',
-        },
-      });
+      if (value !== undefined) {
+        this.states.where.push({
+          mode: 'AND',
+          condition: {
+            field,
+            value,
+            op: '=',
+          },
+        });
+      }
     }
 
     return this;

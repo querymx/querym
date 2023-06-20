@@ -1,11 +1,12 @@
 import { faAdd, faClose, faCode } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import styles from './styles.module.scss';
 
 interface WindowTabItem {
   key: string;
   name: string;
+  icon?: ReactElement;
   component: ReactNode;
 }
 
@@ -55,7 +56,7 @@ export default function WindowTab({
                 }}
               >
                 <span className={styles.icon}>
-                  <FontAwesomeIcon icon={faCode} />
+                  {tab.icon ? tab.icon : <FontAwesomeIcon icon={faCode} />}
                 </span>
                 <span>{tab.name}</span>
                 {tabs.length > 1 && onTabClosed && (

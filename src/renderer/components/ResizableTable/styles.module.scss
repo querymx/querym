@@ -1,0 +1,68 @@
+.table {
+  display: grid;
+  position: relative;
+  user-select: none;
+
+  thead, tbody, tr {
+    display: contents;
+  }
+
+  .headerContent {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .headerContentIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .headerContentIcon img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .headerContentTitle {
+    flex-grow: 1;
+    padding-left: 2px;
+    padding-right: 2px;
+    overflow: hidden;
+  }
+
+  td, th {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-table-grid);
+    border-right: 1px solid var(--color-table-grid);
+  }
+
+  td {
+    overflow: hidden;
+  }
+
+  th {
+    padding: 5px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--color-surface);
+  }
+
+  .handler {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    cursor: col-resize;
+    background: var(--color-critical);
+    opacity: 0;
+  }
+
+  .handler:hover {
+    opacity: 0.5;
+  }
+}

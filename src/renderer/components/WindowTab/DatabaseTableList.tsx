@@ -45,16 +45,20 @@ export default function DatabaseTableList() {
         {
           text: 'Open Structure',
           onClick: () => {
-            newWindow(tableName, (key, name) => {
-              return (
-                <SqlTableSchemaTab
-                  tabKey={key}
-                  name={name}
-                  database={databaseName}
-                  table={tableName}
-                />
-              );
-            });
+            newWindow(
+              tableName,
+              (key, name) => {
+                return (
+                  <SqlTableSchemaTab
+                    tabKey={key}
+                    name={name}
+                    database={databaseName}
+                    table={tableName}
+                  />
+                );
+              },
+              <FontAwesomeIcon icon={faTableList} color="#3498db" />
+            );
           },
         },
       ];

@@ -18,6 +18,8 @@ export default function MainView() {
     ));
   }, [newWindow]);
 
+  console.log(tabs);
+
   return (
     <Splitter primaryIndex={1} secondaryInitialSize={200}>
       <DatabaseTableList />

@@ -13,10 +13,13 @@ import { db } from 'renderer/db';
 import { DatabaseSavedState } from 'types/FileFormatType';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClose, faTableList } from '@fortawesome/free-solid-svg-icons';
 
 interface WindowTabItemProps {
   key: string;
   name: string;
+  icon?: ReactElement;
   component: ReactElement;
 }
 
@@ -30,7 +33,8 @@ const WindowTabContext = createContext<{
 
   newWindow: (
     name: string,
-    createComponent: (key: string, name: string) => ReactElement
+    createComponent: (key: string, name: string) => ReactElement,
+    icon?: ReactElement
   ) => void;
 }>({
   tabs: [],
@@ -63,13 +67,15 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
   const newWindow = useCallback(
     (
       name: string,
-      createComponent: (key: string, name: string) => ReactElement
+      createComponent: (key: string, name: string) => ReactElement,
+      icon?: ReactElement
     ) => {
       const key = uuidv1();
       setTabs((prev) => {
         return [
           {
             key,
+            icon,
             name,
             component: createComponent(key, name),
           },
@@ -91,6 +97,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
             setTabs(
               result.tabs.map((tab) => {
                 let component: ReactElement = <div />;
+                let icon: ReactElement = <FontAwesomeIcon icon={faClose} />;
 
                 if (tab.type === 'query' || !tab.type) {
                   component = (
@@ -109,11 +116,13 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
                       table={tab.table}
                     />
                   );
+                  icon = <FontAwesomeIcon icon={faTableList} color="#3498db" />;
                 }
 
                 return {
                   key: tab.key,
                   name: tab.name,
+                  icon,
                   component,
                 };
               })
@@ -149,7 +158,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
               tabs: tabs
                 .map((tab) => {
                   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { component, ...rest } = tab;
+                  const { component, icon, ...rest } = tab;
                   return {
                     ...rest,
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any

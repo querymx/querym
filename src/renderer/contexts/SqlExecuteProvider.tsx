@@ -31,6 +31,8 @@ export function SqlExecuteProvider({ children }: PropsWithChildren) {
       new MySQLCommonInterface(
         runner,
         (setting?.config as MySqlConnectionConfig)?.database
+          ? (setting?.config as MySqlConnectionConfig)?.database
+          : undefined
       ),
     [runner, setting]
   );

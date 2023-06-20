@@ -1,4 +1,8 @@
-import { DatabaseSchemas, TableConstraintTypeSchema } from 'types/SqlSchema';
+import {
+  DatabaseSchemas,
+  TableConstraintTypeSchema,
+  TableDefinitionSchema,
+} from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
@@ -146,5 +150,65 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     }
 
     return databases;
+  }
+
+  async getTableSchema(table: string): Promise<TableDefinitionSchema> {
+    const response = await this.runner.execute(
+      [
+        {
+          sql: qb()
+            .table('information_schema.columns')
+            .select(
+              'table_schema',
+              'table_name',
+              'column_name',
+              'data_type',
+              'is_nullable',
+              'column_comment',
+              'character_maximum_length',
+              'numeric_precision',
+              'numeric_scale',
+              'column_default'
+            )
+            .where({
+              table_schema: this.currentDatabaseName,
+              table_name: table,
+            })
+            .toRawSQL(),
+        },
+      ],
+      {
+        disableAnalyze: true,
+        skipProtection: true,
+      }
+    );
+
+    const columns = response[0].result.rows as [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      number | null,
+      number | null,
+      number | null,
+      string | null
+    ][];
+
+    return {
+      name: table,
+      columns: columns.map((col) => ({
+        name: col[2],
+        dataType: col[3],
+        nullable: col[4] === 'YES',
+        comment: col[5],
+        charLength: col[6],
+        nuermicPrecision: col[7],
+        numericScale: col[8],
+        default: col[9],
+      })),
+      createSql: '',
+    };
   }
 }

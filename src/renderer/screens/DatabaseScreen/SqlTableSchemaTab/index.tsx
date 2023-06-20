@@ -1,5 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ResizableTable from 'renderer/components/ResizableTable';
+import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
+import { TableDefinitionSchema } from 'types/SqlSchema';
+import TableCellContent from '../QueryResultViewer/TableCell/TableCellContent';
 
 interface SqlTableSchemaProps {
   name: string;
@@ -14,6 +18,14 @@ export default function SqlTableSchemaTab({
   table,
 }: SqlTableSchemaProps) {
   const { setTabData } = useWindowTab();
+  const { common } = useSqlExecute();
+  const [definition, setDefinition] = useState<TableDefinitionSchema | null>(
+    null
+  );
+
+  useEffect(() => {
+    common.getTableSchema(table).then(setDefinition).catch();
+  }, [common]);
 
   useEffect(() => {
     setTabData(tabKey, { type: 'table-schema', database, table });
@@ -21,9 +33,53 @@ export default function SqlTableSchemaTab({
 
   return (
     <div>
-      <h1>
-        {database}.{table}
-      </h1>
+      <ResizableTable
+        headers={[
+          { name: '#' },
+          { name: 'Name' },
+          { name: 'Data Type' },
+          { name: 'Length' },
+          { name: 'Scale' },
+          { name: 'Precision' },
+          { name: 'Nullable' },
+          { name: 'Default' },
+          { name: 'Comment' },
+        ]}
+      >
+        {(definition?.columns || []).map((col, idx) => {
+          return (
+            <tr key={col.name}>
+              <td>
+                <TableCellContent value={(idx + 1).toString()} />
+              </td>
+              <td>
+                <TableCellContent value={col.name} />
+              </td>
+              <td>
+                <TableCellContent value={col.dataType} />
+              </td>
+              <td>
+                <TableCellContent value={col.charLength} />
+              </td>
+              <td>
+                <TableCellContent value={col.numericScale} />
+              </td>
+              <td>
+                <TableCellContent value={col.nuermicPrecision} />
+              </td>
+              <td>
+                <TableCellContent value={col.nullable ? 'YES' : 'NO'} />
+              </td>
+              <td>
+                <TableCellContent value={col.default} />
+              </td>
+              <td>
+                <TableCellContent value={col.comment || ''} />
+              </td>
+            </tr>
+          );
+        })}
+      </ResizableTable>
     </div>
   );
 }
