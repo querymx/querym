@@ -11,6 +11,7 @@ export default class ConnectionIpcHandler {
   register() {
     ipcMain.handle('connect', async (_, [store]: [ConnectionStoreItem]) => {
       if (store.type === 'mysql') {
+        console.log('create mysql connection');
         this.connection = new MySQLConnection(
           store.config as unknown as DatabaseConnectionConfig
         );

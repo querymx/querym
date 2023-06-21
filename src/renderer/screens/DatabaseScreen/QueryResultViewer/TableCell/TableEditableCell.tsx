@@ -5,6 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
   Ref,
+  useEffect,
 } from 'react';
 import styles from './styles.module.css';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
@@ -34,6 +35,10 @@ interface TableEditableCellProps {
   col: number;
   value: unknown;
   readOnly?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onCopy?: (value: any) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onPaste?: (value: string) => { accept: boolean; value: any };
 }
 
 const TableEditableCell = forwardRef(function TableEditableCell(
@@ -46,6 +51,8 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     row,
     value,
     readOnly,
+    onCopy,
+    onPaste,
   }: TableEditableCellProps,
   ref: Ref<TableEditableCellHandler>
 ) {
@@ -103,6 +110,36 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     },
     [setOnEditMode, setAfterValue, diff, value]
   );
+
+  useEffect(() => {
+    if (onFocus) {
+      const onKeyBinding = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key === 'c') {
+          if (onCopy) {
+            window.navigator.clipboard.writeText(onCopy(value));
+          }
+        } else if (e.ctrlKey && e.key === 'v') {
+          if (onPaste) {
+            window.navigator.clipboard.readText().then((pastedValue) => {
+              const acceptPasteResult = onPaste(pastedValue);
+              if (acceptPasteResult.accept) {
+                const newValue = acceptPasteResult.value;
+                setAfterValue(newValue);
+                if (diff(value, newValue)) {
+                  setChange(row, col, newValue);
+                } else {
+                  removeChange(row, col);
+                }
+              }
+            });
+          }
+        }
+      };
+
+      document.addEventListener('keydown', onKeyBinding);
+      return () => document.removeEventListener('keydown', onKeyBinding);
+    }
+  }, [onFocus, onCopy, value, diff, setAfterValue]);
 
   const className = [
     styles.container,

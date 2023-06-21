@@ -91,7 +91,7 @@ export default function ResizableTable({
                     </div>
                     {header.icon && (
                       <div className={styles.headerContentIcon}>
-                        header.icon
+                        {header.icon}
                       </div>
                     )}
                   </div>

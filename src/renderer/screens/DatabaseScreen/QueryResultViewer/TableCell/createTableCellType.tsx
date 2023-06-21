@@ -10,6 +10,8 @@ interface TableCellCustomTypeOptions<T> {
   editor: React.FC<TableEditableEditorProps>;
   content: React.FC<TableEditableContentProps>;
   detachEditor?: boolean;
+  onCopy?: (value: T) => string;
+  onPaste?: (value: string) => { accept: boolean; value: T };
 }
 
 interface TableCellCustomTypeProps<T> {
@@ -48,6 +50,8 @@ export default function createTableCellType<T>(
         content={options.content}
         readOnly={readOnly}
         detactEditor={options.detachEditor}
+        onCopy={options.onCopy}
+        onPaste={options.onPaste}
       />
     );
   };

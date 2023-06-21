@@ -47,6 +47,12 @@ const TableCellString = createTableCellType({
   diff: (prev: string, current: string) => prev !== current,
   content: TableCellStringContent,
   editor: TableCellStringEditor,
+  onCopy: (value: string) => {
+    return value;
+  },
+  onPaste: (value: string) => {
+    return { accept: true, value };
+  },
 });
 
 export default TableCellString;
