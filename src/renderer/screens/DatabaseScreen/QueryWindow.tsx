@@ -31,7 +31,7 @@ export default function QueryWindow({
   tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
-  const { setTabData } = useWindowTab();
+  const { selectedTab, setTabData } = useWindowTab();
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementResult[]>([]);
@@ -133,8 +133,24 @@ export default function QueryWindow({
   );
 
   const onRun = useCallback(() => {
-    executeSql(code);
-  }, [executeSql, code]);
+    if (editorRef.current) {
+      const sqlCode = editorRef.current.view?.state.doc.toString() || '';
+      executeSql(sqlCode);
+    }
+  }, [executeSql, editorRef]);
+
+  useEffect(() => {
+    if (selectedTab === tabKey) {
+      const onKeyBinding = (e: KeyboardEvent) => {
+        if (e.key === 'F9') {
+          onRun();
+        }
+      };
+
+      document.addEventListener('keydown', onKeyBinding);
+      return () => document.removeEventListener('keydown', onKeyBinding);
+    }
+  }, [onRun, selectedTab, tabKey]);
 
   useEffect(() => {
     if (initialRun && initialSql) {
@@ -155,7 +171,7 @@ export default function QueryWindow({
             <Toolbar>
               <Toolbar.Item
                 icon={<FontAwesomeIcon icon={faPlay} />}
-                text="Run"
+                text="Run (F9)"
                 onClick={onRun}
               />
             </Toolbar>
