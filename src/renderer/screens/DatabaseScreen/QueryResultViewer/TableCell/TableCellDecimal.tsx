@@ -1,4 +1,3 @@
-import styles from './styles.module.css';
 import { useState, useCallback } from 'react';
 import {
   TableEditableEditorProps,
@@ -6,14 +5,15 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 import { Decimal } from 'decimal.js';
-import TableCellContent from './TableCellContent';
+import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
+import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
 
 function TableCellDecimalEditor({
   value,
   onExit,
   readOnly,
 }: TableEditableEditorProps) {
-  const [editValue, setEditValue] = useState(value);
+  const [editValue, setEditValue] = useState(value as string);
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
@@ -22,20 +22,12 @@ function TableCellDecimalEditor({
   }, [onExit, editValue]);
 
   return (
-    <input
-      onKeyPress={(e) => {
-        if (e.key === 'Enter') {
-          onLostFocus();
-        }
-      }}
+    <TableCellInput
       readOnly={readOnly}
-      autoFocus
-      type="text"
-      className={`${styles.input} ${styles.number}`}
-      style={{ textAlign: 'right' }}
-      onBlur={onLostFocus}
-      onChange={(e) => setEditValue(e.currentTarget.value)}
-      value={editValue as string}
+      alignRight
+      onChange={setEditValue}
+      onLostFocus={onLostFocus}
+      value={editValue}
     />
   );
 }

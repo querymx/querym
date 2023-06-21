@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import ResizableTable from 'renderer/components/ResizableTable';
+import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import { TableDefinitionSchema } from 'types/SqlSchema';
-import TableCellContent from '../QueryResultViewer/TableCell/TableCellContent';
 
 interface SqlTableSchemaProps {
   name: string;

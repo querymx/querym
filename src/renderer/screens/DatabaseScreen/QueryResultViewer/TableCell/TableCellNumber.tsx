@@ -1,11 +1,11 @@
-import styles from './styles.module.css';
 import { useState, useCallback } from 'react';
 import {
   TableEditableEditorProps,
   TableEditableContentProps,
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
-import TableCellContent from './TableCellContent';
+import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
+import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
 
 function TableCellNumberEditor({
   value,
@@ -23,21 +23,12 @@ function TableCellNumberEditor({
   }, [onExit, editValue]);
 
   return (
-    <input
-      onKeyPress={(e) => {
-        if (e.key === 'Enter') {
-          onLostFocus();
-        }
-      }}
-      autoFocus
+    <TableCellInput
       readOnly={readOnly}
-      type="text"
-      className={`${styles.input} ${styles.number}`}
-      onBlur={onLostFocus}
-      style={{ textAlign: 'right' }}
-      placeholder={editValue === null ? 'NULL' : ''}
-      onChange={(e) => setEditValue(e.currentTarget.value)}
-      value={editValue || ''}
+      alignRight
+      onChange={setEditValue}
+      onLostFocus={onLostFocus}
+      value={editValue}
     />
   );
 }

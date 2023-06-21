@@ -75,7 +75,7 @@ export default function ResizableTable({
         headers.map(() => '150px').join(' ') || '';
       setGridCSSPrepared(true);
     }
-  }, [headers, tableRef, setGridCSSPrepared]);
+  }, [tableRef, setGridCSSPrepared]);
 
   return (
     <table ref={tableRef} className={styles.table}>

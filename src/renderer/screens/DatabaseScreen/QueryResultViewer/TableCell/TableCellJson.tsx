@@ -9,8 +9,8 @@ import createTableCellType from './createTableCellType';
 import deepEqual from 'deep-equal';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
-import TableCellContent from './TableCellContent';
 import useCodeEditorTheme from 'renderer/components/CodeEditor/useCodeEditorTheme';
+import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 
 function TableCellJsonEditor({
   value,

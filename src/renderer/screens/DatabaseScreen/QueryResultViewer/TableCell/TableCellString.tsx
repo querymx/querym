@@ -1,4 +1,3 @@
-import styles from './styles.module.css';
 import { useState, useCallback } from 'react';
 import {
   TableEditableEditorProps,
@@ -6,13 +5,14 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
+import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
 
 function TableCellStringEditor({
   value,
   onExit,
   readOnly,
 }: TableEditableEditorProps) {
-  const [editValue, setEditValue] = useState(value);
+  const [editValue, setEditValue] = useState(value as string);
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
@@ -21,20 +21,11 @@ function TableCellStringEditor({
   }, [onExit, editValue]);
 
   return (
-    <input
-      onKeyPress={(e) => {
-        if (e.key === 'Enter') {
-          onLostFocus();
-        }
-      }}
-      spellCheck="false"
-      autoFocus
-      type="text"
+    <TableCellInput
       readOnly={readOnly}
-      className={styles.input}
-      onBlur={onLostFocus}
-      onChange={(e) => setEditValue(e.currentTarget.value)}
-      value={editValue as string}
+      onChange={setEditValue}
+      onLostFocus={onLostFocus}
+      value={editValue}
     />
   );
 }
