@@ -1,11 +1,11 @@
 import Splitter from 'renderer/components/Splitter/Splitter';
 import WindowTab from 'renderer/components/WindowTab';
-import DatabaseTableList from 'renderer/components/WindowTab/DatabaseTableList';
 import SqlDebugger from './SqlDebugger';
 import { useCallback } from 'react';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
+import DatabaseTableList from 'renderer/components/DatabaseTable/DatabaseTableList';
 
 export default function MainView() {
   const { newWindow, tabs, setTabs, selectedTab, setSelectedTab } =
