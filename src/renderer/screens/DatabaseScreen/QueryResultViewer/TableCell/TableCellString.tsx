@@ -5,7 +5,7 @@ import {
   TableEditableContentProps,
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
-import TableCellContent from './TableCellContent';
+import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 
 function TableCellStringEditor({
   value,
