@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  memo,
 } from 'react';
 import styles from './styles.module.scss';
 
@@ -62,7 +63,7 @@ function ResizeHandler({ idx }: { idx: number }) {
   );
 }
 
-export default function ResizableTable({
+const ResizableTable = memo(function ResizableTable({
   headers,
   children,
 }: PropsWithChildren<ResizableTableProps>) {
@@ -80,6 +81,8 @@ export default function ResizableTable({
       setGridCSSPrepared(true);
     }
   }, [tableRef, setGridCSSPrepared]);
+
+  console.log('re-render');
 
   return (
     <table ref={tableRef} className={styles.table}>
@@ -110,4 +113,6 @@ export default function ResizableTable({
       )}
     </table>
   );
-}
+});
+
+export default ResizableTable;

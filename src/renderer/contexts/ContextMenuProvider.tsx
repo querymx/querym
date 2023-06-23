@@ -48,7 +48,7 @@ export function useContextMenu(
     (e: React.MouseEvent) => {
       if (!open) {
         setIntentToOpenCounter((prev) => prev + 1);
-        setTimeout(() => handleContextMenu(e), 50);
+        setTimeout(() => handleContextMenu(e), 10);
       }
     },
     [setIntentToOpenCounter, open, handleContextMenu]
