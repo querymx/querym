@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import Icon from 'renderer/components/Icon';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -82,19 +82,48 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     return list;
   }, [result, page, pageSize]);
 
+  const headerMemo = useMemo(() => {
+    function getInitialSizeByHeaderType(
+      idx: number,
+      header: QueryResultHeader
+    ) {
+      if (header.type.type === 'number') {
+        return 100;
+      } else if (
+        header.type.type === 'string' ||
+        header.type.type === 'decimal'
+      ) {
+        // Check the last 100 records
+        const maxLength = Math.max(
+          ...result.rows.slice(0, 100).map((row) => {
+            if (typeof row[idx] === 'string')
+              return (row[idx] as string).length;
+            return 10;
+          })
+        );
+
+        return Math.max(150, Math.min(500, maxLength * 8));
+      }
+
+      return 150;
+    }
+
+    return result.headers.map((header, idx) => ({
+      name: header.name || '',
+      icon: header?.schema?.primaryKey ? <Icon.GreenKey /> : undefined,
+      initialSize: Math.max(
+        header.name.length * 10,
+        getInitialSizeByHeaderType(idx, header)
+      ),
+    }));
+  }, [result]);
+
   return (
     <div
       className={`${styles.container} scroll`}
       onContextMenu={handleContextMenu}
     >
-      <ResizableTable
-        headers={result.headers.map((header) => ({
-          name: header.name || '',
-          icon: header?.schema?.primaryKey ? <Icon.GreenKey /> : undefined,
-        }))}
-      >
-        {RowList}
-      </ResizableTable>
+      <ResizableTable headers={headerMemo}>{RowList}</ResizableTable>
     </div>
   );
 }

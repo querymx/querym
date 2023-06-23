@@ -8,7 +8,7 @@ import {
 import styles from './styles.module.scss';
 
 interface ResizableTableProps {
-  headers: { name: string; icon?: ReactElement }[];
+  headers: { name: string; icon?: ReactElement; initialSize?: number }[];
 }
 
 function ResizeHandler({ idx }: { idx: number }) {
@@ -72,7 +72,11 @@ export default function ResizableTable({
   useEffect(() => {
     if (tableRef.current) {
       tableRef.current.style.gridTemplateColumns =
-        headers.map(() => '150px').join(' ') || '';
+        headers
+          .map((header) =>
+            header.initialSize ? header.initialSize + 'px' : '150px'
+          )
+          .join(' ') || '';
       setGridCSSPrepared(true);
     }
   }, [tableRef, setGridCSSPrepared]);
