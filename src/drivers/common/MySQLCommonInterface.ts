@@ -17,6 +17,21 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     this.currentDatabaseName = currentDatabaseName;
   }
 
+  async switchDatabase(databaseName: string): Promise<boolean> {
+    const response = await this.runner.execute(
+      [{ sql: 'USE ' + qb().escapeId(databaseName) }],
+      {
+        skipProtection: true,
+      }
+    );
+
+    if (response[0].result.error) {
+      return false;
+    }
+
+    return true;
+  }
+
   async getSchema(): Promise<DatabaseSchemas> {
     const response = await this.runner.execute(
       [

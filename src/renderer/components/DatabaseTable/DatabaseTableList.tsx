@@ -1,4 +1,4 @@
-import styles from './DatabaseTable.module.scss';
+import styles from './styles.module.scss';
 import TreeView, { TreeViewItemData } from '../TreeView';
 import { useState, useMemo } from 'react';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
@@ -14,6 +14,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
+import Layout from '../Layout';
+import DatabaseSelection from './DatabaseSelection';
 
 export default function DatabaseTableList() {
   const { schema, currentDatabase } = useSchmea();
@@ -133,31 +135,39 @@ export default function DatabaseTableList() {
 
   return (
     <div className={styles.tables}>
-      <TreeView
-        selected={selected}
-        onSelectChange={setSelected}
-        collapsedKeys={collapsed}
-        onCollapsedChange={setCollapsed}
-        onContextMenu={handleContextMenu}
-        onDoubleClick={(item) => {
-          const tableName = item.data?.name;
-          const type = item.data?.type;
-          if ((type === 'table' || type === 'view') && tableName) {
-            newWindow(`SELECT ${tableName}`, (key, name) => (
-              <QueryWindow
-                initialSql={new QueryBuilder('mysql')
-                  .table(tableName)
-                  .limit(200)
-                  .toRawSQL()}
-                initialRun
-                tabKey={key}
-                name={name}
-              />
-            ));
-          }
-        }}
-        items={schemaListItem}
-      />
+      <Layout>
+        <Layout.Fixed shadowBottom>
+          <DatabaseSelection />
+        </Layout.Fixed>
+        <Layout.Grow>
+          <TreeView
+            selected={selected}
+            onSelectChange={setSelected}
+            collapsedKeys={collapsed}
+            onCollapsedChange={setCollapsed}
+            onContextMenu={handleContextMenu}
+            onDoubleClick={(item) => {
+              const tableName = item.data?.name;
+              const type = item.data?.type;
+              if ((type === 'table' || type === 'view') && tableName) {
+                newWindow(`SELECT ${tableName}`, (key, name) => (
+                  <QueryWindow
+                    initialSql={new QueryBuilder('mysql')
+                      .table(tableName)
+                      .limit(200)
+                      .toRawSQL()}
+                    initialRun
+                    tabKey={key}
+                    name={name}
+                  />
+                ));
+              }
+            }}
+            items={schemaListItem}
+          />
+        </Layout.Grow>
+        <Layout.Fixed>Footer</Layout.Fixed>
+      </Layout>
     </div>
   );
 }

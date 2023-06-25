@@ -82,8 +82,6 @@ const ResizableTable = memo(function ResizableTable({
     }
   }, [tableRef, setGridCSSPrepared]);
 
-  console.log('re-render');
-
   return (
     <table ref={tableRef} className={styles.table}>
       {isGridCSSPrepared && (

@@ -55,6 +55,10 @@ export class QueryBuilder {
     }
   }
 
+  escapeId(name: string) {
+    return this.dialect.escapeIdentifier(name);
+  }
+
   table(name: string) {
     this.states.table = name;
     return this;

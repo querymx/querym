@@ -18,6 +18,7 @@ import Stack from 'renderer/components/Stack';
 import Button from 'renderer/components/Button';
 import ButtonGroup from 'renderer/components/ButtonGroup';
 import { useConnection } from 'renderer/App';
+import SwitchDatabaseProvider from 'renderer/contexts/SwitchDatabaseProvider';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
@@ -90,14 +91,16 @@ function DatabaseScreenBody() {
 
   return (
     <SchemaProvider schema={schema}>
-      <Layout>
-        <Layout.Fixed>
-          <MainToolbar />
-        </Layout.Fixed>
-        <Layout.Grow>
-          <MainView />
-        </Layout.Grow>
-      </Layout>
+      <SwitchDatabaseProvider>
+        <Layout>
+          <Layout.Fixed>
+            <MainToolbar />
+          </Layout.Fixed>
+          <Layout.Grow>
+            <MainView />
+          </Layout.Grow>
+        </Layout>
+      </SwitchDatabaseProvider>
     </SchemaProvider>
   );
 }

@@ -6,7 +6,11 @@ interface ListViewProps<T> {
   selectedItem?: T;
   changeItemKeys?: string[];
   emptyComponent?: ReactElement;
-  extractMeta: (item: T) => { icon?: ReactElement; text: string; key: string };
+  extractMeta: (item: T) => {
+    icon?: ReactElement;
+    text: string;
+    key: string;
+  };
 
   onSelectChange?: (item?: T) => void;
   onBeforeSelectChange?: () => Promise<boolean>;

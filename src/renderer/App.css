@@ -58,7 +58,7 @@ body.dark {
   --color-surface: #1f1f1f;
   --color-surface-hover: #3f3f3f;
 
-  --color-shadow: rgba(255, 255, 255, 0.55);
+  --color-shadow: rgba(200, 200, 200, 0.2);
   --color-border: #aaa;
 
   --color-text: #fff;
