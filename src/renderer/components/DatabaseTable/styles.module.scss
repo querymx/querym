@@ -1,3 +1,19 @@
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    background: #e74c3c;
+ }
+  50% {
+    transform: scale(1.5);
+    background: #ff7979;
+ }
+  100% {
+    transform: scale(1);
+    background: #ff7979;
+ }
+}
+
+
 .tables {
   background: var(--color-list-surface);
   height: 100%
@@ -14,4 +30,13 @@
   span {
     flex-grow: 1;
   }
+}
+
+.ping {
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  background: #e74c3c;
+  border-radius: 50%;
+  animation: ping 1s ease-out infinite;
 }

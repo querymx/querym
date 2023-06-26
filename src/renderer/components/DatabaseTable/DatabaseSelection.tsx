@@ -32,18 +32,27 @@ function DatabaseSelectionModal({
 
   const { common } = useSqlExecute();
 
+  const openDatabase = useCallback(
+    (databaseName: string) => {
+      if (databaseName !== currentDatabase && databaseName) {
+        common
+          .switchDatabase(databaseName)
+          .then((result) => {
+            if (result) {
+              onClose();
+            }
+          })
+          .catch(console.error);
+      }
+    },
+    [onClose, common, currentDatabase]
+  );
+
   const onOpenClicked = useCallback(() => {
-    if (selectedDatabase !== currentDatabase && selectedDatabase) {
-      common
-        .switchDatabase(selectedDatabase)
-        .then((result) => {
-          if (result) {
-            onClose();
-          }
-        })
-        .catch(console.error);
+    if (selectedDatabase) {
+      openDatabase(selectedDatabase);
     }
-  }, [common, selectedDatabase, currentDatabase, onClose]);
+  }, [openDatabase, selectedDatabase]);
 
   return (
     <Modal open={open} title="Database Selection" onClose={onClose}>
@@ -56,6 +65,9 @@ function DatabaseSelectionModal({
             selectedItem={selectedDatabase}
             onSelectChange={(item) => setSelectedDatabase(item)}
             items={databaseList}
+            onDoubleClick={(item) => {
+              openDatabase(item);
+            }}
             extractMeta={(database) => ({
               text: database,
               key: database,
@@ -88,9 +100,23 @@ export default function DatabaseSelection() {
   return (
     <>
       <div className={styles.header} onClick={onOpen}>
-        <FontAwesomeIcon icon={faDatabase} color="#27ae60" />
-        <span>{currentDatabase}</span>
-        <FontAwesomeIcon icon={faChevronRight} />
+        {currentDatabase ? (
+          <>
+            <FontAwesomeIcon icon={faDatabase} color="#27ae60" />
+            <span>{currentDatabase}</span>
+            <FontAwesomeIcon icon={faChevronRight} />
+          </>
+        ) : (
+          <>
+            <div>
+              <div className={styles.ping}></div>
+            </div>
+            <span>
+              <i>Please select database</i>
+            </span>
+            <FontAwesomeIcon icon={faChevronRight} />
+          </>
+        )}
       </div>
       <DatabaseSelectionModal onClose={onClose} open={open} />
     </>

@@ -16,6 +16,7 @@ import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
 import Layout from '../Layout';
 import DatabaseSelection from './DatabaseSelection';
+import ListViewEmptyState from '../ListView/ListViewEmptyState';
 
 export default function DatabaseTableList() {
   const { schema, currentDatabase } = useSchmea();
@@ -27,9 +28,11 @@ export default function DatabaseTableList() {
     }>
   >();
   const { newWindow } = useWindowTab();
-  const [collapsed, setCollapsed] = useState<string[] | undefined>(
-    currentDatabase ? [`database/${currentDatabase}`] : []
-  );
+  const [collapsed, setCollapsed] = useState<string[] | undefined>([
+    'tables',
+    'events',
+    'triggers',
+  ]);
 
   const { handleContextMenu } = useContextMenu(() => {
     const tableName = selected?.data?.name;
@@ -71,65 +74,61 @@ export default function DatabaseTableList() {
 
   const schemaListItem = useMemo(() => {
     if (!schema) return [];
+    if (!currentDatabase) return [];
 
-    return Object.values(schema).map((database) => {
-      let children = Object.values(database.tables).map((table) => ({
-        id: `database/${database.name}/table/${table.name}`,
-        text: table.name,
-        icon:
-          table.type === 'TABLE' ? (
-            <FontAwesomeIcon icon={faTableList} color="#3498db" />
-          ) : (
-            <FontAwesomeIcon icon={faEye} color="#e67e22" />
-          ),
-        data: {
-          name: table.name,
-          type: table.type === 'TABLE' ? 'table' : 'view',
-          database: database.name,
-        },
-      }));
+    const currentDatabaseSchema = schema[currentDatabase];
+    if (!currentDatabaseSchema) return [];
 
-      if (database.events.length > 0) {
-        children = children.concat(
-          database.events.map((event) => ({
-            id: `database/${database.name}/event/${event}`,
-            text: event,
-            icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
-            data: {
-              name: event,
-              type: 'event',
-              database: database.name,
-            },
-          }))
-        );
-      }
-
-      if (database.triggers.length > 0) {
-        children = children.concat(
-          database.triggers.map((trigger) => ({
-            id: `database/${database.name}/trigger/${trigger}`,
-            text: trigger,
-            icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
-            data: {
-              name: trigger,
-              database: database.name,
-              type: 'trigger',
-            },
-          }))
-        );
-      }
-
-      children.sort((item1, item2) => {
-        return item1.text.localeCompare(item2.text);
-      });
-
-      return {
-        id: `database/${database.name}`,
-        text: database.name,
-        children,
-      };
-    });
-  }, [schema]);
+    return [
+      {
+        id: 'tables',
+        text: `Tables (${Object.values(currentDatabaseSchema.tables).length})`,
+        children: Object.values(currentDatabaseSchema.tables).map((table) => ({
+          id: `table/${table.name}`,
+          text: table.name,
+          icon:
+            table.type === 'TABLE' ? (
+              <FontAwesomeIcon icon={faTableList} color="#3498db" />
+            ) : (
+              <FontAwesomeIcon icon={faEye} color="#e67e22" />
+            ),
+          data: {
+            name: table.name,
+            type: table.type === 'TABLE' ? 'table' : 'view',
+            database: currentDatabase,
+          },
+        })),
+      },
+      {
+        id: 'events',
+        text: `Events (${currentDatabaseSchema.events.length})`,
+        children: currentDatabaseSchema.events.map((event) => ({
+          id: `event/${event}`,
+          text: event,
+          icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
+          data: {
+            name: event,
+            type: 'event',
+            database: currentDatabase,
+          },
+        })),
+      },
+      {
+        id: 'triggers',
+        text: `Triggers (${currentDatabaseSchema.triggers.length})`,
+        children: currentDatabaseSchema.triggers.map((trigger) => ({
+          id: `trigger/${trigger}`,
+          text: trigger,
+          icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
+          data: {
+            name: trigger,
+            database: currentDatabase,
+            type: 'trigger',
+          },
+        })),
+      },
+    ];
+  }, [schema, currentDatabase]);
 
   if (!schema) return <div />;
 
@@ -140,33 +139,36 @@ export default function DatabaseTableList() {
           <DatabaseSelection />
         </Layout.Fixed>
         <Layout.Grow>
-          <TreeView
-            selected={selected}
-            onSelectChange={setSelected}
-            collapsedKeys={collapsed}
-            onCollapsedChange={setCollapsed}
-            onContextMenu={handleContextMenu}
-            onDoubleClick={(item) => {
-              const tableName = item.data?.name;
-              const type = item.data?.type;
-              if ((type === 'table' || type === 'view') && tableName) {
-                newWindow(`SELECT ${tableName}`, (key, name) => (
-                  <QueryWindow
-                    initialSql={new QueryBuilder('mysql')
-                      .table(tableName)
-                      .limit(200)
-                      .toRawSQL()}
-                    initialRun
-                    tabKey={key}
-                    name={name}
-                  />
-                ));
-              }
-            }}
-            items={schemaListItem}
-          />
+          {currentDatabase ? (
+            <TreeView
+              selected={selected}
+              onSelectChange={setSelected}
+              collapsedKeys={collapsed}
+              onCollapsedChange={setCollapsed}
+              onContextMenu={handleContextMenu}
+              onDoubleClick={(item) => {
+                const tableName = item.data?.name;
+                const type = item.data?.type;
+                if ((type === 'table' || type === 'view') && tableName) {
+                  newWindow(`SELECT ${tableName}`, (key, name) => (
+                    <QueryWindow
+                      initialSql={new QueryBuilder('mysql')
+                        .table(tableName)
+                        .limit(200)
+                        .toRawSQL()}
+                      initialRun
+                      tabKey={key}
+                      name={name}
+                    />
+                  ));
+                }
+              }}
+              items={schemaListItem}
+            />
+          ) : (
+            <ListViewEmptyState text="Please select database to see tables, events, triggers, etc..." />
+          )}
         </Layout.Grow>
-        <Layout.Fixed>Footer</Layout.Fixed>
       </Layout>
     </div>
   );
