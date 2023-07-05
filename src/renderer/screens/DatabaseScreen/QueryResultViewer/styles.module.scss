@@ -23,10 +23,10 @@
   flex-grow: 1;
 }
 
-.container {
-  overflow-x: auto;
-  flex-grow: 1;
+.container { 
+  flex-grow:  1;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 

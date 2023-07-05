@@ -1,14 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-import Icon from 'renderer/components/Icon';
+// import Icon from 'renderer/components/Icon';
 import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from './TableCellManager';
-import ResizableTable from 'renderer/components/ResizableTable';
+import OptimizeTable from 'renderer/components/OptimizeTable';
 
 interface QueryResultTableProps {
   result: QueryResult;
@@ -42,6 +42,10 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     ];
   }, [collector]);
 
+  const data = useMemo(() => {
+    return result.rows.slice(page * pageSize, (page + 1) * pageSize);
+  }, [page, pageSize, result.rows]);
+
   const updatableTables = useMemo(() => {
     if (result?.headers && currentDatabase && schema) {
       return getUpdatableTable(result?.headers, schema[currentDatabase]);
@@ -52,35 +56,6 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   if (!result?.headers || !result?.rows) {
     return <div>No result</div>;
   }
-
-  const RowList = useMemo(() => {
-    const list = [];
-    const start = page * pageSize;
-    const end = Math.min(result.rows.length, start + pageSize);
-
-    for (let i = start; i < end; i++) {
-      const row = result.rows[i];
-      list.push(
-        <tr key={i}>
-          {row.map((cell, cellIdx) => (
-            <td key={cellIdx}>
-              <TableCell
-                value={cell}
-                header={result.headers[cellIdx]}
-                col={cellIdx}
-                row={i}
-                readOnly={
-                  !updatableTables[result.headers[cellIdx]?.schema?.table || '']
-                }
-              />
-            </td>
-          ))}
-        </tr>
-      );
-    }
-
-    return list;
-  }, [result, page, pageSize]);
 
   const headerMemo = useMemo(() => {
     function getInitialSizeByHeaderType(
@@ -110,7 +85,8 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
 
     return result.headers.map((header, idx) => ({
       name: header.name || '',
-      icon: header?.schema?.primaryKey ? <Icon.GreenKey /> : undefined,
+      resizable: true,
+      // icon: header?.schema?.primaryKey ? <Icon.GreenKey /> : undefined,
       initialSize: Math.max(
         header.name.length * 10,
         getInitialSizeByHeaderType(idx, header)
@@ -118,12 +94,33 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     }));
   }, [result]);
 
+  const renderCell = useCallback(
+    (y: number, x: number) => {
+      return (
+        <TableCell
+          key={(y + page * pageSize).toString() + '_' + x}
+          value={data[y][x]}
+          header={result.headers[x]}
+          col={x}
+          row={y + page * pageSize}
+          readOnly={!updatableTables[result.headers[x]?.schema?.table || '']}
+        />
+      );
+    },
+    [data, updatableTables, page, pageSize]
+  );
+
+  console.log(headerMemo, result.rows);
+
   return (
-    <div
-      className={`${styles.container} scroll`}
-      onContextMenu={handleContextMenu}
-    >
-      <ResizableTable headers={headerMemo}>{RowList}</ResizableTable>
+    <div className={styles.container} onContextMenu={handleContextMenu}>
+      <OptimizeTable
+        headers={headerMemo}
+        data={data}
+        renderAhead={20}
+        renderCell={renderCell}
+        rowHeight={35}
+      />
     </div>
   );
 }
