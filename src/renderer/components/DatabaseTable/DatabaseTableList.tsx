@@ -17,8 +17,12 @@ import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab
 import Layout from '../Layout';
 import DatabaseSelection from './DatabaseSelection';
 import ListViewEmptyState from '../ListView/ListViewEmptyState';
+import TextField from '../TextField';
+import { useDebounce } from 'hooks/useDebounce';
 
 export default function DatabaseTableList() {
+  const [search, setSearch] = useState('');
+  const searchDebounce = useDebounce(search, 500);
   const { schema, currentDatabase } = useSchmea();
   const [selected, setSelected] = useState<
     TreeViewItemData<{
@@ -79,63 +83,97 @@ export default function DatabaseTableList() {
     const currentDatabaseSchema = schema[currentDatabase];
     if (!currentDatabaseSchema) return [];
 
+    const tables = Object.values(currentDatabaseSchema.tables)
+      .map((table) => ({
+        id: `table/${table.name}`,
+        text: table.name,
+        icon:
+          table.type === 'TABLE' ? (
+            <FontAwesomeIcon icon={faTableList} color="#3498db" />
+          ) : (
+            <FontAwesomeIcon icon={faEye} color="#e67e22" />
+          ),
+        data: {
+          name: table.name,
+          type: table.type === 'TABLE' ? 'table' : 'view',
+          database: currentDatabase,
+        },
+      }))
+      .filter((table) => {
+        if (searchDebounce) {
+          return table.text.indexOf(searchDebounce) >= 0;
+        }
+
+        return true;
+      });
+
+    const triggers = currentDatabaseSchema.triggers
+      .map((trigger) => ({
+        id: `trigger/${trigger}`,
+        text: trigger,
+        icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
+        data: {
+          name: trigger,
+          database: currentDatabase,
+          type: 'trigger',
+        },
+      }))
+      .filter((table) => {
+        if (searchDebounce) {
+          return table.text.indexOf(searchDebounce) >= 0;
+        }
+
+        return true;
+      });
+
+    const events = currentDatabaseSchema.events
+      .map((event) => ({
+        id: `event/${event}`,
+        text: event,
+        icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
+        data: {
+          name: event,
+          type: 'event',
+          database: currentDatabase,
+        },
+      }))
+      .filter((table) => {
+        if (searchDebounce) {
+          return table.text.indexOf(searchDebounce) >= 0;
+        }
+
+        return true;
+      });
+
+    tables.sort((a, b) => a.text.localeCompare(b.text));
+    triggers.sort((a, b) => a.text.localeCompare(b.text));
+    events.sort((a, b) => a.text.localeCompare(b.text));
+
     return [
       {
         id: 'tables',
         text: `Tables (${Object.values(currentDatabaseSchema.tables).length})`,
-        children: Object.values(currentDatabaseSchema.tables).map((table) => ({
-          id: `table/${table.name}`,
-          text: table.name,
-          icon:
-            table.type === 'TABLE' ? (
-              <FontAwesomeIcon icon={faTableList} color="#3498db" />
-            ) : (
-              <FontAwesomeIcon icon={faEye} color="#e67e22" />
-            ),
-          data: {
-            name: table.name,
-            type: table.type === 'TABLE' ? 'table' : 'view',
-            database: currentDatabase,
-          },
-        })),
+        children: tables,
       },
       {
         id: 'events',
         text: `Events (${currentDatabaseSchema.events.length})`,
-        children: currentDatabaseSchema.events.map((event) => ({
-          id: `event/${event}`,
-          text: event,
-          icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
-          data: {
-            name: event,
-            type: 'event',
-            database: currentDatabase,
-          },
-        })),
+        children: events,
       },
       {
         id: 'triggers',
         text: `Triggers (${currentDatabaseSchema.triggers.length})`,
-        children: currentDatabaseSchema.triggers.map((trigger) => ({
-          id: `trigger/${trigger}`,
-          text: trigger,
-          icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
-          data: {
-            name: trigger,
-            database: currentDatabase,
-            type: 'trigger',
-          },
-        })),
+        children: triggers,
       },
     ];
-  }, [schema, currentDatabase]);
+  }, [schema, currentDatabase, searchDebounce]);
 
   if (!schema) return <div />;
 
   return (
     <div className={styles.tables}>
       <Layout>
-        <Layout.Fixed shadowBottom>
+        <Layout.Fixed>
           <DatabaseSelection />
         </Layout.Fixed>
         <Layout.Grow>
@@ -169,6 +207,16 @@ export default function DatabaseTableList() {
             <ListViewEmptyState text="Please select database to see tables, events, triggers, etc..." />
           )}
         </Layout.Grow>
+        <Layout.Fixed>
+          <div style={{ padding: 5 }}>
+            <TextField
+              label=""
+              placeholder="Search here"
+              value={search}
+              onChange={setSearch}
+            />
+          </div>
+        </Layout.Fixed>
       </Layout>
     </div>
   );

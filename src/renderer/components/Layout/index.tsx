@@ -32,12 +32,16 @@ Layout.Grow = function ({ children }: PropsWithChildren) {
 Layout.Fixed = function ({
   children,
   shadowBottom,
+  shadowTop,
 }: PropsWithChildren<LayoutFixedProps>) {
   const className = useMemo(() => {
-    return [shadowBottom ? styles.shadowBottom : undefined]
+    return [
+      shadowBottom ? styles.shadowBottom : undefined,
+      shadowTop ? styles.shadowTop : undefined,
+    ]
       .filter(Boolean)
       .join();
-  }, [shadowBottom]);
+  }, [shadowBottom, shadowTop]);
 
   return (
     <div className={className} style={{ flexShrink: 0, flexGrow: 0 }}>
