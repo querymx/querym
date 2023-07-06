@@ -1,5 +1,8 @@
 # QueryMaster - Yet Another Database GUI
 
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
+
 QueryMaster is a simple and yet another database graphical client. It is free and cross platform. Currently, only support MySQL but with future plan to support many other SQL-like database.
 
 
