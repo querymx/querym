@@ -6,6 +6,7 @@ import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
 import DatabaseTableList from 'renderer/components/DatabaseTable/DatabaseTableList';
+import generateIncrementalName from 'renderer/utils/generateIncrementalName';
 
 export default function MainView() {
   const { newWindow, tabs, setTabs, selectedTab, setSelectedTab } =
@@ -13,10 +14,14 @@ export default function MainView() {
   const { enableDebug } = useAppFeature();
 
   const onNewTabClick = useCallback(() => {
-    newWindow('Unnamed Query', (key, name) => (
+    const incrementalTabName = generateIncrementalName(
+      tabs.map((tab) => tab.name),
+      'Unnamed Query'
+    );
+    newWindow(incrementalTabName, (key, name) => (
       <QueryWindow tabKey={key} name={name} />
     ));
-  }, [newWindow]);
+  }, [newWindow, tabs]);
 
   return (
     <Splitter primaryIndex={1} secondaryInitialSize={200}>
