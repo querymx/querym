@@ -36,7 +36,6 @@
 .tableContainer th {
   position: sticky;
   top: 0;
-  background: #fff;
   user-select: none;
   padding: 0px 10px;
   height: 35px;
