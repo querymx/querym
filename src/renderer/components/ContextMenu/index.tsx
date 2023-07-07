@@ -1,10 +1,13 @@
 import {
+  CSSProperties,
   PropsWithChildren,
   ReactNode,
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useRef,
+  useState,
 } from 'react';
 import styles from './styles.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -41,6 +44,10 @@ export default function ContextMenu({
   status: ContextMenuStatus;
   onClose: () => void;
 }>) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuWidth, setMenuWidth] = useState(0);
+  const [menuHeight, setMenuHeight] = useState(0);
+
   useEffect(() => {
     const onDocumentClicked = () => {
       onClose();
@@ -52,15 +59,29 @@ export default function ContextMenu({
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (menuRef.current) {
+      const { width, height } = menuRef.current.getBoundingClientRect();
+      setMenuWidth(width);
+      setMenuHeight(height);
+    }
+  }, [status.open]);
+
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  const menuStyle: CSSProperties = {
+    visibility: status.open ? 'visible' : 'hidden',
+    top: Math.min(status.y, viewportHeight - menuHeight - 10),
+    left: Math.min(status.x, viewportWidth - menuWidth - 10),
+  };
+
   return (
     <ContextMenuContext.Provider value={{ handleClose: onClose }}>
       <div
+        ref={menuRef}
         className={styles.contextMenu}
-        style={{
-          visibility: status.open ? 'visible' : 'hidden',
-          top: status.y,
-          left: status.x,
-        }}
+        style={menuStyle}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <ul>{children}</ul>
