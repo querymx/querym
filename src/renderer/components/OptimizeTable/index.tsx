@@ -10,7 +10,12 @@ import styles from './styles.module.css';
 
 interface OptimizeTableProps {
   data: unknown[][];
-  headers: { name: string; initialSize: number; resizable?: boolean }[];
+  headers: {
+    name: string;
+    initialSize: number;
+    resizable?: boolean;
+    icon?: ReactElement;
+  }[];
   renderCell: (y: number, x: number) => ReactElement;
   rowHeight: number;
   renderAhead: number;
@@ -235,7 +240,7 @@ export default function OptimizeTable({
     return (
       <div
         ref={containerRef}
-        className={styles.tableContainer}
+        className={`${styles.tableContainer} scroll`}
         onScroll={onScroll}
       >
         <div
@@ -256,6 +261,11 @@ export default function OptimizeTable({
               <tr>
                 {headers.map((header, idx) => (
                   <th key={header.name}>
+                    {header.icon && (
+                      <div className={styles.tableHeaderIcon}>
+                        {header.icon}
+                      </div>
+                    )}
                     <div className={styles.tableCellContent}>{header.name}</div>
                     {header.resizable && (
                       <ResizeHandler idx={idx} onResize={onHeaderResize} />
