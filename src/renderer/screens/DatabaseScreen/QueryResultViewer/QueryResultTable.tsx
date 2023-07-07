@@ -9,6 +9,7 @@ import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from './TableCellManager';
 import OptimizeTable from 'renderer/components/OptimizeTable';
+import Icon from 'renderer/components/Icon';
 
 interface QueryResultTableProps {
   result: QueryResult;
@@ -86,7 +87,9 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     return result.headers.map((header, idx) => ({
       name: header.name || '',
       resizable: true,
-      // icon: header?.schema?.primaryKey ? <Icon.GreenKey /> : undefined,
+      icon: header?.schema?.primaryKey ? (
+        <Icon.GreenKey size="sm" />
+      ) : undefined,
       initialSize: Math.max(
         header.name.length * 10,
         getInitialSizeByHeaderType(idx, header)
@@ -109,8 +112,6 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     },
     [data, updatableTables, page, pageSize]
   );
-
-  console.log(headerMemo, result.rows);
 
   return (
     <div className={styles.container} onContextMenu={handleContextMenu}>

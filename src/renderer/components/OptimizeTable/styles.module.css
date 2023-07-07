@@ -36,11 +36,20 @@
 .tableContainer th {
   position: sticky;
   top: 0;
-  background: #fff;
   user-select: none;
   padding: 0px 10px;
   height: 35px;
   line-height: 35px;
+  background: var(--color-surface);
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+}
+
+.tableHeaderIcon {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .resizer {
@@ -50,7 +59,7 @@
   bottom: 0;
   width: 3px;
   cursor: col-resize;
-  background: #800;
+  background: var(--color-critical);
   opacity: 0;
 }
 
