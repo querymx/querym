@@ -8,28 +8,19 @@
  */
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import { resolveHtmlPath } from './util';
 
 import electronDebug from 'electron-debug';
 import sourceMapSupport from 'source-map-support';
 import OtherIpcHandler from './ipc/other';
 import ConnectionIpcHandler from './ipc/handleConnection';
+import { AppUpdater } from './autoupdate';
 
 const otherIpcHandler = new OtherIpcHandler();
 const connectionIpcHandler = new ConnectionIpcHandler();
 
 otherIpcHandler.register();
 connectionIpcHandler.register();
-
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -101,7 +92,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  new AppUpdater(mainWindow);
 };
 
 /**
