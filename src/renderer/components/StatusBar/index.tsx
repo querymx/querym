@@ -32,6 +32,7 @@ function StatusBarAutoUpdate() {
     });
 
     window.electron.checkForUpdates();
+    console.log('Check for update');
   }, [setAutoUpdateMessage, setDownloadCompleted, setShowUpdateModal]);
 
   if (downloadCompleted) {

@@ -56,7 +56,7 @@ const electronHandler = {
     ipcRenderer.invoke('set-menu', [options]),
 
   quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
-  checkForUpdates: () => ipcRenderer.invoke('check-for-uppdates'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
   handleMenuClick: (
     callback: (event: IpcRendererEvent, id: string) => void

@@ -14,7 +14,7 @@ import electronDebug from 'electron-debug';
 import sourceMapSupport from 'source-map-support';
 import OtherIpcHandler from './ipc/other';
 import ConnectionIpcHandler from './ipc/handleConnection';
-import { AppUpdater } from './autoupdate';
+import handleAutoUpdate from './autoupdate';
 
 const otherIpcHandler = new OtherIpcHandler();
 const connectionIpcHandler = new ConnectionIpcHandler();
@@ -90,9 +90,7 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater(mainWindow);
+  handleAutoUpdate(mainWindow);
 };
 
 /**
