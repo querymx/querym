@@ -98,6 +98,10 @@
         color: var(--color-text);
       }
 
+      &.drag-hover {
+        background: var(--color-list-hover);
+      }
+
       &:hover {
         cursor: pointer;
 

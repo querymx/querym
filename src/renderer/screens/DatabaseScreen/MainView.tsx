@@ -23,12 +23,27 @@ export default function MainView() {
     ));
   }, [newWindow, tabs]);
 
+  const handleTabDragged = (key: string, newIndex: number) => {
+    const draggedTab = tabs.find((tab) => tab.key === key);
+    if (!draggedTab) return;
+
+    const updatedTabs = [...tabs];
+    const currentIndex = updatedTabs.findIndex((tab) => tab.key === key);
+    if (currentIndex !== -1) {
+      updatedTabs.splice(currentIndex, 1);
+      updatedTabs.splice(newIndex, 0, draggedTab);
+      setTabs(updatedTabs);
+    }
+  };
+
+
   return (
     <Splitter primaryIndex={1} secondaryInitialSize={200}>
       <DatabaseTableList />
       <div>
         <Splitter vertical primaryIndex={0} secondaryInitialSize={100}>
           <WindowTab
+            draggable
             selected={selectedTab}
             onTabChanged={(item) => {
               setSelectedTab(item.key);
@@ -54,6 +69,7 @@ export default function MainView() {
             }}
             onAddTab={onNewTabClick}
             tabs={tabs}
+            onTabDragged={handleTabDragged}
           />
           {enableDebug && (
             <div>
