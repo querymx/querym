@@ -1,6 +1,6 @@
 import { faAdd, faClose, faCode } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useState } from 'react';
 import styles from './styles.module.scss';
 
 interface WindowTabItem {
@@ -16,6 +16,8 @@ interface WindowTabProps {
   onTabChanged?: (tab: WindowTabItem) => void;
   onTabClosed?: (tab: WindowTabItem) => void;
   onAddTab?: () => void;
+  draggable?: boolean;
+  onTabDragged?: (key: string, newIndex: number) => void;
 }
 
 export default function WindowTab({
@@ -24,7 +26,39 @@ export default function WindowTab({
   onTabChanged,
   onTabClosed,
   onAddTab,
+  draggable = false,
+  onTabDragged,
 }: WindowTabProps) {
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+
+  const handleDragStart = (
+    e: React.DragEvent<HTMLLIElement>,
+    tab: WindowTabItem
+  ) => {
+    if (draggable) {
+      e.dataTransfer.setData('text/plain', tab.key);
+      if (onTabChanged) {
+        onTabChanged(tab);
+      }
+    }
+  };
+
+  const handleDragOver = (
+    e: React.DragEvent<HTMLLIElement>,
+    tab: WindowTabItem
+  ) => {
+    e.preventDefault();
+    setHoveredTab(tab.key);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLIElement>, newIndex: number) => {
+    const droppedTabKey = e.dataTransfer.getData('text/plain');
+    if (droppedTabKey && onTabDragged) {
+      onTabDragged(droppedTabKey, newIndex);
+    }
+    setHoveredTab(null);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.tabs}>
@@ -43,17 +77,26 @@ export default function WindowTab({
             }
           }}
         >
-          {tabs.map((tab) => {
+          {tabs.map((tab, index) => {
+            const isHoveredTab = tab.key === hoveredTab;
+            const isSelectedTab = tab.key === selected;
+
             return (
               <li
-                draggable
                 key={tab.key}
-                className={selected === tab.key ? styles.selected : undefined}
+                className={[
+                  isSelectedTab ? styles.selected : '',
+                  isHoveredTab && !isSelectedTab ? styles['drag-hover'] : '',
+                ].join(' ')}
                 onClick={() => {
                   if (onTabChanged) {
                     onTabChanged(tab);
                   }
                 }}
+                draggable={draggable}
+                onDragStart={(e) => handleDragStart(e, tab)}
+                onDragOver={(e) => handleDragOver(e, tab)}
+                onDrop={(e) => handleDrop(e, index)}
               >
                 <span className={styles.icon}>
                   {tab.icon ? tab.icon : <FontAwesomeIcon icon={faCode} />}
