@@ -8,6 +8,11 @@ import {
   MessageBoxSyncOptions,
   MenuItemConstructorOptions,
 } from 'electron';
+import {
+  ProgressInfo,
+  UpdateDownloadedEvent,
+  UpdateInfo,
+} from 'electron-updater';
 
 export type Channels = 'ipc-example' | 'create-connection';
 
@@ -50,6 +55,9 @@ const electronHandler = {
   setNativeMenu: (options: MenuItemConstructorOptions[]) =>
     ipcRenderer.invoke('set-menu', [options]),
 
+  quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+
   handleMenuClick: (
     callback: (event: IpcRendererEvent, id: string) => void
   ) => {
@@ -58,6 +66,39 @@ const electronHandler = {
     }
     cacheHandleMenuClickCb = callback;
     return ipcRenderer.on('native-menu-click', callback);
+  },
+
+  listenCheckingForUpdate: (callback: () => void) => {
+    ipcRenderer.removeAllListeners('checking-for-update');
+    return ipcRenderer.on('checking-for-update', callback);
+  },
+
+  listenUpdateAvailable: (
+    callback: (event: IpcRendererEvent, e: UpdateInfo) => void
+  ) => {
+    ipcRenderer.removeAllListeners('update-available');
+    return ipcRenderer.on('update-available', callback);
+  },
+
+  listenUpdateNotAvailable: (
+    callback: (event: IpcRendererEvent, e: UpdateInfo) => void
+  ) => {
+    ipcRenderer.removeAllListeners('update-not-available');
+    return ipcRenderer.on('update-not-available', callback);
+  },
+
+  listenUpdateDownloadProgress: (
+    callback: (event: IpcRendererEvent, e: ProgressInfo) => void
+  ) => {
+    ipcRenderer.removeAllListeners('update-download-progress');
+    return ipcRenderer.on('update-download-progress', callback);
+  },
+
+  listenUpdateDownloaded: (
+    callback: (event: IpcRendererEvent, e: UpdateDownloadedEvent) => void
+  ) => {
+    ipcRenderer.removeAllListeners('update-downloaded');
+    return ipcRenderer.on('update-downloaded', callback);
   },
 };
 
