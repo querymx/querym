@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { QueryResultChangeProvider } from 'renderer/contexts/QueryResultChangeProvider';
 import QueryResultTable from './QueryResultTable';
 import styles from './styles.module.scss';
-import { QueryResult } from 'types/SqlResult';
+import { QueryRowBasedResult } from 'types/SqlResult';
 import { TableCellManagerProvider } from './TableCellManager';
 import QueryResultAction from './QueryResultAction';
 
-function QueryResultViewer({ result }: { result: QueryResult }) {
+function QueryResultViewer({ result }: { result: QueryRowBasedResult }) {
   const [cacheResult, setCacheResult] = useState(result);
   const [page, setPage] = useState(0);
   const pageSize = 1000;

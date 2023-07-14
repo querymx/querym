@@ -6,6 +6,7 @@ import {
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
+import { QueryResult } from 'types/SqlResult';
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
   protected runner: SqlRunnerManager;
@@ -74,46 +75,72 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     );
 
     const databases: DatabaseSchemas = {};
-    const data = response[0].result;
-    const constraints = response[1].result;
-    const tableDict: Record<
-      string,
-      Record<string, string>
-    > = response[2].result.rows.reduce(
-      (a: Record<string, Record<string, string>>, row) => {
-        const databaseName = row[0] as string;
-        const tableName = row[1] as string;
-        const tableType = row[2] as string;
+    const data = response[0].result as QueryResult<{
+      TABLE_SCHEMA: string;
+      TABLE_NAME: string;
+      COLUMN_NAME: string;
+    }>;
 
-        if (a[databaseName]) {
-          a[databaseName][tableName] = tableType;
-        } else {
-          a[databaseName] = { [tableName]: tableType };
-        }
+    const constraints = response[1].result as QueryResult<{
+      CONSTRAINT_SCHEMA: string;
+      CONSTRAINT_NAME: string;
+      TABLE_SCHEMA: string;
+      TABLE_NAME: string;
+      COLUMN_NAME: string;
+      CONSTRAINT_TYPE: string;
+    }>;
 
-        return a;
-      },
-      {}
-    );
+    const tableDict: Record<string, Record<string, string>> = (
+      response[2].result as QueryResult<{
+        TABLE_SCHEMA: string;
+        TABLE_NAME: string;
+        TABLE_TYPE: string;
+      }>
+    ).rows.reduce((a: Record<string, Record<string, string>>, row) => {
+      const databaseName = row.TABLE_SCHEMA;
+      const tableName = row.TABLE_NAME;
+      const tableType = row.TABLE_TYPE;
 
-    const events = response[4].result.rows;
-    const trigger = response[3].result.rows;
+      if (a[databaseName]) {
+        a[databaseName][tableName] = tableType;
+      } else {
+        a[databaseName] = { [tableName]: tableType };
+      }
+
+      return a;
+    }, {});
+
+    const events = (
+      response[4].result as QueryResult<{
+        EVENT_SCHEMA: string;
+        EVENT_NAME: string;
+      }>
+    ).rows;
+
+    const trigger = (
+      response[3].result as QueryResult<{
+        TRIGGER_SCHEMA: string;
+        TRIGGER_NAME: string;
+      }>
+    ).rows;
+
+    console.log(data.rows);
 
     for (const row of data.rows) {
-      const databaseName = row[0] as string;
-      const tableName = row[1] as string;
-      const columnName = row[2] as string;
+      const databaseName = row.TABLE_SCHEMA;
+      const tableName = row.TABLE_NAME;
+      const columnName = row.COLUMN_NAME;
 
       if (!databases[databaseName]) {
         databases[databaseName] = {
           tables: {},
           name: databaseName,
           events: events
-            .filter((row) => row[0] === databaseName)
-            .map((row) => row[1] as string),
+            .filter((row) => row.EVENT_SCHEMA === databaseName)
+            .map((row) => row.EVENT_NAME),
           triggers: trigger
-            .filter((row) => row[0] === databaseName)
-            .map((row) => row[1] as string),
+            .filter((row) => row.TRIGGER_SCHEMA === databaseName)
+            .map((row) => row.TRIGGER_NAME),
         };
       }
 
@@ -134,11 +161,11 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     }
 
     for (const row of constraints.rows) {
-      const constraintName = row[1] as string;
-      const tableSchema = row[2] as string;
-      const tableName = row[3] as string;
-      const constraintType = row[5] as string;
-      const columnName = row[4] as string;
+      const constraintName = row.CONSTRAINT_NAME;
+      const tableSchema = row.TABLE_SCHEMA;
+      const tableName = row.TABLE_NAME;
+      const constraintType = row.CONSTRAINT_TYPE;
+      const columnName = row.COLUMN_NAME;
 
       if (databases[tableSchema]) {
         const database = databases[tableSchema];
@@ -198,30 +225,30 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       }
     );
 
-    const columns = response[0].result.rows as [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      number | null,
-      number | null,
-      number | null,
-      string | null
-    ][];
+    const columns = response[0].result.rows as {
+      table_schema: string;
+      table_name: string;
+      column_name: string;
+      data_type: string;
+      is_nullable: 'YES' | 'NO';
+      column_comment: string;
+      character_maximum_length: number;
+      numeric_precision: number;
+      numeric_scale: number;
+      column_default: string;
+    }[];
 
     return {
       name: table,
       columns: columns.map((col) => ({
-        name: col[2],
-        dataType: col[3],
-        nullable: col[4] === 'YES',
-        comment: col[5],
-        charLength: col[6],
-        nuermicPrecision: col[7],
-        numericScale: col[8],
-        default: col[9],
+        name: col.column_name,
+        dataType: col.data_type,
+        nullable: col.is_nullable === 'YES',
+        comment: col.column_comment,
+        charLength: col.character_maximum_length,
+        nuermicPrecision: col.numeric_precision,
+        numericScale: col.numeric_scale,
+        default: col.column_default,
       })),
       createSql: '',
     };

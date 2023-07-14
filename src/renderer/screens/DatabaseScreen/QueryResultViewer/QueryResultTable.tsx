@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-// import Icon from 'renderer/components/Icon';
-import { QueryResult, QueryResultHeader } from 'types/SqlResult';
+import { QueryResultHeader, QueryRowBasedResult } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -12,7 +11,7 @@ import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
 
 interface QueryResultTableProps {
-  result: QueryResult;
+  result: QueryRowBasedResult;
   page: number;
   pageSize: number;
 }

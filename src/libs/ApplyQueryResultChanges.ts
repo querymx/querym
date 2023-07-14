@@ -1,10 +1,10 @@
-import { QueryResult } from 'types/SqlResult';
+import { QueryRowBasedResult } from 'types/SqlResult';
 import { ResultChangeCollectorItem } from './ResultChangeCollector';
 
 export default function applyQueryResultChanges(
-  result: QueryResult,
+  result: QueryRowBasedResult,
   changes: ResultChangeCollectorItem[]
-): QueryResult {
+): QueryRowBasedResult {
   const newResult = { ...result };
 
   for (const change of changes) {

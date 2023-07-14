@@ -6,7 +6,7 @@ import {
 import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from './SQLLikeConnection';
-import { Connection, createConnection, RowDataPacket } from 'mysql2/promise';
+import { Connection, createConnection } from 'mysql2/promise';
 
 interface ColumnDefinition {
   _buf: Buffer;
@@ -105,13 +105,9 @@ export default class MySQLConnection extends SQLLikeConnection {
         mapHeaderType
       );
 
-      const rows = (result[0] as RowDataPacket[]).map((row) =>
-        headers.map((header) => row[header.name])
-      );
-
       return {
         headers,
-        rows,
+        rows: result[0] as Record<string, unknown>[],
         keys: {},
         error: null,
       };
