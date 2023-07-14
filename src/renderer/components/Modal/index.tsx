@@ -7,6 +7,7 @@ interface ModalProps {
   open?: boolean;
   onClose?: () => void;
   wide?: boolean;
+  maxWidth?: number;
 }
 
 export default function Modal({
@@ -15,6 +16,7 @@ export default function Modal({
   open,
   onClose,
   wide,
+  maxWidth,
 }: PropsWithChildren<ModalProps>) {
   return open ? (
     <>
@@ -25,7 +27,7 @@ export default function Modal({
       >
         <div
           className={styles.modal}
-          style={{ width: wide ? '80%' : undefined }}
+          style={{ width: wide ? '80%' : undefined, maxWidth }}
         >
           <div className={styles.modalHeader}>
             <div className={styles.modalTitle}>{title}</div>
