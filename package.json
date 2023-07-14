@@ -89,7 +89,7 @@
     "@types/deep-equal": "^1.0.1",
     "@types/jest": "^29.4.0",
     "@types/node": "18.13.0",
-    "@types/react": "^18.0.27",
+    "@types/react": "^18.2.15",
     "@types/react-dom": "^18.0.10",
     "@types/react-syntax-highlighter": "^15.5.7",
     "@types/react-test-renderer": "^18.0.0",
