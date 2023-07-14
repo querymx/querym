@@ -1,14 +1,21 @@
 import { PropsWithChildren, useEffect, useState } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import {
+  tomorrow,
+  oneLight,
+} from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useSqlExecute } from './SqlExecuteProvider';
 import { BeforeAllEventCallback } from 'libs/SqlRunnerManager';
 import Modal from 'renderer/components/Modal';
 import Button from 'renderer/components/Button';
 import { SqlStatement } from 'types/SqlStatement';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
+import { useAppFeature } from './AppFeatureProvider';
 
 export default function SqlProtectionProvider({ children }: PropsWithChildren) {
   const { runner } = useSqlExecute();
   const { protectionLevel } = useDatabaseSetting();
+  const { theme } = useAppFeature();
   const [openSafetyConfirmation, setOpenSafetyConfirmation] = useState(false);
   const [confirmPromise, setConfirmPromise] = useState<{
     resolve?: (v: boolean) => void;
@@ -59,6 +66,8 @@ export default function SqlProtectionProvider({ children }: PropsWithChildren) {
   return (
     <>
       <Modal
+        wide
+        maxWidth={1000}
         open={openSafetyConfirmation}
         title="Confirm"
         onClose={() => {
@@ -69,11 +78,36 @@ export default function SqlProtectionProvider({ children }: PropsWithChildren) {
         }}
       >
         <Modal.Body>
-          {confirmStatements.map((statement, idx) => (
-            <pre key={idx}>
-              <code>{statement.sql}</code>
-            </pre>
-          ))}
+          <div
+            style={{ maxHeight: '70vh', overflowY: 'auto' }}
+            className={'scroll'}
+          >
+            {confirmStatements.map((statement, idx) => (
+              <div>
+                <SyntaxHighlighter
+                  lineProps={{
+                    style: {
+                      justifyContent: 'flex-start',
+                      flexWrap: 'wrap',
+                      position: 'relative',
+                      paddingLeft: 30,
+                    },
+                  }}
+                  lineNumberStyle={{
+                    position: 'absolute',
+                    left: 0,
+                  }}
+                  key={idx}
+                  language="sql"
+                  style={theme === 'dark' ? tomorrow : oneLight}
+                  showLineNumbers
+                  wrapLongLines
+                >
+                  {statement.sql}
+                </SyntaxHighlighter>
+              </div>
+            ))}
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button
