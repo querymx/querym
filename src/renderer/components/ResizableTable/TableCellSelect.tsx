@@ -4,19 +4,18 @@ interface TableCellInputProps {
   onLostFocus?: () => void;
   readOnly?: boolean;
   value?: string | null;
-  alignRight?: boolean;
+  items: string[];
   onChange?: (value: string) => void;
 }
 
-export default function TableCellInput({
+export default function TableCellSelect({
   onLostFocus,
-  readOnly,
   value,
   onChange,
-  alignRight,
+  items,
 }: TableCellInputProps) {
   return (
-    <input
+    <select
       onKeyPress={(e) => {
         if (e.key === 'Enter') {
           if (onLostFocus) {
@@ -26,15 +25,18 @@ export default function TableCellInput({
       }}
       spellCheck="false"
       autoFocus
-      type="text"
-      readOnly={readOnly}
-      className={styles.input}
-      style={alignRight ? { textAlign: 'right' } : undefined}
+      className={styles.select}
       onBlur={onLostFocus}
       onChange={(e) => {
         if (onChange) onChange(e.currentTarget.value);
       }}
       value={value ?? ''}
-    />
+    >
+      {items.map((item) => (
+        <option key={item} value={item}>
+          {item}
+        </option>
+      ))}
+    </select>
   );
 }

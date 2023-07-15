@@ -6,7 +6,7 @@ import {
 import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from './SQLLikeConnection';
-import { Connection, createConnection, RowDataPacket } from 'mysql2/promise';
+import { Connection, createConnection } from 'mysql2/promise';
 
 interface ColumnDefinition {
   _buf: Buffer;
@@ -47,10 +47,17 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     type = { type: 'decimal' };
   }
 
+  const databaseNameLength = column._buf[13];
+  const databaseName =
+    databaseNameLength > 0
+      ? column._buf.subarray(14, 14 + databaseNameLength).toString()
+      : undefined;
+
   return {
     name: column.name,
     type,
     schema: {
+      database: databaseName,
       table: tableName,
       column: column.name,
       primaryKey: !!(column.flags & 0x2),
@@ -105,13 +112,9 @@ export default class MySQLConnection extends SQLLikeConnection {
         mapHeaderType
       );
 
-      const rows = (result[0] as RowDataPacket[]).map((row) =>
-        headers.map((header) => row[header.name])
-      );
-
       return {
         headers,
-        rows,
+        rows: result[0] as Record<string, unknown>[],
         keys: {},
         error: null,
       };

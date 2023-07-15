@@ -1,10 +1,10 @@
-import { SqlStatementResult } from 'libs/SqlRunnerManager';
+import { SqlStatementRowBasedResult } from 'libs/SqlRunnerManager';
 import WindowTab from 'renderer/components/WindowTab';
 import QueryResultViewer from './QueryResultViewer';
 import { useMemo, useState, memo } from 'react';
 
 interface QueryMultipleResultViewerProps {
-  value: SqlStatementResult[];
+  value: SqlStatementRowBasedResult[];
 }
 
 export default memo(function QueryMultipleResultViewer({

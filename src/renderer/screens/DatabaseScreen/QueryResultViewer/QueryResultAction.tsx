@@ -6,12 +6,12 @@ import Button from 'renderer/components/Button';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { QueryResult } from 'types/SqlResult';
+import { QueryRowBasedResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
 
 interface QueryResultActionProps {
-  result: QueryResult;
-  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  result: QueryRowBasedResult;
+  onResultChange: React.Dispatch<React.SetStateAction<QueryRowBasedResult>>;
   page: number;
   pageSize: number;
   onPageChange: React.Dispatch<React.SetStateAction<number>>;

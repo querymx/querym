@@ -1,10 +1,8 @@
-interface TableColumnSchema {
+export interface TableColumnSchema {
   name: string;
-}
-
-interface TableFullColumnSchema extends TableColumnSchema {
   dataType: string;
   charLength: number | null;
+  enumValues?: string[];
   numericScale?: number | null;
   nuermicPrecision?: number | null;
   nullable: boolean;
@@ -33,7 +31,7 @@ interface TableSchema {
 export interface TableDefinitionSchema {
   name: string;
   createSql: string;
-  columns: TableFullColumnSchema[];
+  columns: TableColumnSchema[];
 }
 
 export interface DatabaseSchema {

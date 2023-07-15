@@ -1,8 +1,8 @@
-import { QueryResult } from 'types/SqlResult';
+import { QueryRowBasedResult } from 'types/SqlResult';
 import generateSqlFromChanges from './GenerateSqlFromChanges';
 import ResultChangeCollector from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
-import { TableType } from 'types/SqlSchema';
+import { DatabaseSchema, TableType } from 'types/SqlSchema';
 
 test('Generate Sql from changes with primary key', () => {
   const schema = {
@@ -22,9 +22,9 @@ test('Generate Sql from changes with primary key', () => {
         constraints: [],
       },
     },
-  };
+  } as unknown as DatabaseSchema;
 
-  const data: QueryResult = {
+  const data: QueryRowBasedResult = {
     keys: {},
     error: null,
     headers: [

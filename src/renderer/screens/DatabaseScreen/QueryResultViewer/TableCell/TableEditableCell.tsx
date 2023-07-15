@@ -10,6 +10,7 @@ import {
 import styles from './styles.module.css';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from '../TableCellManager';
+import { QueryResultHeader } from 'types/SqlResult';
 
 export interface TableEditableCellHandler {
   discard: () => void;
@@ -18,6 +19,7 @@ export interface TableEditableCellHandler {
 
 export interface TableEditableEditorProps {
   value: unknown;
+  header: QueryResultHeader;
   readOnly?: boolean;
   onExit: (discard: boolean, value: unknown) => void;
 }
@@ -39,6 +41,7 @@ interface TableEditableCellProps {
   onCopy?: (value: any) => string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onPaste?: (value: string) => { accept: boolean; value: any };
+  header: QueryResultHeader;
 }
 
 const TableEditableCell = forwardRef(function TableEditableCell(
@@ -53,6 +56,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     readOnly,
     onCopy,
     onPaste,
+    header,
   }: TableEditableCellProps,
   ref: Ref<TableEditableCellHandler>
 ) {
@@ -159,6 +163,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
         detactEditor ? (
           <>
             <Editor
+              header={header}
               value={afterValue}
               onExit={onExitEditMode}
               readOnly={readOnly}
@@ -167,6 +172,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
           </>
         ) : (
           <Editor
+            header={header}
             value={afterValue}
             onExit={onExitEditMode}
             readOnly={readOnly}

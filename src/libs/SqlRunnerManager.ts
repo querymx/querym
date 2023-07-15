@@ -1,5 +1,5 @@
 import { SqlQueryCallback } from 'drivers/SQLLikeConnection';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryRowBasedResult } from 'types/SqlResult';
 import { SqlStatement } from 'types/SqlStatement';
 import { Parser, AST } from 'node-sql-parser';
 
@@ -20,6 +20,11 @@ export type BeforeEachEventCallback = (
 export interface SqlStatementResult {
   statement: SqlStatement;
   result: QueryResult;
+}
+
+export interface SqlStatementRowBasedResult {
+  statement: SqlStatement;
+  result: QueryRowBasedResult;
 }
 
 interface SqlExecuteOption {
