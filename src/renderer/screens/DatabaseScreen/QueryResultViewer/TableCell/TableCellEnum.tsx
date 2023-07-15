@@ -5,12 +5,13 @@ import {
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
-import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
+import TableCellSelect from 'renderer/components/ResizableTable/TableCellSelect';
 
 function TableCellStringEditor({
   value,
   onExit,
   readOnly,
+  header,
 }: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState(value as string);
 
@@ -21,7 +22,8 @@ function TableCellStringEditor({
   }, [onExit, editValue]);
 
   return (
-    <TableCellInput
+    <TableCellSelect
+      items={header.columnDefinition?.enumValues || []}
       readOnly={readOnly}
       onChange={setEditValue}
       onLostFocus={onLostFocus}

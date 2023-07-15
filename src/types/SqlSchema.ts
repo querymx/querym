@@ -2,6 +2,7 @@ export interface TableColumnSchema {
   name: string;
   dataType: string;
   charLength: number | null;
+  enumValues?: string[];
   numericScale?: number | null;
   nuermicPrecision?: number | null;
   nullable: boolean;

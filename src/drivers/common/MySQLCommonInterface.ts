@@ -8,6 +8,7 @@ import SQLCommonInterface from './SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
 import { QueryResult } from 'types/SqlResult';
+import { parseEnumType } from 'libs/ParseColumnType';
 
 interface MySqlColumn {
   TABLE_SCHEMA: string;
@@ -20,6 +21,7 @@ interface MySqlColumn {
   NUMERIC_PRECISION: number;
   NUMERIC_SCALE: number;
   COLUMN_DEFAULT: string;
+  COLUMN_TYPE: string;
 }
 
 function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
@@ -32,6 +34,7 @@ function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
     nuermicPrecision: col.NUMERIC_PRECISION,
     numericScale: col.NUMERIC_SCALE,
     default: col.COLUMN_DEFAULT,
+    enumValues: col.DATA_TYPE === 'enum' ? parseEnumType(col.COLUMN_TYPE) : [],
   };
 }
 
@@ -76,7 +79,8 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
               'character_maximum_length',
               'numeric_precision',
               'numeric_scale',
-              'column_default'
+              'column_default',
+              'column_type'
             )
             .where({ table_schema: this.currentDatabaseName })
             .toRawSQL(),
@@ -242,7 +246,8 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
               'character_maximum_length',
               'numeric_precision',
               'numeric_scale',
-              'column_default'
+              'column_default',
+              'column_type'
             )
             .where({
               table_schema: this.currentDatabaseName,
