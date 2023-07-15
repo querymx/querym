@@ -2,11 +2,38 @@ import {
   DatabaseSchemas,
   TableConstraintTypeSchema,
   TableDefinitionSchema,
+  TableColumnSchema,
 } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
 import { QueryResult } from 'types/SqlResult';
+
+interface MySqlColumn {
+  TABLE_SCHEMA: string;
+  TABLE_NAME: string;
+  COLUMN_NAME: string;
+  DATA_TYPE: string;
+  IS_NULLABLE: 'YES' | 'NO';
+  COLUMN_COMMENT: string;
+  CHARACTER_MAXIMUM_LENGTH: number;
+  NUMERIC_PRECISION: number;
+  NUMERIC_SCALE: number;
+  COLUMN_DEFAULT: string;
+}
+
+function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
+  return {
+    name: col.COLUMN_NAME,
+    dataType: col.DATA_TYPE,
+    nullable: col.IS_NULLABLE === 'YES',
+    comment: col.COLUMN_COMMENT,
+    charLength: col.CHARACTER_MAXIMUM_LENGTH,
+    nuermicPrecision: col.NUMERIC_PRECISION,
+    numericScale: col.NUMERIC_SCALE,
+    default: col.COLUMN_DEFAULT,
+  };
+}
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
   protected runner: SqlRunnerManager;
@@ -39,7 +66,18 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
         {
           sql: qb()
             .table('information_schema.columns')
-            .select('table_schema', 'table_name', 'column_name')
+            .select(
+              'table_schema',
+              'table_name',
+              'column_name',
+              'data_type',
+              'is_nullable',
+              'column_comment',
+              'character_maximum_length',
+              'numeric_precision',
+              'numeric_scale',
+              'column_default'
+            )
             .where({ table_schema: this.currentDatabaseName })
             .toRawSQL(),
         },
@@ -75,11 +113,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     );
 
     const databases: DatabaseSchemas = {};
-    const data = response[0].result as QueryResult<{
-      TABLE_SCHEMA: string;
-      TABLE_NAME: string;
-      COLUMN_NAME: string;
-    }>;
+    const data = response[0].result as unknown as QueryResult<MySqlColumn>;
 
     const constraints = response[1].result as QueryResult<{
       CONSTRAINT_SCHEMA: string;
@@ -124,8 +158,6 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       }>
     ).rows;
 
-    console.log(data.rows);
-
     for (const row of data.rows) {
       const databaseName = row.TABLE_SCHEMA;
       const tableName = row.TABLE_NAME;
@@ -157,7 +189,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       }
 
       const table = database.tables[tableName];
-      table.columns[columnName] = { name: columnName };
+      table.columns[columnName] = mapColumnDefinition(row);
     }
 
     for (const row of constraints.rows) {
@@ -225,31 +257,12 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       }
     );
 
-    const columns = response[0].result.rows as {
-      table_schema: string;
-      table_name: string;
-      column_name: string;
-      data_type: string;
-      is_nullable: 'YES' | 'NO';
-      column_comment: string;
-      character_maximum_length: number;
-      numeric_precision: number;
-      numeric_scale: number;
-      column_default: string;
-    }[];
+    const columns = (response[0].result as unknown as QueryResult<MySqlColumn>)
+      .rows;
 
     return {
       name: table,
-      columns: columns.map((col) => ({
-        name: col.column_name,
-        dataType: col.data_type,
-        nullable: col.is_nullable === 'YES',
-        comment: col.column_comment,
-        charLength: col.character_maximum_length,
-        nuermicPrecision: col.numeric_precision,
-        numericScale: col.numeric_scale,
-        default: col.column_default,
-      })),
+      columns: columns.map(mapColumnDefinition),
       createSql: '',
     };
   }

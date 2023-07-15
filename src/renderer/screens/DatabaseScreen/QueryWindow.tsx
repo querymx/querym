@@ -17,7 +17,10 @@ import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
-import { transformResultToRowBasedResult } from 'libs/TransformResult';
+import {
+  transformResultHeaderUseSchema,
+  transformResultToRowBasedResult,
+} from 'libs/TransformResult';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -118,7 +121,11 @@ export default function QueryWindow({
           }
         )
         .then((r) => {
-          setResult(transformResultToRowBasedResult(r));
+          setResult(
+            transformResultToRowBasedResult(
+              transformResultHeaderUseSchema(r, schema)
+            )
+          );
           setQueryKeyCounter((prev) => prev + 1);
         })
         .catch((e) => {
@@ -130,7 +137,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, setLoading]
+    [runner, setResult, schema, setLoading]
   );
 
   const onRun = useCallback(() => {

@@ -4,6 +4,8 @@ import TableCellNumber from './TableCellNumber';
 import TableCellJson from './TableCellJson';
 import { QueryResultHeader } from 'types/SqlResult';
 import TableCellDecimal from './TableCellDecimal';
+import TableCellEnum from './TableCellEnum';
+import { TableCellCustomTypeProps } from './createTableCellType';
 
 interface TableCellProps {
   value: unknown;
@@ -13,48 +15,26 @@ interface TableCellProps {
   readOnly?: boolean;
 }
 
-export default memo(function TableCell({
-  value,
-  header,
-  row,
-  col,
-  readOnly,
-}: TableCellProps) {
+function getComponentFromHeader(
+  header: QueryResultHeader
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): React.FC<TableCellCustomTypeProps<any>> {
   if (header.type.type === 'number') {
-    return (
-      <TableCellNumber
-        value={value as number}
-        row={row}
-        col={col}
-        readOnly={readOnly}
-      />
-    );
+    return TableCellNumber;
   } else if (header.type.type === 'json') {
-    return (
-      <TableCellJson
-        value={value as number}
-        row={row}
-        col={col}
-        readOnly={readOnly}
-      />
-    );
+    return TableCellJson;
   } else if (header.type.type === 'decimal') {
-    return (
-      <TableCellDecimal
-        value={value as string}
-        row={row}
-        col={col}
-        readOnly={readOnly}
-      />
-    );
+    return TableCellDecimal;
+  } else if (header.columnDefinition) {
+    if (header.columnDefinition.dataType === 'enum') {
+      return TableCellEnum;
+    }
   }
 
-  return (
-    <TableCellString
-      value={value as string}
-      row={row}
-      col={col}
-      readOnly={readOnly}
-    />
-  );
+  return TableCellString;
+}
+
+export default memo(function TableCell(props: TableCellProps) {
+  const Component = getComponentFromHeader(props.header);
+  return <Component {...props} />;
 });

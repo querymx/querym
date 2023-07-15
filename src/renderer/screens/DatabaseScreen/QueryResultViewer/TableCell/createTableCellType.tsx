@@ -4,6 +4,7 @@ import TableEditableCell, {
   TableEditableContentProps,
 } from './TableEditableCell';
 import { useTableCellManager } from '../TableCellManager';
+import { QueryResultHeader } from 'types/SqlResult';
 
 interface TableCellCustomTypeOptions<T> {
   diff: (prev: T, current: T) => boolean;
@@ -14,11 +15,12 @@ interface TableCellCustomTypeOptions<T> {
   onPaste?: (value: string) => { accept: boolean; value: T };
 }
 
-interface TableCellCustomTypeProps<T> {
+export interface TableCellCustomTypeProps<T> {
   row: number;
   col: number;
   value: T;
   readOnly?: boolean;
+  header: QueryResultHeader;
 }
 
 export default function createTableCellType<T>(
@@ -29,6 +31,7 @@ export default function createTableCellType<T>(
     col,
     value,
     readOnly,
+    header,
   }: TableCellCustomTypeProps<T>) {
     const ref = useRef(null);
     const { cellManager } = useTableCellManager();
@@ -40,6 +43,7 @@ export default function createTableCellType<T>(
 
     return (
       <TableEditableCell
+        header={header}
         ref={ref}
         value={value}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

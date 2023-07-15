@@ -1,3 +1,5 @@
+import { TableColumnSchema } from './SqlSchema';
+
 export interface QueryResultHeaderType {
   type: 'string' | 'number' | 'json' | 'decimal';
 }
@@ -5,6 +7,7 @@ export interface QueryResultHeaderType {
 export interface QueryResultHeader {
   name: string;
   type: QueryResultHeaderType;
+  columnDefinition?: TableColumnSchema;
   schema?: {
     database?: string;
     table?: string;

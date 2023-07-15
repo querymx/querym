@@ -47,10 +47,17 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     type = { type: 'decimal' };
   }
 
+  const databaseNameLength = column._buf[13];
+  const databaseName =
+    databaseNameLength > 0
+      ? column._buf.subarray(14, 14 + databaseNameLength).toString()
+      : undefined;
+
   return {
     name: column.name,
     type,
     schema: {
+      database: databaseName,
       table: tableName,
       column: column.name,
       primaryKey: !!(column.flags & 0x2),

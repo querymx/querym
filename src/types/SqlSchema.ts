@@ -1,8 +1,5 @@
-interface TableColumnSchema {
+export interface TableColumnSchema {
   name: string;
-}
-
-interface TableFullColumnSchema extends TableColumnSchema {
   dataType: string;
   charLength: number | null;
   numericScale?: number | null;
@@ -33,7 +30,7 @@ interface TableSchema {
 export interface TableDefinitionSchema {
   name: string;
   createSql: string;
-  columns: TableFullColumnSchema[];
+  columns: TableColumnSchema[];
 }
 
 export interface DatabaseSchema {
