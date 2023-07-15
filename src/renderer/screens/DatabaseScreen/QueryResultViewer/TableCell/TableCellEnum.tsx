@@ -23,7 +23,7 @@ function TableCellStringEditor({
 
   return (
     <TableCellSelect
-      items={header.columnDefinition?.enumValues || []}
+      items={header.columnDefinition?.enumValues ?? []}
       readOnly={readOnly}
       onChange={setEditValue}
       onLostFocus={onLostFocus}

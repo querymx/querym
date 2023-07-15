@@ -30,10 +30,12 @@ export default function TableCellSelect({
       onChange={(e) => {
         if (onChange) onChange(e.currentTarget.value);
       }}
-      value={value || ''}
+      value={value ?? ''}
     >
       {items.map((item) => (
-        <option>{item}</option>
+        <option key={item} value={item}>
+          {item}
+        </option>
       ))}
     </select>
   );

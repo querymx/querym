@@ -34,7 +34,7 @@ export default function TableCellInput({
       onChange={(e) => {
         if (onChange) onChange(e.currentTarget.value);
       }}
-      value={value || ''}
+      value={value ?? ''}
     />
   );
 }
