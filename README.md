@@ -6,7 +6,7 @@
 QueryMaster is a simple and yet another database graphical client. It is free and cross platform. Currently, only support MySQL but with future plan to support many other SQL-like database.
 
 
-![QueryMaster](https://raw.githubusercontent.com/invisal/query-master/master/docs/screenshot/animated.gif)
+![QueryMaster](https://raw.githubusercontent.com/invisal/query-master/master/docs/screenshot/animated2.gif)
 
 ## Roadmap
 
