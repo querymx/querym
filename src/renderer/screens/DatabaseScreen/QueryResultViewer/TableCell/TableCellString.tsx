@@ -14,14 +14,18 @@ function TableCellStringEditor({
 }: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState(value as string);
 
-  const onLostFocus = useCallback(() => {
-    if (onExit) {
-      onExit(false, editValue);
-    }
-  }, [onExit, editValue]);
+  const onLostFocus = useCallback(
+    (v: string | null | undefined) => {
+      if (onExit) {
+        onExit(false, v);
+      }
+    },
+    [onExit]
+  );
 
   return (
     <TableCellInput
+      fullEditor
       readOnly={readOnly}
       onChange={setEditValue}
       onLostFocus={onLostFocus}

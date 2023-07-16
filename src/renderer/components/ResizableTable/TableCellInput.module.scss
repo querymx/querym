@@ -16,6 +16,25 @@
   border: 1px solid var(--color-critical);
 }
 
+.inputContainer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  .more {
+    background: #eee;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-right: 3px;
+    margin-left: 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+  }
+}
+
 .input {
   padding: 5px 10px;
   border: 1px solid var(--color-surface);

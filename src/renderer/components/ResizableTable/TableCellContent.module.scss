@@ -9,6 +9,9 @@
 .content {
   flex-grow: 1;
   line-height: 32px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .badge {
