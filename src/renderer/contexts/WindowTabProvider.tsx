@@ -14,7 +14,7 @@ import { DatabaseSavedState } from 'types/FileFormatType';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose, faTableList } from '@fortawesome/free-solid-svg-icons';
+import { faCode, faTableList } from '@fortawesome/free-solid-svg-icons';
 
 interface WindowTabItemProps {
   key: string;
@@ -97,7 +97,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
             setTabs(
               result.tabs.map((tab) => {
                 let component: ReactElement = <div />;
-                let icon: ReactElement = <FontAwesomeIcon icon={faClose} />;
+                let icon: ReactElement = <FontAwesomeIcon icon={faCode} />;
 
                 if (tab.type === 'query' || !tab.type) {
                   component = (
