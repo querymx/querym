@@ -30,3 +30,10 @@ test('Test select table selected field with limit', () => {
     'SELECT `id`,`name` FROM `users` LIMIT 10;'
   );
 });
+
+test('Delete table record with where', () => {
+  const qb = new QueryBuilder('mysql');
+  expect(qb.table('users').where({ id: 5 }).delete().toRawSQL()).toBe(
+    'DELETE FROM `users` WHERE `id`=5;'
+  );
+});

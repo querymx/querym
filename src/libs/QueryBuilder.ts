@@ -18,7 +18,7 @@ interface QueryWhere {
 
 interface QueryStates {
   table?: string;
-  type: 'select' | 'update' | 'insert';
+  type: 'select' | 'update' | 'insert' | 'delete';
   insert?: Record<string, unknown>[];
   update?: Record<string, unknown>;
   where: QueryWhere[];
@@ -72,6 +72,11 @@ export class QueryBuilder {
   update(value: Record<string, unknown>) {
     this.states.type = 'update';
     this.states.update = { ...this.states.update, ...value };
+    return this;
+  }
+
+  delete() {
+    this.states.type = 'delete';
     return this;
   }
 
@@ -182,6 +187,28 @@ export class QueryBuilder {
         [
           'SELECT',
           selectFieldPart,
+          'FROM',
+          this.dialect.escapeIdentifier(this.states.table),
+          whereSql ? 'WHERE ' + whereSql : whereSql,
+          this.states.limit ? `LIMIT ${this.states.limit}` : null,
+        ]
+          .filter(Boolean)
+          .join(' ') + ';';
+
+      return { sql, binding };
+    } else if (this.states.type === 'delete') {
+      if (!this.states.table) throw 'no table specified';
+
+      const { sql: whereSql, binding: whereBinding } = this.buildWhere(
+        this.states.where
+      );
+
+      let binding: unknown[] = [];
+      binding = binding.concat(...whereBinding);
+
+      const sql =
+        [
+          'DELETE',
           'FROM',
           this.dialect.escapeIdentifier(this.states.table),
           whereSql ? 'WHERE ' + whereSql : whereSql,
