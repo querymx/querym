@@ -70,17 +70,17 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
           sql: qb()
             .table('information_schema.columns')
             .select(
-              'table_schema',
-              'table_name',
-              'column_name',
-              'data_type',
-              'is_nullable',
-              'column_comment',
-              'character_maximum_length',
-              'numeric_precision',
-              'numeric_scale',
-              'column_default',
-              'column_type'
+              'TABLE_SCHEMA',
+              'TABLE_NAME',
+              'COLUMN_NAME',
+              'DATA_TYPE',
+              'IS_NULLABLE',
+              'COLUMN_COMMENT',
+              'CHARACTER_MAXIMUM_LENGTH',
+              'NUMERIC_PRECISION',
+              'NUMERIC_SCALE',
+              'COLUMN_DEFAULT',
+              'COLUMN_TYPE'
             )
             .where({ table_schema: this.currentDatabaseName })
             .toRawSQL(),
@@ -91,21 +91,21 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
         {
           sql: qb()
             .table('information_schema.tables')
-            .select('table_schema', 'table_name', 'table_type')
+            .select('TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_TYPE')
             .where({ table_schema: this.currentDatabaseName })
             .toRawSQL(),
         },
         {
           sql: qb()
             .table('information_schema.triggers')
-            .select('trigger_schema', 'trigger_name')
+            .select('TRIGGER_SCHEMA', 'TRIGGER_NAME')
             .where({ trigger_schema: this.currentDatabaseName })
             .toRawSQL(),
         },
         {
           sql: qb()
             .table('information_schema.events')
-            .select('event_schema', 'event_name')
+            .select('EVENT_SCHEMA', 'EVENT_NAME')
             .where({ event_schema: this.currentDatabaseName })
             .toRawSQL(),
         },
@@ -237,17 +237,17 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
           sql: qb()
             .table('information_schema.columns')
             .select(
-              'table_schema',
-              'table_name',
-              'column_name',
-              'data_type',
-              'is_nullable',
-              'column_comment',
-              'character_maximum_length',
-              'numeric_precision',
-              'numeric_scale',
-              'column_default',
-              'column_type'
+              'TABLE_SCHEMA',
+              'TABLE_NAME',
+              'COLUMN_NAME',
+              'DATA_TYPE',
+              'IS_NULLABLE',
+              'COLUMN_COMMENT',
+              'CHARACTER_MAXIMUM_LENGTH',
+              'NUMERIC_PRECISION',
+              'NUMERIC_SCALE',
+              'COLUMN_DEFAULT',
+              'COLUMN_TYPE'
             )
             .where({
               table_schema: this.currentDatabaseName,
