@@ -22,7 +22,7 @@
   height: 100%;
 
   .more {
-    background: #eee;
+    background: var(--color-surface-hover);
     padding-left: 8px;
     padding-right: 8px;
     margin-top: 3px;
@@ -32,6 +32,7 @@
     border-radius: 5px;
     display: flex;
     align-items: center;
+    cursor: pointer;
   }
 }
 
