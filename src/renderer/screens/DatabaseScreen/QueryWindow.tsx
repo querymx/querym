@@ -35,7 +35,7 @@ export default function QueryWindow({
   tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
-  const { selectedTab, setTabData } = useWindowTab();
+  const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementRowBasedResult[]>([]);
@@ -110,6 +110,7 @@ export default function QueryWindow({
 
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {
+      saveWindowTabHistory();
       const splittedSql = splitQuery(code);
 
       runner
@@ -137,7 +138,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, schema, setLoading]
+    [runner, setResult, schema, setLoading, saveWindowTabHistory]
   );
 
   const onRun = useCallback(() => {
@@ -194,7 +195,7 @@ export default function QueryWindow({
             value={code}
             onChange={(newCode) => {
               setCode(newCode);
-              setTabData(tabKey, { sql: newCode });
+              setTabData(tabKey, { sql: newCode, type: 'query' });
             }}
             height="100%"
             schema={codeMirrorSchema}

@@ -15,6 +15,8 @@ import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import SqlTableSchemaTab from 'renderer/screens/DatabaseScreen/SqlTableSchemaTab';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode, faTableList } from '@fortawesome/free-solid-svg-icons';
+import NotImplementCallback from 'libs/NotImplementCallback';
+import useBeforeClose from 'renderer/hooks/useBeforeClose';
 
 interface WindowTabItemProps {
   key: string;
@@ -23,13 +25,20 @@ interface WindowTabItemProps {
   component: ReactElement;
 }
 
+export interface WindowTabItemData {
+  sql?: string;
+  type?: string;
+  database?: string;
+  table?: string;
+}
+
 const WindowTabContext = createContext<{
   tabs: WindowTabItemProps[];
   setTabs: React.Dispatch<React.SetStateAction<WindowTabItemProps[]>>;
   selectedTab?: string;
   setSelectedTab: React.Dispatch<React.SetStateAction<string | undefined>>;
-
-  setTabData: (key: string, data: unknown) => void;
+  saveWindowTabHistory: () => void;
+  setTabData: (key: string, data: WindowTabItemData) => void;
 
   newWindow: (
     name: string,
@@ -38,19 +47,11 @@ const WindowTabContext = createContext<{
   ) => void;
 }>({
   tabs: [],
-  setTabs: () => {
-    throw 'Not implemented';
-  },
-  setSelectedTab: () => {
-    throw 'Not implemented';
-  },
-  newWindow: () => {
-    throw 'Not implemented';
-  },
-
-  setTabData: () => {
-    throw 'Not implemented';
-  },
+  setTabs: NotImplementCallback,
+  setSelectedTab: NotImplementCallback,
+  newWindow: NotImplementCallback,
+  setTabData: NotImplementCallback,
+  saveWindowTabHistory: NotImplementCallback,
 });
 
 export function useWindowTab() {
@@ -59,10 +60,11 @@ export function useWindowTab() {
 
 export function WindowTabProvider({ children }: PropsWithChildren) {
   const { setting } = useDatabaseSetting();
-  const [allowedClose, setAllowedClose] = useState(false);
   const [tabs, setTabs] = useState<WindowTabItemProps[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>();
-  const [tabData] = useState<{ data: Record<string, unknown> }>({ data: {} });
+  const [tabData] = useState<{ data: Record<string, WindowTabItemData> }>({
+    data: {},
+  });
 
   const newWindow = useCallback(
     (
@@ -112,8 +114,8 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
                     <SqlTableSchemaTab
                       tabKey={tab.key}
                       name={tab.name}
-                      database={tab.database}
-                      table={tab.table}
+                      database={tab.database ?? ''}
+                      table={tab.table ?? ''}
                     />
                   );
                   icon = <FontAwesomeIcon icon={faTableList} color="#3498db" />;
@@ -143,49 +145,39 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
     }
   }, [setTabs, setSelectedTab, setting]);
 
-  useEffect(() => {
-    if (allowedClose) {
-      window.close();
-    } else {
-      if (setting?.id) {
-        const beforeUnload = (e: BeforeUnloadEvent) => {
-          e.preventDefault();
+  const saveWindowTabHistory = useCallback(async () => {
+    return db.table('database_tabs').put({
+      id: setting?.id || '',
+      selectedTabKey: selectedTab,
+      tabs: tabs
+        .map((tab) => {
+          const { component, icon, ...rest } = tab;
+          return {
+            ...rest,
+            ...tabData.data[tab.key],
+          };
+        })
+        .filter((tab) => !!tab.type),
+    });
+  }, [tabs, selectedTab, tabData]);
 
-          db.table('database_tabs')
-            .put({
-              id: setting?.id || '',
-              selectedTabKey: selectedTab,
-              tabs: tabs
-                .map((tab) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { component, icon, ...rest } = tab;
-                  return {
-                    ...rest,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ...(tabData.data[tab.key] as any),
-                  };
-                })
-                .filter((tab) => !!tab.type),
-            })
-            .then(() => {
-              setAllowedClose(true);
-            });
-
-          e.returnValue = true;
-        };
-
-        window.addEventListener('beforeunload', beforeUnload);
-        return () => window.removeEventListener('beforeunload', beforeUnload);
-      }
-    }
-  }, [tabs, selectedTab, setting, setAllowedClose, allowedClose, tabData]);
-
+  // ------------------------------------------------
+  // Notify there are some data changed for a tab
+  // ------------------------------------------------
   const setTabData = useCallback(
-    (key: string, data: unknown) => {
+    (key: string, data: WindowTabItemData) => {
       tabData.data[key] = data;
     },
     [tabData]
   );
+
+  // ------------------------------------------------
+  // Save the tab history before close the app
+  // ------------------------------------------------
+  useBeforeClose(async () => {
+    await saveWindowTabHistory();
+    return true;
+  }, [saveWindowTabHistory]);
 
   return (
     <WindowTabContext.Provider
@@ -196,6 +188,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
         setSelectedTab,
         newWindow,
         setTabData,
+        saveWindowTabHistory,
       }}
     >
       {children}

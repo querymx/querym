@@ -1,3 +1,5 @@
+import { WindowTabItemData } from 'renderer/contexts/WindowTabProvider';
+
 export interface ConfigurationFileFormat {
   version: number;
   encrypted: boolean;
@@ -7,13 +9,9 @@ export interface ConfigurationFileFormat {
 }
 
 export interface DatabaseSavedState {
-  tabs: {
+  tabs: ({
     key: string;
     name: string;
-    sql: string;
-    type: string;
-    database: string;
-    table: string;
-  }[];
+  } & WindowTabItemData)[];
   selectedTabKey: string;
 }
