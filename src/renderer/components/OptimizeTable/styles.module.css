@@ -66,3 +66,7 @@
 .resizer:hover {
   opacity: 0.5;
 }
+
+.selectedRow td {
+  background-color: var(--color-table-row-selected);
+}
