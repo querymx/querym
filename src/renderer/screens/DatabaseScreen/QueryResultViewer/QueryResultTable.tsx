@@ -26,6 +26,16 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
 
     return [
       {
+        text: 'Insert NULL',
+        disabled: !selectedCell,
+        onClick: () => selectedCell?.insert(null),
+      },
+      {
+        text: '',
+        disabled: true,
+        separator: true,
+      },
+      {
         text: 'Copy',
         hotkey: 'Ctrl + C',
         disabled: !selectedCell,

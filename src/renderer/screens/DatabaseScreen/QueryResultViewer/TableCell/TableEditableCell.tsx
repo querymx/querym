@@ -16,6 +16,7 @@ export interface TableEditableCellHandler {
   discard: () => void;
   copy: () => void;
   paste: () => void;
+  insert: (value: unknown) => void;
   setFocus: (focused: boolean) => void;
 }
 
@@ -70,28 +71,35 @@ const TableEditableCell = forwardRef(function TableEditableCell(
   const [onEditMode, setOnEditMode] = useState(false);
   const [onFocus, setFocus] = useState(false);
 
-  const onCopyHandler = useCallback(() => {
+  const insertValueHandler = useCallback(
+    (newValue: unknown) => {
+      setAfterValue(newValue);
+      if (diff(value, newValue)) {
+        setChange(row, col, newValue);
+      } else {
+        removeChange(row, col);
+      }
+    },
+    [setAfterValue, setChange, diff]
+  );
+
+  const copyHandler = useCallback(() => {
     if (onCopy) {
       window.navigator.clipboard.writeText(onCopy(value));
     }
   }, [onCopy, value]);
 
-  const onPasteHandler = useCallback(() => {
+  const pasteHandler = useCallback(() => {
     if (onPaste) {
       window.navigator.clipboard.readText().then((pastedValue) => {
         const acceptPasteResult = onPaste(pastedValue);
         if (acceptPasteResult.accept) {
           const newValue = acceptPasteResult.value;
-          setAfterValue(newValue);
-          if (diff(value, newValue)) {
-            setChange(row, col, newValue);
-          } else {
-            removeChange(row, col);
-          }
+          insertValueHandler(newValue);
         }
       });
     }
-  }, [onPaste, setAfterValue, setChange, removeChange, diff]);
+  }, [onPaste, insertValueHandler]);
 
   useImperativeHandle(
     ref,
@@ -101,8 +109,9 @@ const TableEditableCell = forwardRef(function TableEditableCell(
           setAfterValue(value);
           removeChange(row, col);
         },
-        paste: onPasteHandler,
-        copy: onCopyHandler,
+        insert: insertValueHandler,
+        paste: pasteHandler,
+        copy: copyHandler,
         setFocus,
       };
     },
@@ -146,16 +155,16 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     if (onFocus) {
       const onKeyBinding = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === 'c') {
-          onCopyHandler();
+          copyHandler();
         } else if (e.ctrlKey && e.key === 'v') {
-          onPasteHandler();
+          pasteHandler();
         }
       };
 
       document.addEventListener('keydown', onKeyBinding);
       return () => document.removeEventListener('keydown', onKeyBinding);
     }
-  }, [onFocus, onPasteHandler, onCopyHandler]);
+  }, [onFocus, pasteHandler, copyHandler]);
 
   const className = [
     styles.container,
