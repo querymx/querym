@@ -14,6 +14,8 @@ import { QueryResultHeader } from 'types/SqlResult';
 
 export interface TableEditableCellHandler {
   discard: () => void;
+  copy: () => void;
+  paste: () => void;
   setFocus: (focused: boolean) => void;
 }
 
@@ -68,6 +70,29 @@ const TableEditableCell = forwardRef(function TableEditableCell(
   const [onEditMode, setOnEditMode] = useState(false);
   const [onFocus, setFocus] = useState(false);
 
+  const onCopyHandler = useCallback(() => {
+    if (onCopy) {
+      window.navigator.clipboard.writeText(onCopy(value));
+    }
+  }, [onCopy, value]);
+
+  const onPasteHandler = useCallback(() => {
+    if (onPaste) {
+      window.navigator.clipboard.readText().then((pastedValue) => {
+        const acceptPasteResult = onPaste(pastedValue);
+        if (acceptPasteResult.accept) {
+          const newValue = acceptPasteResult.value;
+          setAfterValue(newValue);
+          if (diff(value, newValue)) {
+            setChange(row, col, newValue);
+          } else {
+            removeChange(row, col);
+          }
+        }
+      });
+    }
+  }, [onPaste, setAfterValue, setChange, removeChange, diff]);
+
   useImperativeHandle(
     ref,
     () => {
@@ -76,6 +101,8 @@ const TableEditableCell = forwardRef(function TableEditableCell(
           setAfterValue(value);
           removeChange(row, col);
         },
+        paste: onPasteHandler,
+        copy: onCopyHandler,
         setFocus,
       };
     },
@@ -119,31 +146,16 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     if (onFocus) {
       const onKeyBinding = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key === 'c') {
-          if (onCopy) {
-            window.navigator.clipboard.writeText(onCopy(value));
-          }
+          onCopyHandler();
         } else if (e.ctrlKey && e.key === 'v') {
-          if (onPaste) {
-            window.navigator.clipboard.readText().then((pastedValue) => {
-              const acceptPasteResult = onPaste(pastedValue);
-              if (acceptPasteResult.accept) {
-                const newValue = acceptPasteResult.value;
-                setAfterValue(newValue);
-                if (diff(value, newValue)) {
-                  setChange(row, col, newValue);
-                } else {
-                  removeChange(row, col);
-                }
-              }
-            });
-          }
+          onPasteHandler();
         }
       };
 
       document.addEventListener('keydown', onKeyBinding);
       return () => document.removeEventListener('keydown', onKeyBinding);
     }
-  }, [onFocus, onCopy, value, diff, setAfterValue]);
+  }, [onFocus, onPasteHandler, onCopyHandler]);
 
   const className = [
     styles.container,
@@ -157,6 +169,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     <div
       className={className}
       onClick={handleFocus}
+      onContextMenu={handleFocus}
       onDoubleClick={onEnterEditMode}
     >
       {onEditMode ? (

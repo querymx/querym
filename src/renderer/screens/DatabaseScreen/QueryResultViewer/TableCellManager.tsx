@@ -22,6 +22,13 @@ class TableCellManager {
     return this.focused ? [...this.focused] : null;
   }
 
+  getFocusCell() {
+    if (this.focused) {
+      return this.get(this.focused[0], this.focused[1]);
+    }
+    return null;
+  }
+
   clearFocus() {
     if (this.focused) {
       const cell = this.cells[this.focused[0]][this.focused[1]];

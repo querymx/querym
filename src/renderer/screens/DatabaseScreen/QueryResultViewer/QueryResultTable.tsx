@@ -22,7 +22,26 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   const { schema, currentDatabase } = useSchmea();
 
   const { handleContextMenu } = useContextMenu(() => {
+    const selectedCell = cellManager.getFocusCell();
+
     return [
+      {
+        text: 'Copy',
+        hotkey: 'Ctrl + C',
+        disabled: !selectedCell,
+        onClick: () => selectedCell?.copy(),
+      },
+      {
+        text: 'Paste',
+        hotkey: 'Ctrl + V',
+        disabled: !selectedCell,
+        onClick: () => selectedCell?.paste(),
+      },
+      {
+        text: '',
+        disabled: true,
+        separator: true,
+      },
       {
         text: `Discard Changes`,
         destructive: true,
