@@ -19,6 +19,8 @@ interface OptimizeTableProps {
   renderCell: (y: number, x: number) => ReactElement;
   rowHeight: number;
   renderAhead: number;
+  selectedRowsIndex: number[]; // Array of selected row indices
+  onSelectedRowsIndexChanged: (selectedRows: number[]) => void; // Callback for row selection changes
 }
 
 function ResizeHandler({
@@ -86,6 +88,8 @@ export default function OptimizeTable({
   renderCell,
   rowHeight,
   renderAhead,
+  selectedRowsIndex,
+  onSelectedRowsIndexChanged,
 }: OptimizeTableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -173,6 +177,46 @@ export default function OptimizeTable({
     [recalculateVisible]
   );
 
+  const handleRowSelection = useCallback(
+    (rowIndex: number, isCtrlKey: boolean, isShiftKey: boolean) => {
+      let updatedSelectedRowsIndex: number[] = [];
+
+      if (isCtrlKey) {
+        // If CTRL key is pressed, toggle the selection of the clicked row
+        if (selectedRowsIndex.includes(rowIndex)) {
+          updatedSelectedRowsIndex = selectedRowsIndex.filter(
+            (index) => index !== rowIndex
+          );
+        } else {
+          updatedSelectedRowsIndex = [...selectedRowsIndex, rowIndex];
+        }
+      } else if (isShiftKey) {
+        // If SHIFT key is pressed, select rows from the last selected row to the clicked row
+        const lastIndex = selectedRowsIndex[selectedRowsIndex.length - 1];
+        const start = Math.min(lastIndex, rowIndex);
+        const end = Math.max(lastIndex, rowIndex);
+
+        for (let i = start; i <= end; i++) {
+          updatedSelectedRowsIndex.push(i);
+        }
+      } else {
+        updatedSelectedRowsIndex = [rowIndex];
+      }
+
+      onSelectedRowsIndexChanged(updatedSelectedRowsIndex);
+    },
+    [selectedRowsIndex, onSelectedRowsIndexChanged]
+  );
+
+  const handleRowClick = useCallback(
+    (e: React.MouseEvent<HTMLTableRowElement>, rowIndex: number) => {
+      const isCtrlKey = e.ctrlKey || e.metaKey;
+      const isShiftKey = e.shiftKey;
+      handleRowSelection(rowIndex, isCtrlKey, isShiftKey);
+    },
+    [handleRowSelection]
+  );
+
   useEffect(() => {
     if (containerRef.current) {
       recalculateVisible(containerRef.current);
@@ -203,8 +247,14 @@ export default function OptimizeTable({
       .map(() => new Array(data[0].length).fill(false));
 
     const cells = windowArray.map((row, rowIndex) => {
+      const absoluteRowIndex = rowIndex + visibleDebounce.rowStart;
+      const isRowSelected = selectedRowsIndex.includes(absoluteRowIndex);
       return (
-        <tr key={rowIndex + visibleDebounce.rowStart}>
+        <tr
+          key={absoluteRowIndex}
+          onClick={(e) => handleRowClick(e, absoluteRowIndex)}
+          className={isRowSelected ? styles.selectedRow : undefined}
+        >
           {visibleDebounce.colStart > 0 && (
             <td
               style={{
@@ -218,7 +268,7 @@ export default function OptimizeTable({
               <td key={cellIndex + visibleDebounce.colStart}>
                 <div className={styles.tableCellContent}>
                   {renderCell(
-                    rowIndex + visibleDebounce.rowStart,
+                    absoluteRowIndex,
                     cellIndex + visibleDebounce.colStart
                   )}
                 </div>
@@ -318,5 +368,6 @@ export default function OptimizeTable({
     rowHeight,
     headers,
     onHeaderResize,
+    selectedRowsIndex,
   ]);
 }

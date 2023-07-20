@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import { QueryResultHeader, QueryRowBasedResult } from 'types/SqlResult';
@@ -20,6 +20,11 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
   const { schema, currentDatabase } = useSchmea();
+  const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
+
+  const handleSelectedRowsChange = (selectedRows: number[]) => {
+    setSelectedRowsIndex(selectedRows);
+  };
 
   const { handleContextMenu } = useContextMenu(() => {
     return [
@@ -120,6 +125,8 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         renderAhead={20}
         renderCell={renderCell}
         rowHeight={35}
+        selectedRowsIndex={selectedRowsIndex}
+        onSelectedRowsIndexChanged={handleSelectedRowsChange}
       />
     </div>
   );
