@@ -165,7 +165,12 @@ export default function QueryWindow({
     if (initialRun && initialSql) {
       executeSql(initialSql, true);
     }
-  }, [executeSql, initialSql, initialRun]);
+    // DANGEROUSLY:
+    // Do not add any dependencies as we only want
+    // it to run only ONCE. executeSql did change
+    // when we switch database and might cause it to
+    // run the query again
+  }, []);
 
   useEffect(() => {
     setTabData(tabKey, { sql: initialSql, type: 'query' });
