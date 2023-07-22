@@ -38,16 +38,48 @@ function ResizeHandler({
       const table = handlerRef.current?.parentNode?.parentNode?.parentNode
         ?.parentNode as HTMLTableElement;
 
-      if (table) {
+      const tableWrapper = table.parentNode?.parentNode as HTMLDivElement;
+
+      let lastX = -100;
+
+      if (table && tableWrapper) {
         const onMouseMove = (e: MouseEvent) =>
           requestAnimationFrame(() => {
-            const scrollOffset = table.scrollLeft;
-            const width =
-              scrollOffset +
-              e.clientX -
-              ((
-                handlerRef.current?.parentNode as HTMLTableCellElement
-              ).getBoundingClientRect().x || 0);
+            if (lastX < 0) {
+              lastX = e.clientX;
+              return;
+            }
+
+            const edgeDirection =
+              tableWrapper.getBoundingClientRect().right - e.clientX > 0
+                ? 1
+                : -1;
+            const edgeResizing =
+              Math.abs(tableWrapper.getBoundingClientRect().right - e.clientX) <
+              3;
+
+            let gain = 0;
+            if (edgeResizing) {
+              gain = edgeDirection * 2;
+            } else {
+              gain = e.clientX - lastX;
+            }
+
+            const cell = handlerRef.current?.parentNode as HTMLTableCellElement;
+            const cellWidth = cell.getBoundingClientRect().width;
+
+            let width = cellWidth;
+            if (cellWidth + gain >= 100) {
+              width = cellWidth + gain;
+            } else {
+              width = 100;
+              gain = 0;
+            }
+
+            lastX = e.clientX;
+            if (edgeResizing) {
+              tableWrapper.scrollLeft += gain;
+            }
 
             onResize(idx, width);
 
@@ -56,18 +88,22 @@ function ResizeHandler({
               columns[idx] = width + 'px';
               table.style.gridTemplateColumns = columns.join(' ');
             }
+
+            if (edgeResizing) {
+              tableWrapper.scrollLeft += gain;
+            }
           });
 
         const onMouseUp = () => {
           setResizing(false);
         };
 
-        table.addEventListener('mousemove', onMouseMove);
-        table.addEventListener('mouseup', onMouseUp);
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
 
         return () => {
-          table.removeEventListener('mousemove', onMouseMove);
-          table.removeEventListener('mouseup', onMouseUp);
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
         };
       }
     }
