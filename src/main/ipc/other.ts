@@ -5,7 +5,11 @@ import {
   ipcMain,
   Menu,
   MenuItemConstructorOptions,
+  SaveDialogSyncOptions,
+  shell,
 } from 'electron';
+import saveCsvFile from './../../libs/SaveCSVFile';
+import saveExcelFile from './../../libs/SaveExcelFile';
 
 function recursiveAttachClick(
   items: MenuItemConstructorOptions[],
@@ -55,6 +59,33 @@ export default class OtherIpcHandler {
         }
       }
     );
+
+    ipcMain.handle(
+      'show-save-dialog',
+      (_, [options]: [SaveDialogSyncOptions]) => {
+        if (this.window) {
+          return dialog.showSaveDialogSync(this.window, options);
+        }
+      }
+    );
+
+    ipcMain.handle(
+      'save-csv-file',
+      (_, [fileName, records]: [string, object[]]) => {
+        saveCsvFile(fileName, records);
+      }
+    );
+
+    ipcMain.handle(
+      'save-excel-file',
+      (_, [fileName, records]: [string, object[]]) => {
+        saveExcelFile(fileName, records);
+      }
+    );
+
+    ipcMain.handle('show-item-in-folder', (_, [fileName]: [string]) => {
+      shell.showItemInFolder(fileName);
+    });
   }
 
   attachWindow(window: BrowserWindow) {

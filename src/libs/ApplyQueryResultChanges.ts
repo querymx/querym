@@ -1,15 +1,16 @@
-import { QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult } from 'types/SqlResult';
 import { ResultChangeCollectorItem } from './ResultChangeCollector';
 
 export default function applyQueryResultChanges(
-  result: QueryRowBasedResult,
+  result: QueryResult,
   changes: ResultChangeCollectorItem[]
-): QueryRowBasedResult {
+): QueryResult {
   const newResult = { ...result };
+  const headers = result.headers;
 
   for (const change of changes) {
     for (const col of change.cols) {
-      newResult.rows[change.row][col.col] = col.value;
+      newResult.rows[change.row][headers[col.col].name] = col.value;
     }
   }
 

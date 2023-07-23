@@ -9,7 +9,7 @@ import React, {
 import styles from './styles.module.css';
 
 interface OptimizeTableProps {
-  data: unknown[][];
+  data: unknown[];
   headers: {
     name: string;
     initialSize: number;
@@ -280,7 +280,7 @@ export default function OptimizeTable({
       visibleDebounce.rowEnd - visibleDebounce.rowStart
     )
       .fill(false)
-      .map(() => new Array(data[0].length).fill(false));
+      .map(() => new Array(headers.length).fill(false));
 
     const cells = windowArray.map((row, rowIndex) => {
       const absoluteRowIndex = rowIndex + visibleDebounce.rowStart;

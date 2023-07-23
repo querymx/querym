@@ -1,4 +1,4 @@
-import { QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult } from 'types/SqlResult';
 import generateSqlFromChanges from './GenerateSqlFromChanges';
 import ResultChangeCollector from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
@@ -24,7 +24,7 @@ test('Generate Sql from changes with primary key', () => {
     },
   } as unknown as DatabaseSchema;
 
-  const data: QueryRowBasedResult = {
+  const data: QueryResult = {
     keys: {},
     error: null,
     headers: [
@@ -45,9 +45,9 @@ test('Generate Sql from changes with primary key', () => {
       },
     ],
     rows: [
-      [1, 'Henry', 25],
-      [2, 'Jenny', 20],
-      [3, 'Zeus', 30],
+      { id: 1, name: 'Henry', age: 25 },
+      { id: 2, name: 'Jenny', age: 20 },
+      { id: 3, name: 'Zeus', age: 30 },
     ],
   };
 
