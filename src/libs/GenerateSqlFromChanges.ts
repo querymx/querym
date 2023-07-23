@@ -1,4 +1,4 @@
-import { QueryResultHeader, QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { DatabaseSchema } from 'types/SqlSchema';
 import { ResultChangeCollectorItem } from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
@@ -66,7 +66,7 @@ export function getUpdatableTable(
 
 function getSqlPlanFromChange(
   change: ResultChangeCollectorItem,
-  data: QueryRowBasedResult,
+  data: QueryResult,
   updatable: UpdatableTableDict
 ): SqlStatementPlan[] {
   const changedTable: Record<string, SqlStatementPlan> = {};
@@ -92,7 +92,8 @@ function getSqlPlanFromChange(
             where: updatable[tableName].reduce((a, b) => {
               return {
                 ...a,
-                [b.columnNames]: data.rows[change.row][b.columnNumber],
+                [b.columnNames]:
+                  data.rows[change.row][headers[b.columnNumber].name],
               };
             }, {}),
           };
@@ -106,7 +107,7 @@ function getSqlPlanFromChange(
 
 export default function generateSqlFromChanges(
   schema: DatabaseSchema,
-  currentData: QueryRowBasedResult,
+  currentData: QueryResult,
   changes: ResultChangeCollectorItem[]
 ): SqlStatementPlan[] {
   const updatableTables = getUpdatableTable(currentData.headers, schema);

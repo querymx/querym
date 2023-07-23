@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-import { QueryResultHeader, QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -11,7 +11,7 @@ import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
 
 interface QueryResultTableProps {
-  result: QueryRowBasedResult;
+  result: QueryResult;
   page: number;
   pageSize: number;
 }
@@ -105,8 +105,8 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         // Check the last 100 records
         const maxLength = Math.max(
           ...result.rows.slice(0, 100).map((row) => {
-            if (typeof row[idx] === 'string')
-              return (row[idx] as string).length;
+            if (typeof row[header.name] === 'string')
+              return (row[header.name] as string).length;
             return 10;
           })
         );
@@ -135,7 +135,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
       return (
         <TableCell
           key={(y + page * pageSize).toString() + '_' + x}
-          value={data[y][x]}
+          value={data[y][result.headers[x].name]}
           header={result.headers[x]}
           col={x}
           row={y + page * pageSize}

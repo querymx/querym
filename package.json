@@ -73,7 +73,8 @@
     "react-router-dom": "^6.8.1",
     "react-syntax-highlighter": "^15.5.0",
     "sqlstring": "^2.3.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "xlsx": "^0.18.5"
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"

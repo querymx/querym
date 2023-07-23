@@ -149,3 +149,9 @@ body {
 .scroll:hover::-webkit-scrollbar-thumb {
   background: var(--color-scrollbar-hover);
 }
+
+hr {
+  border: 0;
+  background: var(--color-surface-hover);
+  height: 1px;
+}

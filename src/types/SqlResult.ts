@@ -34,7 +34,3 @@ export interface QueryResult<T = Record<string, unknown>>
   extends QueryResultCommon {
   rows: T[];
 }
-
-export interface QueryRowBasedResult extends QueryResultCommon {
-  rows: unknown[][];
-}

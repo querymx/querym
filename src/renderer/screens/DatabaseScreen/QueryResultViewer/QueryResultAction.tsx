@@ -6,12 +6,14 @@ import Button from 'renderer/components/Button';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
+import ButtonGroup from 'renderer/components/ButtonGroup';
+import ExportModal from '../ExportModal';
 
 interface QueryResultActionProps {
-  result: QueryRowBasedResult;
-  onResultChange: React.Dispatch<React.SetStateAction<QueryRowBasedResult>>;
+  result: QueryResult;
+  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
   page: number;
   pageSize: number;
   onPageChange: React.Dispatch<React.SetStateAction<number>>;
@@ -25,6 +27,7 @@ export default function QueryResultAction({
   onPageChange,
 }: QueryResultActionProps) {
   const [changeCount, setChangeCount] = useState(0);
+  const [showExportModal, setShowExportModal] = useState(false);
   const { clearChange, collector } = useQueryResultChange();
   const { schema, currentDatabase } = useSchmea();
   const { runner } = useSqlExecute();
@@ -72,10 +75,19 @@ export default function QueryResultAction({
 
   return (
     <div className={styles.footer}>
+      {showExportModal && (
+        <ExportModal data={result} onClose={() => setShowExportModal(false)} />
+      )}
+
       <div className={styles.footerAction}>
-        <Button primary={!!changeCount} onClick={onCommit}>
-          {changeCount ? `Commit (${changeCount})` : 'Commit'}
-        </Button>
+        <ButtonGroup>
+          <Button primary={!!changeCount} onClick={onCommit}>
+            {changeCount ? `Commit (${changeCount})` : 'Commit'}
+          </Button>
+          <Button primary onClick={() => setShowExportModal(true)}>
+            Export
+          </Button>
+        </ButtonGroup>
       </div>
 
       <div className={styles.footerPage}>

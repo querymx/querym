@@ -7,7 +7,6 @@ import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import Splitter from 'renderer/components/Splitter/Splitter';
-import { SqlStatementRowBasedResult } from 'libs/SqlRunnerManager';
 import { splitQuery } from 'dbgate-query-splitter';
 import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -17,10 +16,8 @@ import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
-import {
-  transformResultHeaderUseSchema,
-  transformResultToRowBasedResult,
-} from 'libs/TransformResult';
+import { transformResultHeaderUseSchema } from 'libs/TransformResult';
+import { SqlStatementResult } from 'libs/SqlRunnerManager';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -38,7 +35,7 @@ export default function QueryWindow({
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
-  const [result, setResult] = useState<SqlStatementRowBasedResult[]>([]);
+  const [result, setResult] = useState<SqlStatementResult[]>([]);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
   const [loading, setLoading] = useState(false);
   const { schema, currentDatabase } = useSchmea();
@@ -122,11 +119,7 @@ export default function QueryWindow({
           }
         )
         .then((r) => {
-          setResult(
-            transformResultToRowBasedResult(
-              transformResultHeaderUseSchema(r, schema)
-            )
-          );
+          setResult(transformResultHeaderUseSchema(r, schema));
           setQueryKeyCounter((prev) => prev + 1);
         })
         .catch((e) => {

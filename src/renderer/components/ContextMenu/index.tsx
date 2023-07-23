@@ -40,9 +40,11 @@ export default function ContextMenu({
   children,
   status,
   onClose,
+  minWidth,
 }: PropsWithChildren<{
   status: ContextMenuStatus;
   onClose: () => void;
+  minWidth?: number;
 }>) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuWidth, setMenuWidth] = useState(0);
@@ -67,13 +69,16 @@ export default function ContextMenu({
     }
   }, [status.open]);
 
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  const viewportWidth =
+    window.innerWidth || document.documentElement.clientWidth;
+  const viewportHeight =
+    window.innerHeight || document.documentElement.clientHeight;
 
   const menuStyle: CSSProperties = {
     visibility: status.open ? 'visible' : 'hidden',
     top: Math.min(status.y, viewportHeight - menuHeight - 10),
     left: Math.min(status.x, viewportWidth - menuWidth - 10),
+    minWidth,
   };
 
   return (
