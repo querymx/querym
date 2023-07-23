@@ -4,10 +4,10 @@ import {
   faCircleCheck,
   faTimesCircle,
   faSpinner,
+  faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCallback, useState } from 'react';
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
 import SelectField from 'renderer/components/SelectField';
