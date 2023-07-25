@@ -119,7 +119,7 @@ export class QueryBuilder {
 
     for (const whereItem of where) {
       if (whereItem.condition) {
-        if (previousMode) sql += previousMode + ' ';
+        if (previousMode) sql += ' ' + previousMode + ' ';
         sql +=
           this.dialect.escapeIdentifier(whereItem.condition.field) +
           whereItem.condition.op +

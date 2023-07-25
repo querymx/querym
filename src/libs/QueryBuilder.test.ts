@@ -12,6 +12,18 @@ test('Test update statement with condition', () => {
   ).toBe("UPDATE `users` SET `name`='query-master' WHERE `id`=5;");
 });
 
+test('Test update statement with multiple condition', () => {
+  const qb = new QueryBuilder('mysql');
+
+  expect(
+    qb
+      .table('users')
+      .update({ name: 'query-master' })
+      .where({ id: 5, age: 20 })
+      .toRawSQL()
+  ).toBe("UPDATE `users` SET `name`='query-master' WHERE `id`=5 AND `age`=20;");
+});
+
 test('Test select table without selected field', () => {
   const qb = new QueryBuilder('mysql');
   expect(qb.table('users').select().toRawSQL()).toBe('SELECT * FROM `users`;');
