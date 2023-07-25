@@ -44,6 +44,7 @@
   text-align: left;
   display: flex;
   flex-direction: row;
+  z-index: 10;
 }
 
 .tableHeaderIcon {
@@ -69,4 +70,13 @@
 
 .selectedRow td {
   background-color: var(--color-table-row-selected);
+}
+
+.newRow td {
+  background-color: var(--color-table-row-new);
+  color: var(--color-text);
+}
+
+.removedRow td {
+  background-color: var(--color-table-row-removed);
 }

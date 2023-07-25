@@ -34,14 +34,14 @@ export function QueryResultChangeProvider({ children }: PropsWithChildren) {
 
   const setChange = useCallback(
     (row: number, col: number, value: unknown) => {
-      collector.add(row, col, value);
+      collector.addChange(row, col, value);
     },
     [collector]
   );
 
   const removeChange = useCallback(
     (row: number, col: number) => {
-      collector.remove(row, col);
+      collector.removeChange(row, col);
     },
     [collector]
   );

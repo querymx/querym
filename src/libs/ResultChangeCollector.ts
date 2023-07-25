@@ -9,6 +9,8 @@ export type ResultChangeEventHandler = (count: number) => void;
  * Collect all the changes and arrange it in the friendly way
  */
 export default class ResultChangeCollector {
+  protected newRowCount = 0;
+  protected removedRowIndex = new Set<number>();
   protected changes: Record<string, Record<string, unknown>> = {};
   protected onChangeListeners: ResultChangeEventHandler[] = [];
 
@@ -21,13 +23,28 @@ export default class ResultChangeCollector {
   }
 
   protected triggerOnChange() {
+    const count = this.getChangesCount();
     for (const cb of this.onChangeListeners) {
-      const count = this.getChangesCount();
       cb(count);
     }
   }
 
-  remove(rowNumber: number, cellNumber: number) {
+  removeRow(rowNumber: number) {
+    if (rowNumber < 0) {
+      // Remove the new created row.
+    } else {
+      // Remove the existing row. We just mark it as removed
+      this.removedRowIndex.add(rowNumber);
+    }
+    this.triggerOnChange();
+  }
+
+  discardRemoveRow(rowNumber: number) {
+    this.removedRowIndex.delete(rowNumber);
+    this.triggerOnChange();
+  }
+
+  removeChange(rowNumber: number, cellNumber: number) {
     if (this.changes[rowNumber]) {
       delete this.changes[rowNumber][cellNumber];
       if (Object.entries(this.changes[rowNumber]).length === 0) {
@@ -38,7 +55,12 @@ export default class ResultChangeCollector {
     this.triggerOnChange();
   }
 
-  add(rowNumber: number, cellNumber: number, value: unknown) {
+  createNewRow() {
+    this.newRowCount++;
+    this.triggerOnChange();
+  }
+
+  addChange(rowNumber: number, cellNumber: number, value: unknown) {
     if (!this.changes[rowNumber]) {
       this.changes[rowNumber] = {};
     }
@@ -49,6 +71,7 @@ export default class ResultChangeCollector {
 
   clear() {
     this.changes = {};
+    this.newRowCount = 0;
     this.triggerOnChange();
   }
 
@@ -67,6 +90,14 @@ export default class ResultChangeCollector {
 
   getChangesCount() {
     return Object.entries(this.changes).length;
+  }
+
+  getNewRowCount(): number {
+    return this.newRowCount;
+  }
+
+  getRemovedRowsIndex(): number[] {
+    return Array.from(this.removedRowIndex);
   }
 
   getChanges(): ResultChangeCollectorItem[] {
