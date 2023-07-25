@@ -119,6 +119,9 @@ const electronHandler = {
     ipcRenderer.removeAllListeners('update-downloaded');
     return ipcRenderer.on('update-downloaded', callback);
   },
+
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', [url]),
+
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

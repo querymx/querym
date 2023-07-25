@@ -15,12 +15,15 @@ import sourceMapSupport from 'source-map-support';
 import OtherIpcHandler from './ipc/other';
 import ConnectionIpcHandler from './ipc/handleConnection';
 import handleAutoUpdate from './autoupdate';
+import LinkIPCHandler from './ipc/link';
 
 const otherIpcHandler = new OtherIpcHandler();
 const connectionIpcHandler = new ConnectionIpcHandler();
+const linkIPCHandler = new LinkIPCHandler();
 
 otherIpcHandler.register();
 connectionIpcHandler.register();
+linkIPCHandler.register();
 
 let mainWindow: BrowserWindow | null = null;
 
