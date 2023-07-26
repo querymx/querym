@@ -25,7 +25,7 @@ jobs:
 
       - name: Unpack eSigner Signing Tool
         shell: powershell
-        run: Expand-Archive esigner.zip ./CodeSignTool-v1.2.7-windows
+        run: Expand-Archive esigner.zip ./
 
       - name: Install and build
         run: |
@@ -34,6 +34,7 @@ jobs:
           npm run build
 
       - name: Publish releases
+        shell: powershell
         env:
           # These values are used for auto updates signing
           WINDOWS_SIGN_USER_NAME: ${{ secrets.WINDOWS_SIGN_USER_NAME }}
