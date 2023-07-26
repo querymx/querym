@@ -20,9 +20,11 @@ jobs:
           cache: npm
 
       - name: Download eSigner Signing Tool
+        shell: powershell
         run: Invoke-WebRequest -OutFile esigner.zip -Uri https://invisal.s3.ap-southeast-1.amazonaws.com/CodeSignTool-v1.2.7-windows.zip
 
       - name: Unpack eSigner Signing Tool
+        shell: powershell
         run: Expand-Archive esigner.zip ./CodeSignTool-v1.2.7-windows
 
       - name: Install and build
