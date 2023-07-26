@@ -193,6 +193,10 @@
       ]
     },
     "win": {
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "sign": "./sign.js",
       "target": [
         "nsis",
         "portable"

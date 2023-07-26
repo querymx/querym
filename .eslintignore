@@ -32,3 +32,5 @@ npm-debug.log.*
 # https://github.com/eslint/eslint/issues/8429
 .erb
 .eslintrc.js
+
+sign.js

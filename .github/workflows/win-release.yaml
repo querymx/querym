@@ -1,0 +1,45 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Install Node and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+
+      - name: Download eSigner Signing Tool
+        run: Invoke-WebRequest -OutFile esigner.zip -Uri https://invisal.s3.ap-southeast-1.amazonaws.com/CodeSignTool-v1.2.7-windows.zip
+
+      - name: Unpack eSigner Signing Tool
+        run: Expand-Archive esigner.zip ./CodeSignTool-v1.2.7-windows
+
+      - name: Install and build
+        run: |
+          npm install
+          npm run postinstall
+          npm run build
+
+      - name: Publish releases
+        env:
+          # These values are used for auto updates signing
+          WINDOWS_SIGN_USER_NAME: ${{ secrets.WINDOWS_SIGN_USER_NAME }}
+          WINDOWS_SIGN_USER_PASSWORD: ${{ secrets.WINDOWS_SIGN_USER_PASSWORD }}
+          WINDOWS_SIGN_CREDENTIAL_ID: ${{ secrets.WINDOWS_SIGN_CREDENTIAL_ID }}
+          WINDOWS_SIGN_USER_TOTP: ${{ secrets.WINDOWS_SIGN_USER_TOTP }}
+
+          # This is used for uploading release assets to github
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          npm exec electron-builder -- --publish always

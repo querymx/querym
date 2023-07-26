@@ -7,12 +7,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, windows-2022]
-
+    runs-on: macos-latest
     steps:
       - name: Checkout git repo
         uses: actions/checkout@v3
