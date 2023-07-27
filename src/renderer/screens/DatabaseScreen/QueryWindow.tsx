@@ -1,6 +1,7 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
@@ -59,7 +60,15 @@ export default function QueryWindow({
     const selectTo = viewState?.selection?.main?.to || 0;
 
     return [
-      { text: 'Beautify SQL', separator: true },
+      {
+        text: 'Beautify SQL',
+        onClick: () => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const codeFromRef: string = (viewState?.doc as any).text.join('\r');
+          setCode(format(codeFromRef));
+        },
+        separator: true,
+      },
       {
         text: 'Cut',
         hotkey: 'Ctrl + X',
@@ -103,7 +112,7 @@ export default function QueryWindow({
         },
       },
     ];
-  }, [editorRef]);
+  }, [editorRef, setCode]);
 
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {
