@@ -12,13 +12,18 @@ function TableCellNumberEditor({
   onExit,
   readOnly,
 }: TableEditableEditorProps) {
-  const [editValue, setEditValue] = useState<string | null>(
-    value !== null ? (value as number).toString() : null
+  const [editValue, setEditValue] = useState<string | null | undefined>(
+    value !== undefined && value !== null ? (value as number).toString() : value
   );
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
-      onExit(false, editValue === null ? editValue : Number(editValue));
+      onExit(
+        false,
+        editValue === null || editValue === undefined
+          ? editValue
+          : Number(editValue)
+      );
     }
   }, [onExit, editValue]);
 

@@ -42,6 +42,8 @@ body {
   --color-table-cell-code: #95a5a6;
 
   --color-table-row-selected: #e4e6f1;
+  --color-table-row-removed: #ff6b81;
+  --color-table-row-new: #7bed9f;
 
   /* For Scroll */
   --color-scrollbar: #0001;
@@ -91,6 +93,8 @@ body.dark {
   --color-table-cell-code: #95a5a6;
 
   --color-table-row-selected: #37373d;
+  --color-table-row-removed: #ff4757;
+  --color-table-row-new: #27ae60;
 
   /* For Scroll */
   --color-scrollbar-track: #fff1;

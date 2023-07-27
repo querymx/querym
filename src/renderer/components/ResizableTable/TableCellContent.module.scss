@@ -37,7 +37,8 @@
 }
 
 .null {
-  color: #27ae60;
+  color: var(--color-text);
+  opacity: 0.5;
 }
 
 .right {

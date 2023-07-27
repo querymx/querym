@@ -52,8 +52,8 @@ test('Generate Sql from changes with primary key', () => {
   };
 
   const changes = new ResultChangeCollector();
-  changes.add(1, 1, 'Jenny 2');
-  changes.add(2, 2, 35);
+  changes.addChange(1, 1, 'Jenny 2');
+  changes.addChange(2, 2, 35);
 
   expect(generateSqlFromChanges(schema, data, changes.getChanges())).toEqual([
     {
