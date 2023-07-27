@@ -26,6 +26,7 @@ interface SqlExecuteOption {
   onStart?: () => void;
   skipProtection?: boolean;
   disableAnalyze?: boolean;
+  insideTransaction?: boolean;
 }
 
 export class SqlRunnerManager {
@@ -43,6 +44,12 @@ export class SqlRunnerManager {
   ): Promise<SqlStatementResult[]> {
     const result: SqlStatementResult[] = [];
     const parser = new Parser();
+
+    // We only wrap transaction if it is multiple statement and
+    // insideTransactin is specified. Single statement, by itself, is
+    // transactional already.
+    const shouldStartTransaction =
+      !!options?.insideTransaction && statements.length > 1;
 
     const finalStatements: SqlStatementWithAnalyze[] = options?.disableAnalyze
       ? statements
@@ -65,33 +72,40 @@ export class SqlRunnerManager {
       }
     }
 
-    for (const statement of finalStatements) {
-      for (const cb of this.beforeEachCallbacks) {
-        if (!(await cb(statement, options?.skipProtection))) {
-          throw 'Cancel';
+    try {
+      if (shouldStartTransaction) await this.executor('START TRANSACTION;');
+      for (const statement of finalStatements) {
+        for (const cb of this.beforeEachCallbacks) {
+          if (!(await cb(statement, options?.skipProtection))) {
+            throw 'Cancel';
+          }
+        }
+
+        if (options?.onStart) options.onStart();
+
+        console.log(statement.sql);
+
+        const returnedResult = await this.executor(
+          statement.sql,
+          statement.params
+        );
+
+        if (!returnedResult?.error) {
+          result.push({
+            statement,
+            result: returnedResult,
+          });
+        } else {
+          throw returnedResult.error;
         }
       }
 
-      if (options?.onStart) options.onStart();
-
-      console.log(statement.sql);
-
-      const returnedResult = await this.executor(
-        statement.sql,
-        statement.params
-      );
-
-      if (!returnedResult?.error) {
-        result.push({
-          statement,
-          result: returnedResult,
-        });
-      } else {
-        throw returnedResult.error;
-      }
+      if (shouldStartTransaction) await this.executor('COMMIT;');
+      return result;
+    } catch (e) {
+      if (shouldStartTransaction) await this.executor('ROLLBACK;');
+      throw e;
     }
-
-    return result;
   }
 
   registerBeforeAll(cb: BeforeAllEventCallback) {

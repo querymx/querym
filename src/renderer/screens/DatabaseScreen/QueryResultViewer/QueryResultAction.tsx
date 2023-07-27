@@ -64,7 +64,7 @@ export default function QueryResultAction({
         }));
 
         runner
-          .execute(rawSql)
+          .execute(rawSql, { insideTransaction: true })
           .then(() => {
             const changes = collector.getChanges();
 
