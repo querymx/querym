@@ -17,10 +17,10 @@ QueryMaster is a simple and yet another database graphical client. It is free an
 - [x] Support Dark mode
 - [x] Inline editing query result
 - [x] Inline editing query result with JSON editor
-- [ ] Beautify SQL code
-- [ ] Insert new record
-- [ ] Delete record
-- [ ] Export to CSV, SQL, and Excel file.
+- [x] Beautify SQL code
+- [x] Insert new record
+- [x] Delete record
+- [x] Export to CSV, SQL, and Excel file.
 - [ ] Saved query
 - [ ] Query history
 
