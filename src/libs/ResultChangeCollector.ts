@@ -135,7 +135,7 @@ export default class ResultChangeCollector {
     const newRowChanges = new Array(this.newRowCount)
       .fill(undefined)
       .map((_, newRowIndex) => {
-        const realNewRowindex = -newRowIndex;
+        const realNewRowindex = -(newRowIndex + 1);
         const newRowChanged = this.changes[realNewRowindex];
         const colChanges = newRowChanged
           ? Object.entries(newRowChanged).map(([colNumber, value]) => {

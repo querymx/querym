@@ -1,18 +1,39 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { QueryResultChangeProvider } from 'renderer/contexts/QueryResultChangeProvider';
 import QueryResultTable from './QueryResultTable';
 import styles from './styles.module.scss';
 import { TableCellManagerProvider } from './TableCellManager';
 import QueryResultAction from './QueryResultAction';
 import { QueryResult } from 'types/SqlResult';
+import { SqlStatement } from 'types/SqlStatement';
+import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 
-function QueryResultViewer({ result }: { result: QueryResult }) {
+function QueryResultViewer({
+  result,
+  statement,
+}: {
+  result: QueryResult;
+  statement: SqlStatement;
+}) {
+  const { runner } = useSqlExecute();
+  // This is use remount the component
+  const [runningIndex, setRunningIndex] = useState(0);
   const [cacheResult, setCacheResult] = useState(result);
   const [page, setPage] = useState(0);
   const pageSize = 1000;
 
+  const onRequestRefetch = useCallback(() => {
+    runner
+      .execute([statement])
+      .then((result) => {
+        setCacheResult(result[0].result);
+        setRunningIndex((prev) => prev + 1);
+      })
+      .catch(console.error);
+  }, [statement, runner, setCacheResult, setRunningIndex]);
+
   return (
-    <QueryResultChangeProvider>
+    <QueryResultChangeProvider key={runningIndex.toString()}>
       <div className={styles.result}>
         <TableCellManagerProvider>
           <QueryResultTable
@@ -26,6 +47,7 @@ function QueryResultViewer({ result }: { result: QueryResult }) {
             onPageChange={setPage}
             result={cacheResult}
             onResultChange={setCacheResult}
+            onRequestRefetch={onRequestRefetch}
           />
         </TableCellManagerProvider>
       </div>

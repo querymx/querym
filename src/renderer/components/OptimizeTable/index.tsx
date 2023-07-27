@@ -220,7 +220,7 @@ export default function OptimizeTable({
       return (
         <tr
           key={absoluteRowIndex}
-          onClick={(e) => handleRowClick(e, absoluteRowIndex)}
+          onMouseDown={(e) => handleRowClick(e, absoluteRowIndex)}
           className={rowClass}
         >
           {visibleDebounce.colStart > 0 && (
