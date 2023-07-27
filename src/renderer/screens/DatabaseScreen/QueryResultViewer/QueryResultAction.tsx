@@ -65,7 +65,7 @@ export default function QueryResultAction({
             onResultChange((prev) => {
               const changes = collector.getChanges();
               clearChange();
-              return applyQueryResultChanges(prev, changes);
+              return applyQueryResultChanges(prev, changes.changes);
             });
           })
           .catch(console.error);

@@ -1,5 +1,5 @@
 import { SqlStatementPlan } from 'types/SqlStatement';
-import { QueryBuilder } from './QueryBuilder';
+import { QueryBuilder, qb } from './QueryBuilder';
 
 function convertUnsupportedValue(value: Record<string, unknown>) {
   const result = { ...value };
@@ -16,13 +16,26 @@ function convertUnsupportedValue(value: Record<string, unknown>) {
 
 export default function generateSqlFromPlan(plan: SqlStatementPlan) {
   if (plan.type === 'update') {
-    console.log(convertUnsupportedValue(plan.values), plan.values);
-
-    const qb = new QueryBuilder('mysql')
-      .table(plan.table)
-      .update(convertUnsupportedValue(plan.values));
-    if (plan.where) qb.where(convertUnsupportedValue(plan.where));
-    return qb.toRawSQL();
+    if (plan.values) {
+      const qb = new QueryBuilder('mysql')
+        .table(plan.table)
+        .update(convertUnsupportedValue(plan.values));
+      if (plan.where) qb.where(convertUnsupportedValue(plan.where));
+      return qb.toRawSQL();
+    }
+  } else if (plan.type === 'delete') {
+    if (plan.where) {
+      return qb('mysql')
+        .table(plan.table)
+        .where(plan.where)
+        .delete()
+        .toRawSQL();
+    }
+  } else if (plan.type === 'insert') {
+    if (plan.values) {
+      return qb('mysql').table(plan.table).insert(plan.values).toRawSQL();
+    }
   }
+
   return '';
 }

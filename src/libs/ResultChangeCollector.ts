@@ -5,6 +5,12 @@ export interface ResultChangeCollectorItem {
 
 export type ResultChangeEventHandler = (count: number) => void;
 
+export interface ResultChanges {
+  new: ResultChangeCollectorItem[];
+  changes: ResultChangeCollectorItem[];
+  remove: number[];
+}
+
 /**
  * Collect all the changes and arrange it in the friendly way
  */
@@ -71,6 +77,7 @@ export default class ResultChangeCollector {
 
   clear() {
     this.changes = {};
+    this.removedRowIndex.clear();
     this.newRowCount = 0;
     this.triggerOnChange();
   }
@@ -89,7 +96,8 @@ export default class ResultChangeCollector {
   }
 
   getChangesCount() {
-    return Object.entries(this.changes).length;
+    const changes = this.getChanges();
+    return changes.changes.length + changes.new.length + changes.remove.length;
   }
 
   getNewRowCount(): number {
@@ -100,17 +108,51 @@ export default class ResultChangeCollector {
     return Array.from(this.removedRowIndex);
   }
 
-  getChanges(): ResultChangeCollectorItem[] {
-    return Object.entries(this.changes).map(([rowNumber, columnList]) => {
-      return {
-        row: Number(rowNumber),
-        cols: Object.entries(columnList).map(([colNumber, value]) => {
-          return {
-            col: Number(colNumber),
-            value,
-          };
-        }),
-      };
-    });
+  /**
+   * Describe all changes including updating cells,
+   * removing rows, and adding new rows
+   * @returns
+   */
+  getChanges(): ResultChanges {
+    const changes = Object.entries(this.changes)
+      .filter(([rowNumber]) => {
+        // We filter out the changes in new rows and removed rows
+        const rowIndexNumber = Number(rowNumber);
+        return rowIndexNumber >= 0 && !this.removedRowIndex.has(rowIndexNumber);
+      })
+      .map(([rowNumber, columnList]) => {
+        return {
+          row: Number(rowNumber),
+          cols: Object.entries(columnList).map(([colNumber, value]) => {
+            return {
+              col: Number(colNumber),
+              value,
+            };
+          }),
+        };
+      });
+
+    const newRowChanges = new Array(this.newRowCount)
+      .fill(undefined)
+      .map((_, newRowIndex) => {
+        const realNewRowindex = -newRowIndex;
+        const newRowChanged = this.changes[realNewRowindex];
+        const colChanges = newRowChanged
+          ? Object.entries(newRowChanged).map(([colNumber, value]) => {
+              return { col: Number(colNumber), value };
+            })
+          : [];
+
+        return {
+          row: realNewRowindex,
+          cols: colChanges,
+        };
+      });
+
+    return {
+      changes,
+      new: newRowChanges,
+      remove: Array.from(this.removedRowIndex),
+    };
   }
 }

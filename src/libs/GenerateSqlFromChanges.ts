@@ -1,6 +1,9 @@
 import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { DatabaseSchema } from 'types/SqlSchema';
-import { ResultChangeCollectorItem } from './ResultChangeCollector';
+import {
+  ResultChangeCollectorItem,
+  ResultChanges,
+} from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
 
 type UpdatableTableDict = Record<
@@ -64,7 +67,64 @@ export function getUpdatableTable(
   return result;
 }
 
-function getSqlPlanFromChange(
+function buildWhere(
+  tableName: string,
+  rowIndex: number,
+  data: QueryResult,
+  updatable: UpdatableTableDict
+): Record<string, unknown> {
+  const rows = data.rows;
+  const headers = data.headers;
+
+  return updatable[tableName].reduce((a, b) => {
+    return {
+      ...a,
+      [b.columnNames]: rows[rowIndex][headers[b.columnNumber].name],
+    };
+  }, {});
+}
+
+function buildRemovePlan(
+  removeIndex: number,
+  data: QueryResult,
+  updatable: UpdatableTableDict
+): SqlStatementPlan[] {
+  // We will not remove if there is more than one table inside the result
+  const entries = Object.entries(updatable);
+  if (entries.length === 0) return [];
+  if (entries.length > 1) return [];
+
+  const [tableName] = entries[0];
+  return [
+    {
+      type: 'delete',
+      table: tableName,
+      where: buildWhere(tableName, removeIndex, data, updatable),
+    },
+  ];
+}
+
+function buildInsertPlan(
+  changes: ResultChangeCollectorItem,
+  headers: QueryResultHeader[]
+): SqlStatementPlan[] {
+  const values: Record<string, unknown> = {};
+
+  const uniqueTable = new Set(
+    headers
+      .filter((header) => header.schema)
+      .map((header) => header.schema?.table)
+  );
+  if (uniqueTable.size > 1) return [];
+
+  for (const { col, value } of changes.cols) {
+    values[headers[col].name] = value;
+  }
+
+  return [{ type: 'insert', table: Array.from(uniqueTable)[0] ?? '', values }];
+}
+
+function buildUpdatePlan(
   change: ResultChangeCollectorItem,
   data: QueryResult,
   updatable: UpdatableTableDict
@@ -89,13 +149,7 @@ function getSqlPlanFromChange(
             values: {
               [header.name]: col.value,
             },
-            where: updatable[tableName].reduce((a, b) => {
-              return {
-                ...a,
-                [b.columnNames]:
-                  data.rows[change.row][headers[b.columnNumber].name],
-              };
-            }, {}),
+            where: buildWhere(tableName, change.row, data, updatable),
           };
         }
       }
@@ -108,17 +162,29 @@ function getSqlPlanFromChange(
 export default function generateSqlFromChanges(
   schema: DatabaseSchema,
   currentData: QueryResult,
-  changes: ResultChangeCollectorItem[]
+  changes: ResultChanges
 ): SqlStatementPlan[] {
   const updatableTables = getUpdatableTable(currentData.headers, schema);
 
   // Prepare the statement plans
   let plans: SqlStatementPlan[] = [];
-  for (const change of changes) {
+
+  for (const change of changes.changes) {
     plans = [
       ...plans,
-      ...getSqlPlanFromChange(change, currentData, updatableTables),
+      ...buildUpdatePlan(change, currentData, updatableTables),
     ];
+  }
+
+  for (const removeIndex of changes.remove) {
+    plans = [
+      ...plans,
+      ...buildRemovePlan(removeIndex, currentData, updatableTables),
+    ];
+  }
+
+  for (const change of changes.new) {
+    plans = [...plans, ...buildInsertPlan(change, currentData.headers)];
   }
 
   return plans;

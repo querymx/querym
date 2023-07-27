@@ -37,3 +37,10 @@ test('Delete table record with where', () => {
     'DELETE FROM `users` WHERE `id`=5;'
   );
 });
+
+test('Insert table', () => {
+  const qb = new QueryBuilder('mysql');
+  expect(
+    qb.table('users').insert({ username: 'visal', age: 5 }).toRawSQL()
+  ).toBe("INSERT INTO `users`(`username`, `age`) VALUES('visal', 5);");
+});

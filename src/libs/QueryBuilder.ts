@@ -19,7 +19,7 @@ interface QueryWhere {
 interface QueryStates {
   table?: string;
   type: 'select' | 'update' | 'insert' | 'delete';
-  insert?: Record<string, unknown>[];
+  insert?: Record<string, unknown>;
   update?: Record<string, unknown>;
   where: QueryWhere[];
   select: string[];
@@ -65,7 +65,8 @@ export class QueryBuilder {
   }
 
   insert(value: Record<string, unknown>) {
-    this.states.insert?.push({ ...value });
+    this.states.type = 'insert';
+    this.states.insert = { ...this.states.insert, ...value };
     return this;
   }
 
@@ -181,7 +182,11 @@ export class QueryBuilder {
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
         this.states.where
       );
+
       binding = binding.concat(...whereBinding);
+      if (this.states.limit) {
+        binding.push(this.states.limit);
+      }
 
       const sql =
         [
@@ -190,7 +195,7 @@ export class QueryBuilder {
           'FROM',
           this.dialect.escapeIdentifier(this.states.table),
           whereSql ? 'WHERE ' + whereSql : whereSql,
-          this.states.limit ? `LIMIT ${this.states.limit}` : null,
+          this.states.limit ? `LIMIT ?` : null,
         ]
           .filter(Boolean)
           .join(' ') + ';';
@@ -218,6 +223,32 @@ export class QueryBuilder {
           .join(' ') + ';';
 
       return { sql, binding };
+    } else if (this.states.type === 'insert') {
+      if (!this.states.table) throw 'no table specified';
+
+      if (this.states.insert) {
+        const binding: unknown[] = [];
+        const fields: string[] = [];
+
+        for (const [field, value] of Object.entries(this.states.insert)) {
+          binding.push(value);
+          fields.push(field);
+        }
+
+        const sql =
+          [
+            'INSERT INTO',
+            this.dialect.escapeIdentifier(this.states.table) +
+              '(' +
+              fields
+                .map((field) => this.dialect.escapeIdentifier(field))
+                .join(', ') +
+              ')',
+            'VALUES(' + new Array(binding.length).fill('?').join(', ') + ')',
+          ].join(' ') + ';';
+
+        return { sql, binding };
+      }
     }
 
     throw 'not implemented';
