@@ -259,7 +259,10 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     );
   }
 
-  async getTableSchema(table: string): Promise<TableDefinitionSchema> {
+  async getTableSchema(
+    database: string,
+    table: string
+  ): Promise<TableDefinitionSchema> {
     const response = await this.runner.execute(
       [
         {
@@ -279,7 +282,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
               'COLUMN_TYPE'
             )
             .where({
-              table_schema: this.currentDatabaseName,
+              table_schema: database,
               table_name: table,
             })
             .toRawSQL(),

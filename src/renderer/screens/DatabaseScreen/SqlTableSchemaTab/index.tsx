@@ -24,8 +24,8 @@ export default function SqlTableSchemaTab({
   );
 
   useEffect(() => {
-    common.getTableSchema(table).then(setDefinition).catch();
-  }, [common]);
+    common.getTableSchema(database, table).then(setDefinition).catch();
+  }, [database, common]);
 
   useEffect(() => {
     setTabData(tabKey, { type: 'table-schema', database, table });
