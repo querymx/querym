@@ -1,7 +1,7 @@
 {
   "name": "querymaster",
   "description": "just another database graphical client",
-  "version": "0.1.8",
+  "version": "0.1.11",
   "keywords": [
     "database",
     "mysql",
@@ -73,7 +73,8 @@
     "react-router-dom": "^6.8.1",
     "react-syntax-highlighter": "^15.5.0",
     "sqlstring": "^2.3.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "xlsx": "^0.18.5"
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
@@ -192,6 +193,10 @@
       ]
     },
     "win": {
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "sign": "./sign.js",
       "target": [
         "nsis",
         "portable"

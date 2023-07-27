@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-import { QueryResultHeader, QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -9,18 +9,38 @@ import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvide
 import { useTableCellManager } from './TableCellManager';
 import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 interface QueryResultTableProps {
-  result: QueryRowBasedResult;
+  result: QueryResult;
   page: number;
   pageSize: number;
 }
 
 function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
+  const [newRowCount, setNewRowCount] = useState(0);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
   const { schema, currentDatabase } = useSchmea();
+
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
+  const [removeRowsIndex, setRemoveRowsIndex] = useState<number[]>([]);
+
+  const newRowsIndex = useMemo(
+    () => new Array(newRowCount).fill(0).map((_, idx) => idx),
+    [newRowCount]
+  );
+
+  useEffect(() => {
+    const onChangeUpdate = () => {
+      setNewRowCount(collector.getNewRowCount());
+      setRemoveRowsIndex(collector.getRemovedRowsIndex());
+    };
+
+    collector.registerChange(onChangeUpdate);
+    return () => collector.unregisterChange(onChangeUpdate);
+  }, [collector, setNewRowCount]);
 
   const handleSelectedRowsChange = (selectedRows: number[]) => {
     setSelectedRowsIndex(selectedRows);
@@ -30,6 +50,33 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     const selectedCell = cellManager.getFocusCell();
 
     return [
+      {
+        text: 'Insert new row',
+        onClick: () => {
+          collector.createNewRow();
+        },
+        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
+      },
+      {
+        text: 'Remove selected rows',
+        destructive: true,
+        disabled: selectedRowsIndex.length === 0,
+        onClick: () => {
+          for (const selectedRowIndex of selectedRowsIndex) {
+            collector.removeRow(
+              selectedRowIndex - newRowCount < 0
+                ? selectedRowIndex - newRowCount
+                : selectedRowIndex - newRowCount + page * pageSize
+            );
+          }
+        },
+        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+      },
+      {
+        text: '',
+        disabled: true,
+        separator: true,
+      },
       {
         text: 'Insert NULL',
         disabled: !selectedCell,
@@ -58,11 +105,12 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         separator: true,
       },
       {
-        text: `Discard Changes`,
+        text: `Discard All Changes`,
         destructive: true,
         disabled: !collector.getChangesCount(),
         onClick: () => {
-          const rows = collector.getChanges();
+          const rows = collector.getChanges().changes;
+
           for (const row of rows) {
             for (const col of row.cols) {
               const cell = cellManager.get(row.row, col.col);
@@ -71,14 +119,39 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
               }
             }
           }
+
+          collector.clear();
         },
       },
     ];
-  }, [collector]);
+  }, [collector, newRowCount, selectedRowsIndex, page, pageSize]);
 
-  const data = useMemo(() => {
-    return result.rows.slice(page * pageSize, (page + 1) * pageSize);
-  }, [page, pageSize, result.rows]);
+  const data: { data: Record<string, unknown>; rowIndex: number }[] =
+    useMemo(() => {
+      const newRows = new Array(newRowCount)
+        .fill(false)
+        .map((_, newRowIndex) => {
+          return {
+            rowIndex: -(newRowIndex + 1),
+            data: result.headers.reduce(
+              (prev, header) => ({ ...prev, [header.name]: undefined }),
+              {}
+            ),
+          };
+        });
+
+      return [
+        ...newRows,
+        ...result.rows
+          .slice(page * pageSize, (page + 1) * pageSize)
+          .map((value, rowIndex) => {
+            return {
+              rowIndex: rowIndex + page * pageSize,
+              data: value,
+            };
+          }),
+      ];
+    }, [page, pageSize, result, newRowCount]);
 
   const updatableTables = useMemo(() => {
     if (result?.headers && currentDatabase && schema) {
@@ -92,10 +165,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   }
 
   const headerMemo = useMemo(() => {
-    function getInitialSizeByHeaderType(
-      idx: number,
-      header: QueryResultHeader
-    ) {
+    function getInitialSizeByHeaderType(_: number, header: QueryResultHeader) {
       if (header.type.type === 'number') {
         return 100;
       } else if (
@@ -105,8 +175,8 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         // Check the last 100 records
         const maxLength = Math.max(
           ...result.rows.slice(0, 100).map((row) => {
-            if (typeof row[idx] === 'string')
-              return (row[idx] as string).length;
+            if (typeof row[header.name] === 'string')
+              return (row[header.name] as string).length;
             return 10;
           })
         );
@@ -134,17 +204,23 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
     (y: number, x: number) => {
       return (
         <TableCell
-          key={(y + page * pageSize).toString() + '_' + x}
-          value={data[y][x]}
+          key={data[y].rowIndex}
+          value={data[y].data[result.headers[x].name]}
           header={result.headers[x]}
           col={x}
-          row={y + page * pageSize}
+          row={data[y].rowIndex}
           readOnly={!updatableTables[result.headers[x]?.schema?.table || '']}
         />
       );
     },
-    [data, updatableTables, page, pageSize]
+    [data, result, updatableTables, page, pageSize, newRowCount]
   );
+
+  const relativeRemoveRowsIndex = useMemo(() => {
+    return removeRowsIndex.map((removeIndex) => {
+      return data.findIndex(({ rowIndex }) => rowIndex === removeIndex) ?? 0;
+    });
+  }, [removeRowsIndex, data]);
 
   return (
     <div className={styles.container} onContextMenu={handleContextMenu}>
@@ -154,6 +230,8 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         renderAhead={20}
         renderCell={renderCell}
         rowHeight={35}
+        newRowsIndex={newRowsIndex}
+        removedRowsIndex={relativeRemoveRowsIndex}
         selectedRowsIndex={selectedRowsIndex}
         onSelectedRowsIndexChanged={handleSelectedRowsChange}
       />

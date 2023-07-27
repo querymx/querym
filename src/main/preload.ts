@@ -7,6 +7,7 @@ import {
   IpcRendererEvent,
   MessageBoxSyncOptions,
   MenuItemConstructorOptions,
+  SaveDialogSyncOptions,
 } from 'electron';
 import {
   ProgressInfo,
@@ -51,6 +52,24 @@ const electronHandler = {
 
   showMessageBox: (options: MessageBoxSyncOptions): Promise<number> =>
     ipcRenderer.invoke('show-message-box', [options]),
+
+  // ----------------------------------
+  // Related to File O/I
+  // ----------------------------------
+  showSaveDialog: (
+    options: SaveDialogSyncOptions
+  ): Promise<string | undefined> =>
+    ipcRenderer.invoke('show-save-dialog', [options]),
+
+  showFileInFolder: (fileName: string) =>
+    ipcRenderer.invoke('show-item-in-folder', [fileName]),
+
+  saveCsvFile: (fileName: string, records: object[]) =>
+    ipcRenderer.invoke('save-csv-file', [fileName, records]),
+
+  saveExcelFile: (fileName: string, records: object[]) =>
+    ipcRenderer.invoke('save-excel-file', [fileName, records]),
+  // ----------------------------------
 
   setNativeMenu: (options: MenuItemConstructorOptions[]) =>
     ipcRenderer.invoke('set-menu', [options]),
@@ -100,6 +119,9 @@ const electronHandler = {
     ipcRenderer.removeAllListeners('update-downloaded');
     return ipcRenderer.on('update-downloaded', callback);
   },
+
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', [url]),
+
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

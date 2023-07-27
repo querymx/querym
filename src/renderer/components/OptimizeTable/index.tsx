@@ -7,9 +7,10 @@ import React, {
   useMemo,
 } from 'react';
 import styles from './styles.module.css';
+import TableHeaderResizeHandler from './TableHeaderResizeHandler';
 
 interface OptimizeTableProps {
-  data: unknown[][];
+  data: unknown[];
   headers: {
     name: string;
     initialSize: number;
@@ -19,67 +20,12 @@ interface OptimizeTableProps {
   renderCell: (y: number, x: number) => ReactElement;
   rowHeight: number;
   renderAhead: number;
+
+  newRowsIndex?: number[];
+  removedRowsIndex?: number[];
+
   selectedRowsIndex: number[]; // Array of selected row indices
   onSelectedRowsIndexChanged: (selectedRows: number[]) => void; // Callback for row selection changes
-}
-
-function ResizeHandler({
-  idx,
-  onResize,
-}: {
-  idx: number;
-  onResize: (idx: number, newSize: number) => void;
-}) {
-  const handlerRef = useRef<HTMLDivElement>(null);
-  const [resizing, setResizing] = useState(false);
-
-  useEffect(() => {
-    if (handlerRef.current && resizing) {
-      const table = handlerRef.current?.parentNode?.parentNode?.parentNode
-        ?.parentNode as HTMLTableElement;
-
-      if (table) {
-        const onMouseMove = (e: MouseEvent) =>
-          requestAnimationFrame(() => {
-            const scrollOffset = table.scrollLeft;
-            const width =
-              scrollOffset +
-              e.clientX -
-              ((
-                handlerRef.current?.parentNode as HTMLTableCellElement
-              ).getBoundingClientRect().x || 0);
-
-            onResize(idx, width);
-
-            if (table) {
-              const columns = table.style.gridTemplateColumns.split(' ');
-              columns[idx] = width + 'px';
-              table.style.gridTemplateColumns = columns.join(' ');
-            }
-          });
-
-        const onMouseUp = () => {
-          setResizing(false);
-        };
-
-        table.addEventListener('mousemove', onMouseMove);
-        table.addEventListener('mouseup', onMouseUp);
-
-        return () => {
-          table.removeEventListener('mousemove', onMouseMove);
-          table.removeEventListener('mouseup', onMouseUp);
-        };
-      }
-    }
-  }, [handlerRef, idx, resizing, setResizing, onResize]);
-
-  return (
-    <div
-      className={styles.resizer}
-      ref={handlerRef}
-      onMouseDown={() => setResizing(true)}
-    ></div>
-  );
 }
 
 export default function OptimizeTable({
@@ -88,6 +34,8 @@ export default function OptimizeTable({
   renderCell,
   rowHeight,
   renderAhead,
+  newRowsIndex,
+  removedRowsIndex,
   selectedRowsIndex,
   onSelectedRowsIndexChanged,
 }: OptimizeTableProps) {
@@ -108,6 +56,16 @@ export default function OptimizeTable({
   const [headerSizes] = useState(() => {
     return headers.map((header) => header.initialSize);
   });
+
+  const newRowsIndexSet = useMemo(
+    () => new Set(newRowsIndex ?? []),
+    [newRowsIndex]
+  );
+
+  const removedRowsIndexSet = useMemo(
+    () => new Set(removedRowsIndex ?? []),
+    [removedRowsIndex]
+  );
 
   const recalculateVisible = useCallback(
     (e: HTMLDivElement) => {
@@ -244,16 +202,26 @@ export default function OptimizeTable({
       visibleDebounce.rowEnd - visibleDebounce.rowStart
     )
       .fill(false)
-      .map(() => new Array(data[0].length).fill(false));
+      .map(() => new Array(headers.length).fill(false));
 
     const cells = windowArray.map((row, rowIndex) => {
       const absoluteRowIndex = rowIndex + visibleDebounce.rowStart;
-      const isRowSelected = selectedRowsIndex.includes(absoluteRowIndex);
+
+      let rowClass = undefined;
+
+      if (newRowsIndexSet.has(absoluteRowIndex)) {
+        rowClass = styles.newRow;
+      } else if (removedRowsIndexSet.has(absoluteRowIndex)) {
+        rowClass = styles.removedRow;
+      } else if (selectedRowsIndex.includes(absoluteRowIndex)) {
+        rowClass = styles.selectedRow;
+      }
+
       return (
         <tr
           key={absoluteRowIndex}
-          onClick={(e) => handleRowClick(e, absoluteRowIndex)}
-          className={isRowSelected ? styles.selectedRow : undefined}
+          onMouseDown={(e) => handleRowClick(e, absoluteRowIndex)}
+          className={rowClass}
         >
           {visibleDebounce.colStart > 0 && (
             <td
@@ -318,7 +286,10 @@ export default function OptimizeTable({
                     )}
                     <div className={styles.tableCellContent}>{header.name}</div>
                     {header.resizable && (
-                      <ResizeHandler idx={idx} onResize={onHeaderResize} />
+                      <TableHeaderResizeHandler
+                        idx={idx}
+                        onResize={onHeaderResize}
+                      />
                     )}
                   </th>
                 ))}
@@ -369,5 +340,7 @@ export default function OptimizeTable({
     headers,
     onHeaderResize,
     selectedRowsIndex,
+    newRowsIndexSet,
+    removedRowsIndexSet,
   ]);
 }

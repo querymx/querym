@@ -6,12 +6,16 @@ import Button from 'renderer/components/Button';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useSchmea } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { QueryRowBasedResult } from 'types/SqlResult';
+import { QueryResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
+import ButtonGroup from 'renderer/components/ButtonGroup';
+import ExportModal from '../ExportModal';
+import { useDialog } from 'renderer/contexts/DialogProvider';
 
 interface QueryResultActionProps {
-  result: QueryRowBasedResult;
-  onResultChange: React.Dispatch<React.SetStateAction<QueryRowBasedResult>>;
+  result: QueryResult;
+  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  onRequestRefetch: () => void;
   page: number;
   pageSize: number;
   onPageChange: React.Dispatch<React.SetStateAction<number>>;
@@ -20,11 +24,14 @@ interface QueryResultActionProps {
 export default function QueryResultAction({
   result,
   onResultChange,
+  onRequestRefetch,
   page,
   pageSize,
   onPageChange,
 }: QueryResultActionProps) {
+  const { showErrorDialog } = useDialog();
   const [changeCount, setChangeCount] = useState(0);
+  const [showExportModal, setShowExportModal] = useState(false);
   const { clearChange, collector } = useQueryResultChange();
   const { schema, currentDatabase } = useSchmea();
   const { runner } = useSqlExecute();
@@ -59,23 +66,48 @@ export default function QueryResultAction({
         runner
           .execute(rawSql)
           .then(() => {
-            onResultChange((prev) => {
-              const changes = collector.getChanges();
-              clearChange();
-              return applyQueryResultChanges(prev, changes);
-            });
+            const changes = collector.getChanges();
+
+            if (changes.new.length === 0 && changes.remove.length === 0) {
+              onResultChange((prev) => {
+                clearChange();
+                return applyQueryResultChanges(prev, changes.changes);
+              });
+            } else {
+              onRequestRefetch();
+            }
           })
-          .catch(console.error);
+          .catch((e) => {
+            if (e.message) {
+              showErrorDialog(e.message);
+            }
+          });
       }
     }
-  }, [collector, schema, currentDatabase, clearChange, onResultChange]);
+  }, [
+    collector,
+    schema,
+    currentDatabase,
+    clearChange,
+    onResultChange,
+    onRequestRefetch,
+  ]);
 
   return (
     <div className={styles.footer}>
+      {showExportModal && (
+        <ExportModal data={result} onClose={() => setShowExportModal(false)} />
+      )}
+
       <div className={styles.footerAction}>
-        <Button primary={!!changeCount} onClick={onCommit}>
-          {changeCount ? `Commit (${changeCount})` : 'Commit'}
-        </Button>
+        <ButtonGroup>
+          <Button primary={!!changeCount} onClick={onCommit}>
+            {changeCount ? `Commit (${changeCount})` : 'Commit'}
+          </Button>
+          <Button primary onClick={() => setShowExportModal(true)}>
+            Export
+          </Button>
+        </ButtonGroup>
       </div>
 
       <div className={styles.footerPage}>

@@ -34,3 +34,4 @@ npm-debug.log.*
 .eslintrc.js
 
 exts
+sign.js
