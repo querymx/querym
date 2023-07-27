@@ -123,24 +123,6 @@ export default function HomeScreen() {
     setSelectedItem(newDatabaseSetting);
   }, [setConnectionList, setSelectedItem, connectionList]);
 
-  const newMariaDatabaseStting = useCallback(() => {
-    const newDatabaseSetting = {
-      id: uuidv1(),
-      name: generateDatabaseName(connectionList, 'Unnamed'),
-      type: 'mariadb',
-      config: {
-        database: '',
-        host: '',
-        password: '',
-        port: '3306',
-        user: '',
-      } as ConnectionStoreConfig,
-    };
-
-    setConnectionList((prev) => [...prev, newDatabaseSetting]);
-    setSelectedItem(newDatabaseSetting);
-  }, [setConnectionList, setSelectedItem, connectionList]);
-
   // -----------------------------------------------
   // Handle before select change
   // -----------------------------------------------
@@ -171,11 +153,6 @@ export default function HomeScreen() {
         text: 'New MySQL Database',
         icon: <Icon.MySql />,
         onClick: newMySQLDatabaseSetting,
-      },
-      {
-        text: 'New MariaDb Database',
-        icon: <Icon.MySql />,
-        onClick: newMariaDatabaseStting,
         separator: true,
       },
       {
@@ -190,13 +167,7 @@ export default function HomeScreen() {
         destructive: true,
       },
     ];
-  }, [
-    newMySQLDatabaseSetting,
-    newMariaDatabaseStting,
-    onDuplicateClick,
-    onRemoveClick,
-    selectedItem,
-  ]);
+  }, [newMySQLDatabaseSetting, onDuplicateClick, onRemoveClick, selectedItem]);
 
   return (
     <div className={styles.dashboard}>

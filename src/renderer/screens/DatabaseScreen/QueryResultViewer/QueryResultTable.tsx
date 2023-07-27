@@ -71,20 +71,12 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
           }
         },
         icon: <FontAwesomeIcon icon={faTimesCircle} />,
-      },
-      {
-        text: '',
-        disabled: true,
         separator: true,
       },
       {
         text: 'Insert NULL',
         disabled: !selectedCell,
         onClick: () => selectedCell?.insert(null),
-      },
-      {
-        text: '',
-        disabled: true,
         separator: true,
       },
       {
@@ -98,10 +90,6 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         hotkey: 'Ctrl + V',
         disabled: !selectedCell,
         onClick: () => selectedCell?.paste(),
-      },
-      {
-        text: '',
-        disabled: true,
         separator: true,
       },
       {
