@@ -7,7 +7,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, session, BrowserWindow, shell, ipcMain } from 'electron';
 import { resolveHtmlPath } from './util';
 
 import electronDebug from 'electron-debug';
@@ -110,7 +110,14 @@ app.on('window-all-closed', () => {
 
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
+    // Loading the React DevTool only in development
+    if (process.env.NODE_ENV === 'development') {
+      await session.defaultSession.loadExtension(
+        path.join(__dirname, '../../exts/reactdev')
+      );
+    }
+
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

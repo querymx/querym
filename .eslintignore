@@ -33,4 +33,5 @@ npm-debug.log.*
 .erb
 .eslintrc.js
 
+exts
 sign.js
