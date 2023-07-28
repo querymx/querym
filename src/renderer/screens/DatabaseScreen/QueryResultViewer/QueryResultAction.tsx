@@ -4,7 +4,7 @@ import generateSqlFromChanges from 'libs/GenerateSqlFromChanges';
 import generateSqlFromPlan from 'libs/GenerateSqlFromPlan';
 import Button from 'renderer/components/Button';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { QueryResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
@@ -33,7 +33,7 @@ export default function QueryResultAction({
   const [changeCount, setChangeCount] = useState(0);
   const [showExportModal, setShowExportModal] = useState(false);
   const { clearChange, collector } = useQueryResultChange();
-  const { schema, currentDatabase } = useSchmea();
+  const { schema, currentDatabase } = useSchema();
   const { runner } = useSqlExecute();
 
   const rowStart = page * pageSize;

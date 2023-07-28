@@ -3,7 +3,7 @@ import TreeView, { TreeViewItemData } from '../TreeView';
 import { useState, useMemo } from 'react';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { QueryBuilder } from 'libs/QueryBuilder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -23,7 +23,7 @@ import { useDebounce } from 'hooks/useDebounce';
 export default function DatabaseTableList() {
   const [search, setSearch] = useState('');
   const searchDebounce = useDebounce(search, 500);
-  const { schema, currentDatabase } = useSchmea();
+  const { schema, currentDatabase } = useSchema();
   const [selected, setSelected] = useState<
     TreeViewItemData<{
       database: string;
