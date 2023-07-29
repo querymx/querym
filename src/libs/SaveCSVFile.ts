@@ -1,4 +1,4 @@
-import xlsx from 'xlsx';
+import * as xlsx from 'xlsx';
 import fs from 'fs';
 
 export default function saveCsvFile(fileName: string, records: object[]) {

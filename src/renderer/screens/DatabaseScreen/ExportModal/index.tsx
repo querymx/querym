@@ -194,14 +194,16 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
         window.electron
           .saveExcelFile(fileName, data.rows)
           .then(() => setStage('SUCCESS'))
-          .catch(() => {
+          .catch((e) => {
+            console.error(e);
             setStage('ERROR');
           });
       } else if (format === 'csv') {
         window.electron
           .saveCsvFile(fileName, data.rows)
           .then(() => setStage('SUCCESS'))
-          .catch(() => {
+          .catch((e) => {
+            console.error(e);
             setStage('ERROR');
           });
       } else {

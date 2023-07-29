@@ -1,6 +1,6 @@
 import CodeMirror from '@uiw/react-codemirror';
+import { EditorView } from 'codemirror';
 import Modal from '../Modal';
-import { json } from '@codemirror/lang-json';
 import Button from '../Button';
 import useCodeEditorTheme from '../CodeEditor/useCodeEditorTheme';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ export default function FullTextEditor({
           readOnly={readOnly}
           maxHeight="50vh"
           theme={theme}
-          extensions={[json()]}
+          extensions={[EditorView.lineWrapping]}
         />
       </Modal.Body>
       <Modal.Footer>
