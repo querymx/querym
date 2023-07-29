@@ -68,6 +68,7 @@ const createWindow = async () => {
   mainWindow.setMenu(null);
 
   otherIpcHandler.attachWindow(mainWindow);
+  connectionIpcHandler.attachWindow(mainWindow);
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
