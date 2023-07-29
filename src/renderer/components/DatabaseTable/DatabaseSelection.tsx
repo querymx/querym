@@ -21,7 +21,9 @@ function DatabaseSelectionModal({
 
   const databaseList = useMemo(() => {
     if (schema) {
-      return Object.keys(schema);
+      const databaseListUnsort = Object.keys(schema);
+      databaseListUnsort.sort();
+      return databaseListUnsort;
     }
     return [];
   }, [schema]);
