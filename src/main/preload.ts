@@ -50,6 +50,13 @@ const electronHandler = {
     ipcRenderer.invoke('close');
   },
 
+  listenConnectionStatusChanged: (
+    callback: (event: IpcRendererEvent, status: string) => void
+  ) => {
+    ipcRenderer.removeAllListeners('connection-status-change');
+    return ipcRenderer.on('connection-status-change', callback);
+  },
+
   showMessageBox: (options: MessageBoxSyncOptions): Promise<number> =>
     ipcRenderer.invoke('show-message-box', [options]),
 
@@ -121,7 +128,6 @@ const electronHandler = {
   },
 
   openExternal: (url: string) => ipcRenderer.invoke('open-external', [url]),
-
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

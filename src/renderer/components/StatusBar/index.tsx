@@ -4,6 +4,7 @@ import pkg from './../../../../package.json';
 import Button from '../Button';
 import Stack from '../Stack';
 import ButtonGroup from '../ButtonGroup';
+import { useStatusBarData } from './hook';
 
 function StatusBarAutoUpdate() {
   const [autoUpdateMessage, setAutoUpdateMessage] = useState('');
@@ -93,10 +94,30 @@ function StatusBarAutoUpdate() {
 }
 
 export default function StatusBar() {
+  const { connectionStatus } = useStatusBarData();
+
   return (
     <div className={styles.statusBarContainer}>
       <ul>
         <li>QueryMaster v{pkg.version}</li>
+        {!!connectionStatus?.version && (
+          <li>MySQL {connectionStatus?.version}</li>
+        )}
+        {!!connectionStatus?.status && (
+          <li>
+            <span
+              style={{
+                color:
+                  connectionStatus.status === 'Connected'
+                    ? '#27ae60'
+                    : '#e74c3c',
+              }}
+            >
+              ⬤
+            </span>
+            &nbsp;&nbsp;{connectionStatus.status}
+          </li>
+        )}
         <li style={{ flexGrow: 1 }}></li>
         <StatusBarAutoUpdate />
       </ul>

@@ -10,6 +10,14 @@
   display: flex;
 }
 
+.statusBarContainer ul li {
+  margin-right: 20px;
+}
+
+.statusBarContainer ul li:last-child {
+  margin-right: 0px;
+}
+
 .popup {
   font-size: 1rem;
   width: 300px;

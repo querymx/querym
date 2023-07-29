@@ -68,10 +68,15 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 export default class MySQLConnection extends SQLLikeConnection {
   protected connectionConfig: DatabaseConnectionConfig;
   protected connection: Connection | undefined;
+  protected onStateChangedCallback: (state: string) => void;
 
-  constructor(connectionConfig: DatabaseConnectionConfig) {
+  constructor(
+    connectionConfig: DatabaseConnectionConfig,
+    statusChanged: (state: string) => void
+  ) {
     super();
     this.connectionConfig = connectionConfig;
+    this.onStateChangedCallback = statusChanged;
   }
 
   protected async getConnection() {
@@ -81,7 +86,20 @@ export default class MySQLConnection extends SQLLikeConnection {
         dateStrings: true,
         namedPlaceholders: true,
       });
+
+      console.log('connected');
+      this.onStateChangedCallback('Connected');
+
+      this.connection.on('error', () => {
+        if (this.connection) {
+          this.connection.removeAllListeners();
+          this.connection.destroy();
+          this.connection = undefined;
+          this.onStateChangedCallback('Disconnected');
+        }
+      });
     }
+
     return this.connection;
   }
 
@@ -131,7 +149,9 @@ export default class MySQLConnection extends SQLLikeConnection {
   }
 
   async close() {
-    const conn = await this.getConnection();
-    conn.destroy();
+    if (this.connection) {
+      const conn = await this.getConnection();
+      conn.destroy();
+    }
   }
 }

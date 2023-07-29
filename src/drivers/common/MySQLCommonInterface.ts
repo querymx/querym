@@ -200,6 +200,13 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     return true;
   }
 
+  async getVersion(): Promise<string> {
+    const response = await this.singleExecute<{ 'VERSION()': string }>(
+      'SELECT VERSION();'
+    );
+    return response.rows[0]['VERSION()'];
+  }
+
   async getSchema(): Promise<DatabaseSchemas> {
     const databaseListResponse = await this.singleExecute<MySqlDatabase>(
       qb().table('information_schema.SCHEMATA').select('SCHEMA_NAME').toRawSQL()

@@ -13,4 +13,8 @@ export default class NotImplementCommonInterface extends SQLCommonInterface {
   async switchDatabase(): Promise<boolean> {
     throw 'Not implemented';
   }
+
+  async getVersion(): Promise<string> {
+    throw 'Not implemented';
+  }
 }
