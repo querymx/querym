@@ -22,7 +22,7 @@ function DatabaseSelectionModal({
   const databaseList = useMemo(() => {
     if (schema) {
       const databaseListUnsort = Object.keys(schema);
-      databaseListUnsort.sort();
+      databaseListUnsort.sort((a, b) => a.localeCompare(b));
       return databaseListUnsort;
     }
     return [];
