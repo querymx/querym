@@ -28,26 +28,32 @@ const ContextMenuContext = createContext<{
   open: false,
 });
 
-export function useContextMenu(
-  cb: () => ContextMenuItemProps[],
+export function useContextMenu<T = unknown>(
+  cb: (additionalData?: T) => ContextMenuItemProps[],
   deps: unknown[]
 ) {
   const context = useContext(ContextMenuContext);
   const createMenuCallback = useCallback(cb, deps);
-  const [intentToOpenCounter, setIntentToOpenCounter] = useState(0);
+  const [intentToOpenCounter, setIntentToOpenCounter] = useState<{
+    counter: number;
+    additionalData?: T;
+  }>({ counter: 0 });
   const { open, setMenuItem, handleContextMenu, handleClick } = context;
 
   useEffect(() => {
-    if (intentToOpenCounter > 0) {
-      const r = createMenuCallback();
+    if (intentToOpenCounter.counter > 0) {
+      const r = createMenuCallback(intentToOpenCounter.additionalData);
       setMenuItem(r);
     }
   }, [intentToOpenCounter, createMenuCallback, setMenuItem]);
 
   const handleContextMenuWithFreshData = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent, additionalData?: T) => {
       if (!open) {
-        setIntentToOpenCounter((prev) => prev + 1);
+        setIntentToOpenCounter((prev) => ({
+          counter: prev.counter + 1,
+          additionalData,
+        }));
         setTimeout(() => handleContextMenu(e), 10);
       }
     },

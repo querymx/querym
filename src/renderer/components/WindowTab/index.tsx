@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactElement, ReactNode, useState } from 'react';
 import styles from './styles.module.scss';
 
-interface WindowTabItem {
+export interface WindowTabItem {
   key: string;
   name: string;
   icon?: ReactElement;
@@ -18,11 +18,16 @@ interface WindowTabProps {
   onAddTab?: () => void;
   draggable?: boolean;
   onTabDragged?: (key: string, newIndex: number) => void;
+  onTabContextMenu?: (
+    e: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    tab: WindowTabItem
+  ) => void;
 }
 
 export default function WindowTab({
   tabs,
   selected,
+  onTabContextMenu,
   onTabChanged,
   onTabClosed,
   onAddTab,
@@ -97,6 +102,11 @@ export default function WindowTab({
                 onDragStart={(e) => handleDragStart(e, tab)}
                 onDragOver={(e) => handleDragOver(e, tab)}
                 onDrop={(e) => handleDrop(e, index)}
+                onContextMenu={(e) => {
+                  if (onTabContextMenu) {
+                    onTabContextMenu(e, tab);
+                  }
+                }}
               >
                 <span className={styles.icon}>
                   {tab.icon ? tab.icon : <FontAwesomeIcon icon={faCode} />}
