@@ -190,16 +190,19 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
 
   const renderCell = useCallback(
     (y: number, x: number) => {
-      return (
-        <TableCell
-          key={data[y].rowIndex}
-          value={data[y].data[result.headers[x].name]}
-          header={result.headers[x]}
-          col={x}
-          row={data[y].rowIndex}
-          readOnly={!updatableTables[result.headers[x]?.schema?.table || '']}
-        />
-      );
+      if (data[y]) {
+        return (
+          <TableCell
+            key={data[y].rowIndex}
+            value={data[y].data[result.headers[x].name]}
+            header={result.headers[x]}
+            col={x}
+            row={data[y].rowIndex}
+            readOnly={!updatableTables[result.headers[x]?.schema?.table || '']}
+          />
+        );
+      }
+      return <></>;
     },
     [data, result, updatableTables, page, pageSize, newRowCount]
   );

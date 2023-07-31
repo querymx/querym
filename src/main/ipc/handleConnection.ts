@@ -3,17 +3,26 @@ import SQLLikeConnection, {
   ConnectionStoreItem,
   DatabaseConnectionConfig,
 } from './../../drivers/SQLLikeConnection';
-import { ipcMain } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 
 export default class ConnectionIpcHandler {
   protected connection: SQLLikeConnection | undefined;
+  protected window?: BrowserWindow;
+
+  attachWindow(window: BrowserWindow) {
+    this.window = window;
+  }
 
   register() {
     ipcMain.handle('connect', async (_, [store]: [ConnectionStoreItem]) => {
       if (store.type === 'mysql') {
-        console.log('create mysql connection');
         this.connection = new MySQLConnection(
-          store.config as unknown as DatabaseConnectionConfig
+          store.config as unknown as DatabaseConnectionConfig,
+          (status) => {
+            if (this.window) {
+              this.window.webContents.send('connection-status-change', status);
+            }
+          }
         );
       }
       return true;

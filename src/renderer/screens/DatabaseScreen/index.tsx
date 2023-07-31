@@ -19,6 +19,8 @@ import Button from 'renderer/components/Button';
 import ButtonGroup from 'renderer/components/ButtonGroup';
 import { useConnection } from 'renderer/App';
 import SwitchDatabaseProvider from 'renderer/contexts/SwitchDatabaseProvider';
+import UpdateConnectionStatus from './UpdateConnectionStatus';
+import useWindowTitle from 'renderer/hooks/useWindowTitle';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
@@ -92,6 +94,7 @@ function DatabaseScreenBody() {
   return (
     <SchemaProvider schema={schema}>
       <SwitchDatabaseProvider>
+        <UpdateConnectionStatus />
         <Layout>
           <Layout.Fixed>
             <MainToolbar />
@@ -110,6 +113,7 @@ export default function DatabaseScreen({
 }: {
   config: ConnectionStoreItem;
 }) {
+  useWindowTitle('Query Master - ' + config.name);
   const [isConnected, setConnected] = useState(false);
 
   useEffect(() => {

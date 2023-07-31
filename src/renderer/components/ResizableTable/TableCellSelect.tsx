@@ -32,6 +32,7 @@ export default function TableCellSelect({
       }}
       value={value ?? ''}
     >
+      <option hidden></option>
       {items.map((item) => (
         <option key={item} value={item}>
           {item}

@@ -33,7 +33,10 @@ export default function generateSqlFromPlan(plan: SqlStatementPlan) {
     }
   } else if (plan.type === 'insert') {
     if (plan.values) {
-      return qb('mysql').table(plan.table).insert(plan.values).toRawSQL();
+      return qb('mysql')
+        .table(plan.table)
+        .insert(convertUnsupportedValue(plan.values))
+        .toRawSQL();
     }
   }
 

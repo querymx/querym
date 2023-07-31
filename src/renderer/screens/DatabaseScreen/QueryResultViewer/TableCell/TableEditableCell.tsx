@@ -106,6 +106,7 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     () => {
       return {
         discard: () => {
+          console.log('discard', value, row, col);
           setAfterValue(value);
           removeChange(row, col);
         },

@@ -59,6 +59,7 @@ export default function QueryResultAction({
           collector.getChanges()
         );
 
+        console.log(plans);
         const rawSql = plans.map((plan) => ({
           sql: generateSqlFromPlan(plan),
         }));
