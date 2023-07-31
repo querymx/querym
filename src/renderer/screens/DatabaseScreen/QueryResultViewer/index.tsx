@@ -8,7 +8,7 @@ import { QueryResult } from 'types/SqlResult';
 import { SqlStatement } from 'types/SqlStatement';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { transformResultHeaderUseSchema } from 'libs/TransformResult';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 
 function QueryResultViewer({
   result,
@@ -19,7 +19,7 @@ function QueryResultViewer({
 }) {
   const { runner } = useSqlExecute();
   // This is use remount the component
-  const { schema } = useSchmea();
+  const { schema } = useSchema();
   const [runningIndex, setRunningIndex] = useState(0);
   const [cacheResult, setCacheResult] = useState(result);
   const [page, setPage] = useState(0);
