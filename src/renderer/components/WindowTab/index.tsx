@@ -31,6 +31,8 @@ export default function WindowTab({
 }: WindowTabProps) {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
+  const isTabClosable = tabs.length > 1 && onTabClosed;
+
   const handleDragStart = (
     e: React.DragEvent<HTMLLIElement>,
     tab: WindowTabItem
@@ -97,12 +99,19 @@ export default function WindowTab({
                 onDragStart={(e) => handleDragStart(e, tab)}
                 onDragOver={(e) => handleDragOver(e, tab)}
                 onDrop={(e) => handleDrop(e, index)}
+                onAuxClick={(e) => {
+                  if (!isTabClosable) return;
+                  // button = 1 middle click
+                  if (e.button === 1 && onTabClosed) {
+                    onTabClosed(tab);
+                  }
+                }}
               >
                 <span className={styles.icon}>
                   {tab.icon ? tab.icon : <FontAwesomeIcon icon={faCode} />}
                 </span>
                 <span>{tab.name}</span>
-                {tabs.length > 1 && onTabClosed && (
+                {isTabClosable && (
                   <span
                     className={styles.close}
                     onClick={(e) => {
