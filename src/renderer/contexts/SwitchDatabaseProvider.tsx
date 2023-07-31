@@ -1,12 +1,12 @@
 import { BeforeEachEventCallback } from 'libs/SqlRunnerManager';
 import { PropsWithChildren, useEffect } from 'react';
-import { useSchmea } from './SchemaProvider';
+import { useSchema } from './SchemaProvider';
 import { useSqlExecute } from './SqlExecuteProvider';
 
 export default function SwitchDatabaseProvider({
   children,
 }: PropsWithChildren) {
-  const { setCurrentDatabase } = useSchmea();
+  const { setCurrentDatabase } = useSchema();
   const { runner } = useSqlExecute();
 
   useEffect(() => {

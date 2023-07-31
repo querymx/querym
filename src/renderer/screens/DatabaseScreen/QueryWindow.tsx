@@ -1,10 +1,10 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import Splitter from 'renderer/components/Splitter/Splitter';
@@ -19,6 +19,7 @@ import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
 import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
+import { EditorState } from '@codemirror/state';
 
 interface QueryWindowProps {
   initialSql?: string;
@@ -39,7 +40,7 @@ export default function QueryWindow({
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
   const [loading, setLoading] = useState(false);
-  const { schema, currentDatabase } = useSchmea();
+  const { schema, currentDatabase } = useSchema();
   const codeMirrorSchema = useMemo(() => {
     return currentDatabase && schema
       ? Object.values(schema[currentDatabase].tables).reduce(
@@ -114,6 +115,17 @@ export default function QueryWindow({
     ];
   }, [editorRef, setCode]);
 
+  const getSelection = useCallback(() => {
+    const es = editorRef.current?.view?.state as EditorState;
+    if (!es) return '';
+    return es.sliceDoc(es.selection.main.from, es.selection.main.to);
+  }, []);
+
+  const getText = useCallback(() => {
+    if (!editorRef.current) return '';
+    return editorRef.current.view?.state.doc.toString() || '';
+  }, []);
+
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {
       saveWindowTabHistory();
@@ -143,18 +155,21 @@ export default function QueryWindow({
     [runner, setResult, schema, setLoading, saveWindowTabHistory]
   );
 
-  const onRun = useCallback(() => {
-    if (editorRef.current) {
-      const sqlCode = editorRef.current.view?.state.doc.toString() || '';
+  const onRun = useCallback(
+    (sqlCode: string) => {
+      if (!editorRef.current || sqlCode === '') return;
       executeSql(sqlCode);
-    }
-  }, [executeSql, editorRef]);
+    },
+    [executeSql, editorRef]
+  );
 
   useEffect(() => {
     if (selectedTab === tabKey) {
       const onKeyBinding = (e: KeyboardEvent) => {
-        if (e.key === 'F9') {
-          onRun();
+        if (e.ctrlKey && e.key === 'F9') {
+          onRun(getSelection());
+        } else if (e.key === 'F9') {
+          onRun(getText());
         }
       };
 
@@ -188,7 +203,23 @@ export default function QueryWindow({
               <Toolbar.Item
                 icon={<FontAwesomeIcon icon={faPlay} />}
                 text="Run (F9)"
-                onClick={onRun}
+                onClick={() => onRun(getText())}
+              />
+              <Toolbar.Item
+                icon={
+                  <Stack spacing="none" center>
+                    <FontAwesomeIcon
+                      icon={faPlay}
+                      style={{ paddingRight: 3 }}
+                    />
+                    <FontAwesomeIcon
+                      icon={faICursor}
+                      style={{ height: 11, color: 'black' }}
+                    />
+                  </Stack>
+                }
+                text="Run Selection (Ctrl + F9)"
+                onClick={() => onRun(getSelection())}
               />
             </Toolbar>
           </Stack>

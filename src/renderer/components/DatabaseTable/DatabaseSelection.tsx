@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { faChevronRight, faDatabase } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './styles.module.scss';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 import Modal from '../Modal';
 import ListView from '../ListView';
 import Button from '../Button';
@@ -17,7 +17,7 @@ function DatabaseSelectionModal({
   onClose,
   open,
 }: DatabaseSelectionModalProps) {
-  const { currentDatabase, schema } = useSchmea();
+  const { currentDatabase, schema } = useSchema();
 
   const databaseList = useMemo(() => {
     if (schema) {
@@ -88,7 +88,7 @@ function DatabaseSelectionModal({
 }
 
 export default function DatabaseSelection() {
-  const { currentDatabase } = useSchmea();
+  const { currentDatabase } = useSchema();
   const [open, setOpen] = useState(false);
 
   const onClose = useCallback(() => {

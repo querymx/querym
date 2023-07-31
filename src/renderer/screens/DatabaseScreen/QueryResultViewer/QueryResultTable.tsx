@@ -3,7 +3,7 @@ import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
-import { useSchmea } from 'renderer/contexts/SchemaProvider';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from './TableCellManager';
@@ -22,7 +22,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
-  const { schema, currentDatabase } = useSchmea();
+  const { schema, currentDatabase } = useSchema();
 
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
   const [removeRowsIndex, setRemoveRowsIndex] = useState<number[]>([]);

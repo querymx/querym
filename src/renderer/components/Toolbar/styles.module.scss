@@ -9,11 +9,13 @@
     padding: 5px 10px;
 
     li {
-      display: block;
+      display: flex;
       padding: 5px 10px;
       cursor: pointer;
       border-radius: 5px;
       color: var(--color-text);
+      justify-content: center;
+      align-items: center;
 
       &:hover {
         background: var(--color-surface-light);

@@ -13,7 +13,7 @@ const SchemaContext = React.createContext<{
   },
 });
 
-export function useSchmea() {
+export function useSchema() {
   return useContext(SchemaContext);
 }
 
