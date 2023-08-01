@@ -60,21 +60,19 @@ export default function MainView() {
 
   const { handleContextMenu } = useContextMenu(
     (additionalData?: WindowTabItem) => {
-      console.log('additional data', additionalData);
-
       return [
         {
           text: 'Close',
+          disabled: tabs.length === 1,
           onClick: () => {
             if (additionalData) {
-              if (tabs.length > 1) {
-                onTabClosed(additionalData);
-              }
+              onTabClosed(additionalData);
             }
           },
         },
         {
           text: 'Close Others',
+          disabled: tabs.length === 1,
           onClick: () => {
             if (additionalData) {
               setTabs(tabs.filter((tab) => tab.key === additionalData.key));
@@ -84,6 +82,9 @@ export default function MainView() {
         },
         {
           text: 'Close to the Right',
+          disabled:
+            tabs.findIndex((tab) => tab.key === additionalData?.key) >=
+            tabs.length - 1,
           onClick: () => {
             if (additionalData) {
               const index = tabs.findIndex(
@@ -93,21 +94,13 @@ export default function MainView() {
               if (index !== -1) {
                 const newTabs = tabs.slice(0, index + 1);
                 setTabs(newTabs);
-
-                // If the selected tab is at the right side, we need to set the current tab as the selected tab
-                const selectedIndex = tabs.findIndex(
-                  (tab) => tab.key === selectedTab
-                );
-                if (selectedIndex > index) {
-                  setSelectedTab(newTabs[newTabs.length - 1].key);
-                }
               }
             }
           },
         },
       ];
     },
-    [tabs, onTabClosed, setTabs, setSelectedTab]
+    [tabs, onTabClosed, setTabs, setSelectedTab, selectedTab]
   );
 
   return (
