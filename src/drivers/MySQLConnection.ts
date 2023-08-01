@@ -6,7 +6,7 @@ import {
 import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from './SQLLikeConnection';
-import { Connection, createConnection } from 'mysql2/promise';
+import { createPool, Pool } from 'mysql2/promise';
 
 interface ColumnDefinition {
   _buf: Buffer;
@@ -67,7 +67,7 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 
 export default class MySQLConnection extends SQLLikeConnection {
   protected connectionConfig: DatabaseConnectionConfig;
-  protected connection: Connection | undefined;
+  protected connection: Pool | undefined;
   protected onStateChangedCallback: (state: string) => void;
 
   constructor(
@@ -81,23 +81,14 @@ export default class MySQLConnection extends SQLLikeConnection {
 
   protected async getConnection() {
     if (!this.connection) {
-      this.connection = await createConnection({
+      this.connection = createPool({
         ...this.connectionConfig,
         dateStrings: true,
         namedPlaceholders: true,
+        connectionLimit: 1,
       });
 
-      console.log('connected');
       this.onStateChangedCallback('Connected');
-
-      this.connection.on('error', () => {
-        if (this.connection) {
-          this.connection.removeAllListeners();
-          this.connection.destroy();
-          this.connection = undefined;
-          this.onStateChangedCallback('Disconnected');
-        }
-      });
     }
 
     return this.connection;
@@ -151,6 +142,7 @@ export default class MySQLConnection extends SQLLikeConnection {
   async close() {
     if (this.connection) {
       const conn = await this.getConnection();
+      conn.end();
       conn.destroy();
     }
   }
