@@ -1,7 +1,7 @@
 import Splitter from 'renderer/components/Splitter/Splitter';
 import WindowTab, { WindowTabItem } from 'renderer/components/WindowTab';
 import SqlDebugger from './SqlDebugger';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
@@ -45,25 +45,51 @@ export default function MainView() {
         {
           text: 'Close',
           onClick: () => {
-            // not be implemented
+            if (additionalData) {
+              onTabClosed(additionalData);
+            }
           },
         },
         {
           text: 'Close Others',
           onClick: () => {
-            // not be implemented
+            if (additionalData) {
+              setTabs(tabs.filter((tab) => tab.key === additionalData.key));
+            }
           },
         },
         {
           text: 'Close to the Right',
           onClick: () => {
-            // not be implemented
+            if (additionalData) {
+              console.log('Additional Data:', additionalData); // logging additional data
+              console.log('Tabs:', tabs); // logging tabs array
+              const index = tabs.findIndex(
+                (tab) => tab.key === additionalData.key
+              );
+              console.log('Index:', index); // logging index
+              // if tab is found
+              if (index !== -1) {
+                const newTabs = tabs.slice(0, index + 1);
+                console.log('New tabs before setTabs:', newTabs); // logging newTabs before setting it
+                setTabs(newTabs);
+                console.log('New tabs after setTabs:', newTabs); // logging newTabs after setting it
+              } else {
+                console.log('Tab not found');
+              }
+            } else {
+              console.log('Additional Data is null or undefined');
+            }
           },
         },
       ];
     },
-    []
+    [tabs]
   );
+
+  useEffect(() => {
+    console.log('Tabs array updated:', tabs); // logging updated tabs array
+  }, [tabs]);
 
   const onTabClosed = useCallback(
     (closedTab: WindowTabItem) => {
