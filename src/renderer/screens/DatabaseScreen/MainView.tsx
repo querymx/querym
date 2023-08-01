@@ -90,6 +90,15 @@ export default function MainView() {
               const index = tabs.findIndex(
                 (tab) => tab.key === additionalData.key
               );
+
+              const selectedIndex = tabs.findIndex(
+                (tab) => tab.key === selectedTab
+              );
+
+              if (selectedIndex > index) {
+                setSelectedTab(additionalData.key);
+              }
+
               // if tab is found
               if (index !== -1) {
                 const newTabs = tabs.slice(0, index + 1);
