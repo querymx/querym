@@ -5,13 +5,12 @@ import CodeMirror, {
 import { acceptCompletion, completionStatus } from '@codemirror/autocomplete';
 import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
-import { sql } from '@codemirror/lang-sql';
+import { SQLConfig, sql } from '@codemirror/lang-sql';
 import { Ref, forwardRef } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: ReactCodeMirrorProps & { schema: any },
+  props: ReactCodeMirrorProps & { schema: SQLConfig['schema'] },
   ref: Ref<ReactCodeMirrorRef>
 ) {
   const { schema, ...codeMirrorProps } = props;
