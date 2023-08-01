@@ -24,6 +24,27 @@ export default function MainView() {
     ));
   }, [newWindow, tabs]);
 
+  const onTabClosed = useCallback(
+    (closedTab: WindowTabItem) => {
+      // Close current tab will select other available tab
+      if (closedTab.key === selectedTab) {
+        const closedTabIndex = tabs.findIndex(
+          (tab) => closedTab.key === tab.key
+        );
+
+        const nextTabKey =
+          closedTabIndex + 1 >= tabs.length
+            ? tabs[closedTabIndex - 1].key
+            : tabs[closedTabIndex + 1].key;
+
+        setSelectedTab(nextTabKey);
+      }
+
+      setTabs((prev) => prev.filter((tab) => tab.key !== closedTab.key));
+    },
+    [setSelectedTab, setTabs, selectedTab, tabs]
+  );
+
   const handleTabDragged = (key: string, newIndex: number) => {
     const draggedTab = tabs.find((tab) => tab.key === key);
     if (!draggedTab) return;
@@ -44,46 +65,33 @@ export default function MainView() {
       return [
         {
           text: 'Close',
+          disabled: tabs.length === 1,
           onClick: () => {
-            // not be implemented
+            additionalData && onTabClosed(additionalData);
           },
         },
         {
           text: 'Close Others',
           onClick: () => {
-            // not be implemented
+            setSelectedTab(additionalData?.key);
+            setTabs((prev) =>
+              prev.filter((tab) => tab.key === additionalData?.key)
+            );
           },
         },
         {
           text: 'Close to the Right',
           onClick: () => {
-            // not be implemented
+            setSelectedTab(additionalData?.key);
+            const tabIndex = tabs.findIndex(
+              (tab) => tab.key === additionalData?.key
+            );
+            setTabs((prev) => prev.filter((_, index) => index <= tabIndex));
           },
         },
       ];
     },
-    []
-  );
-
-  const onTabClosed = useCallback(
-    (closedTab: WindowTabItem) => {
-      // Close current tab will select other available tab
-      if (closedTab.key === selectedTab) {
-        const closedTabIndex = tabs.findIndex(
-          (tab) => closedTab.key === tab.key
-        );
-
-        const nextTabKey =
-          closedTabIndex + 1 >= tabs.length
-            ? tabs[closedTabIndex - 1].key
-            : tabs[closedTabIndex + 1].key;
-
-        setSelectedTab(nextTabKey);
-      }
-
-      setTabs((prev) => prev.filter((tab) => tab.key !== closedTab.key));
-    },
-    [setSelectedTab, setTabs, selectedTab, tabs]
+    [tabs, onTabClosed, setSelectedTab, setTabs]
   );
 
   return (
