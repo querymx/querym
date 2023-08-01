@@ -17,14 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode, faTableList } from '@fortawesome/free-solid-svg-icons';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import useBeforeClose from 'renderer/hooks/useBeforeClose';
-
-interface WindowTabItemProps {
-  key: string;
-  name: string;
-  icon?: ReactElement;
-  component: ReactElement;
-}
-
+import { WindowTabItem } from 'renderer/components/WindowTab';
 export interface WindowTabItemData {
   sql?: string;
   type?: string;
@@ -33,8 +26,8 @@ export interface WindowTabItemData {
 }
 
 const WindowTabContext = createContext<{
-  tabs: WindowTabItemProps[];
-  setTabs: React.Dispatch<React.SetStateAction<WindowTabItemProps[]>>;
+  tabs: WindowTabItem[];
+  setTabs: React.Dispatch<React.SetStateAction<WindowTabItem[]>>;
   selectedTab?: string;
   setSelectedTab: React.Dispatch<React.SetStateAction<string | undefined>>;
   saveWindowTabHistory: () => void;
@@ -60,7 +53,7 @@ export function useWindowTab() {
 
 export function WindowTabProvider({ children }: PropsWithChildren) {
   const { setting } = useDatabaseSetting();
-  const [tabs, setTabs] = useState<WindowTabItemProps[]>([]);
+  const [tabs, setTabs] = useState<WindowTabItem[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>();
   const [tabData] = useState<{ data: Record<string, WindowTabItemData> }>({
     data: {},
