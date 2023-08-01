@@ -37,34 +37,6 @@ export default function MainView() {
     }
   };
 
-  const { handleContextMenu } = useContextMenu(
-    (additionalData?: WindowTabItem) => {
-      console.log('additional data', additionalData);
-
-      return [
-        {
-          text: 'Close',
-          onClick: () => {
-            // not be implemented
-          },
-        },
-        {
-          text: 'Close Others',
-          onClick: () => {
-            // not be implemented
-          },
-        },
-        {
-          text: 'Close to the Right',
-          onClick: () => {
-            // not be implemented
-          },
-        },
-      ];
-    },
-    []
-  );
-
   const onTabClosed = useCallback(
     (closedTab: WindowTabItem) => {
       // Close current tab will select other available tab
@@ -84,6 +56,60 @@ export default function MainView() {
       setTabs((prev) => prev.filter((tab) => tab.key !== closedTab.key));
     },
     [setSelectedTab, setTabs, selectedTab, tabs]
+  );
+
+  const { handleContextMenu } = useContextMenu(
+    (additionalData?: WindowTabItem) => {
+      return [
+        {
+          text: 'Close',
+          disabled: tabs.length === 1,
+          onClick: () => {
+            if (additionalData) {
+              onTabClosed(additionalData);
+            }
+          },
+        },
+        {
+          text: 'Close Others',
+          disabled: tabs.length === 1,
+          onClick: () => {
+            if (additionalData) {
+              setTabs(tabs.filter((tab) => tab.key === additionalData.key));
+              setSelectedTab(additionalData.key);
+            }
+          },
+        },
+        {
+          text: 'Close to the Right',
+          disabled:
+            tabs.findIndex((tab) => tab.key === additionalData?.key) >=
+            tabs.length - 1,
+          onClick: () => {
+            if (additionalData) {
+              const index = tabs.findIndex(
+                (tab) => tab.key === additionalData.key
+              );
+
+              const selectedIndex = tabs.findIndex(
+                (tab) => tab.key === selectedTab
+              );
+
+              if (selectedIndex > index) {
+                setSelectedTab(additionalData.key);
+              }
+
+              // if tab is found
+              if (index !== -1) {
+                const newTabs = tabs.slice(0, index + 1);
+                setTabs(newTabs);
+              }
+            }
+          },
+        },
+      ];
+    },
+    [tabs, onTabClosed, setTabs, setSelectedTab, selectedTab]
   );
 
   return (
