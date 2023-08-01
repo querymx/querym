@@ -1,7 +1,7 @@
 import Splitter from 'renderer/components/Splitter/Splitter';
 import WindowTab, { WindowTabItem } from 'renderer/components/WindowTab';
 import SqlDebugger from './SqlDebugger';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
@@ -37,60 +37,6 @@ export default function MainView() {
     }
   };
 
-  const { handleContextMenu } = useContextMenu(
-    (additionalData?: WindowTabItem) => {
-      console.log('additional data', additionalData);
-
-      return [
-        {
-          text: 'Close',
-          onClick: () => {
-            if (additionalData) {
-              onTabClosed(additionalData);
-            }
-          },
-        },
-        {
-          text: 'Close Others',
-          onClick: () => {
-            if (additionalData) {
-              setTabs(tabs.filter((tab) => tab.key === additionalData.key));
-            }
-          },
-        },
-        {
-          text: 'Close to the Right',
-          onClick: () => {
-            if (additionalData) {
-              console.log('Additional Data:', additionalData); // logging additional data
-              console.log('Tabs:', tabs); // logging tabs array
-              const index = tabs.findIndex(
-                (tab) => tab.key === additionalData.key
-              );
-              console.log('Index:', index); // logging index
-              // if tab is found
-              if (index !== -1) {
-                const newTabs = tabs.slice(0, index + 1);
-                console.log('New tabs before setTabs:', newTabs); // logging newTabs before setting it
-                setTabs(newTabs);
-                console.log('New tabs after setTabs:', newTabs); // logging newTabs after setting it
-              } else {
-                console.log('Tab not found');
-              }
-            } else {
-              console.log('Additional Data is null or undefined');
-            }
-          },
-        },
-      ];
-    },
-    [tabs]
-  );
-
-  useEffect(() => {
-    console.log('Tabs array updated:', tabs); // logging updated tabs array
-  }, [tabs]);
-
   const onTabClosed = useCallback(
     (closedTab: WindowTabItem) => {
       // Close current tab will select other available tab
@@ -110,6 +56,58 @@ export default function MainView() {
       setTabs((prev) => prev.filter((tab) => tab.key !== closedTab.key));
     },
     [setSelectedTab, setTabs, selectedTab, tabs]
+  );
+
+  const { handleContextMenu } = useContextMenu(
+    (additionalData?: WindowTabItem) => {
+      console.log('additional data', additionalData);
+
+      return [
+        {
+          text: 'Close',
+          onClick: () => {
+            if (additionalData) {
+              if (tabs.length > 1) {
+                onTabClosed(additionalData);
+              }
+            }
+          },
+        },
+        {
+          text: 'Close Others',
+          onClick: () => {
+            if (additionalData) {
+              setTabs(tabs.filter((tab) => tab.key === additionalData.key));
+              setSelectedTab(additionalData.key);
+            }
+          },
+        },
+        {
+          text: 'Close to the Right',
+          onClick: () => {
+            if (additionalData) {
+              const index = tabs.findIndex(
+                (tab) => tab.key === additionalData.key
+              );
+              // if tab is found
+              if (index !== -1) {
+                const newTabs = tabs.slice(0, index + 1);
+                setTabs(newTabs);
+
+                // If the selected tab is at the right side, we need to set the current tab as the selected tab
+                const selectedIndex = tabs.findIndex(
+                  (tab) => tab.key === selectedTab
+                );
+                if (selectedIndex > index) {
+                  setSelectedTab(newTabs[newTabs.length - 1].key);
+                }
+              }
+            }
+          },
+        },
+      ];
+    },
+    [tabs, onTabClosed, setTabs, setSelectedTab]
   );
 
   return (
