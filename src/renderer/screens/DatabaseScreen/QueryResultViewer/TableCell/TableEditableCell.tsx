@@ -4,7 +4,6 @@ import {
   useCallback,
   forwardRef,
   useImperativeHandle,
-  Ref,
   useEffect,
 } from 'react';
 import styles from './styles.module.css';
@@ -47,7 +46,7 @@ interface TableEditableCellProps {
   header: QueryResultHeader;
 }
 
-const TableEditableCell = forwardRef(function TableEditableCell(
+const TableEditableCell = forwardRef<TableEditableCellHandler, TableEditableCellProps>(function TableEditableCell(
   {
     diff,
     detactEditor,
@@ -60,8 +59,8 @@ const TableEditableCell = forwardRef(function TableEditableCell(
     onCopy,
     onPaste,
     header,
-  }: TableEditableCellProps,
-  ref: Ref<TableEditableCellHandler>
+  },
+  ref
 ) {
   const { cellManager } = useTableCellManager();
   const { setChange, removeChange, collector } = useQueryResultChange();
