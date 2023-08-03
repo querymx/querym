@@ -7,6 +7,7 @@ import Modal from '../Modal';
 import ListView from '../ListView';
 import Button from '../Button';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
+import TextField from '../TextField';
 
 interface DatabaseSelectionModalProps {
   open: boolean;
@@ -31,8 +32,15 @@ function DatabaseSelectionModal({
   const [selectedDatabase, setSelectedDatabase] = useState<string | undefined>(
     currentDatabase || undefined
   );
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const { common } = useSqlExecute();
+
+  const filteredDatabaseList = useMemo(() => {
+    return databaseList.filter(database =>
+      database.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [databaseList, searchTerm]);
 
   const openDatabase = useCallback(
     (databaseName: string) => {
@@ -59,23 +67,34 @@ function DatabaseSelectionModal({
   return (
     <Modal open={open} title="Database Selection" onClose={onClose}>
       <Modal.Body>
+        <div className={styles.searchContainer}>
+          <TextField
+            placeholder="Search for a database..."
+            value={searchTerm}
+            onChange={(value) => setSearchTerm(value)}
+          />
+        </div>
         <div
-          style={{ maxHeight: '50vh', overflowY: 'auto' }}
+          style={{ minHeight: '15vh', maxHeight: '50vh', overflowY: 'auto' }}
           className={'scroll'}
         >
-          <ListView
-            selectedItem={selectedDatabase}
-            onSelectChange={(item) => setSelectedDatabase(item)}
-            items={databaseList}
-            onDoubleClick={(item) => {
-              openDatabase(item);
-            }}
-            extractMeta={(database) => ({
-              text: database,
-              key: database,
-              icon: <FontAwesomeIcon icon={faDatabase} />,
-            })}
-          />
+          {filteredDatabaseList.length === 0 ? (
+            <p className={styles.noResultsText}>No matching databases found.</p>
+          ) : (
+            <ListView
+              selectedItem={selectedDatabase}
+              onSelectChange={(item) => setSelectedDatabase(item)}
+              items={filteredDatabaseList}
+              onDoubleClick={(item) => {
+                openDatabase(item);
+              }}
+              extractMeta={(database) => ({
+                text: database,
+                key: database,
+                icon: <FontAwesomeIcon icon={faDatabase} />,
+              })}
+            />
+          )}
         </div>
       </Modal.Body>
       <Modal.Footer>
