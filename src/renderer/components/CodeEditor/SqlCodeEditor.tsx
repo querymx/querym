@@ -5,7 +5,7 @@ import CodeMirror, {
 import { acceptCompletion, completionStatus } from '@codemirror/autocomplete';
 import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
-import { SQLConfig, sql } from '@codemirror/lang-sql';
+import { SQLConfig, sql, MySQL } from '@codemirror/lang-sql';
 import { Ref, forwardRef } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
 
@@ -39,6 +39,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
           ...defaultKeymap,
         ]),
         sql({
+          dialect: MySQL,
           schema,
         }),
       ]}
