@@ -6,9 +6,13 @@ const SchemaContext = React.createContext<{
   schema?: DatabaseSchemas;
   currentDatabase?: string;
   setCurrentDatabase: (v: string) => void;
+  reloadSchema: () => void;
 }>({
   schema: {},
   setCurrentDatabase: () => {
+    throw 'Not implemented';
+  },
+  reloadSchema: () => {
     throw 'Not implemented';
   },
 });
@@ -20,7 +24,8 @@ export function useSchema() {
 export function SchemaProvider({
   children,
   schema,
-}: PropsWithChildren<{ schema?: DatabaseSchemas }>) {
+  reloadSchema,
+}: PropsWithChildren<{ schema?: DatabaseSchemas; reloadSchema: () => void }>) {
   const { setting } = useDatabaseSetting();
   const [currentDatabase, setCurrentDatabase] = useState(
     setting?.config?.database
@@ -28,7 +33,12 @@ export function SchemaProvider({
 
   return (
     <SchemaContext.Provider
-      value={{ schema: schema, currentDatabase, setCurrentDatabase }}
+      value={{
+        schema,
+        currentDatabase,
+        setCurrentDatabase,
+        reloadSchema,
+      }}
     >
       {children}
     </SchemaContext.Provider>

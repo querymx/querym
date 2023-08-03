@@ -46,6 +46,16 @@ function DatabaseScreenBody() {
       });
   }, [setSchema, setError, setErrorMessage, common, setLoading]);
 
+  const reloadSchema = useCallback(() => {
+    common
+      .getSchema()
+      .then(setSchema)
+      .catch((e) => {
+        setError(true);
+        setErrorMessage(e.message);
+      });
+  }, [setSchema, setError, setErrorMessage, common]);
+
   useEffect(() => {
     fetchSchema();
   }, [fetchSchema]);
@@ -92,7 +102,7 @@ function DatabaseScreenBody() {
   }
 
   return (
-    <SchemaProvider schema={schema}>
+    <SchemaProvider schema={schema} reloadSchema={reloadSchema}>
       <SwitchDatabaseProvider>
         <UpdateConnectionStatus />
         <Layout>
