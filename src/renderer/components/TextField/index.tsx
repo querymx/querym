@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import styles from './styles.module.scss';
 
 interface TextFieldProps {
-  label: string;
+  label?: string;
   value?: string;
   autoFocus?: boolean;
   placeholder?: string;
