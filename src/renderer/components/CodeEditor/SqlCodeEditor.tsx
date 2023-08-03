@@ -2,7 +2,11 @@ import CodeMirror, {
   ReactCodeMirrorProps,
   ReactCodeMirrorRef,
 } from '@uiw/react-codemirror';
-import { acceptCompletion, completionStatus } from '@codemirror/autocomplete';
+import {
+  acceptCompletion,
+  completionStatus,
+  startCompletion,
+} from '@codemirror/autocomplete';
 import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
 import { SQLConfig, sql, MySQL } from '@codemirror/lang-sql';
@@ -35,6 +39,12 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
               }
               return true;
             },
+          },
+          {
+            key: 'Ctrl-Space',
+            mac: 'Cmd-i',
+            preventDefault: true,
+            run: startCompletion,
           },
           ...defaultKeymap,
         ]),
