@@ -1,6 +1,12 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlay,
+  faICursor,
+  faTable,
+  faCircleExclamation,
+  faTableColumns,
+} from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
@@ -11,7 +17,6 @@ import Splitter from 'renderer/components/Splitter/Splitter';
 import { splitQuery } from 'dbgate-query-splitter';
 import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
-import { useDialog } from 'renderer/contexts/DialogProvider';
 import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
@@ -28,6 +33,15 @@ interface QueryWindowProps {
   name: string;
 }
 
+const ErrorPanel = ({ error }: { error?: string }) => {
+  return <div className={styles.errorPanel}>{error}</div>;
+};
+
+enum Panel {
+  RESULT = 'result',
+  ERROR = 'error',
+}
+
 export default function QueryWindow({
   initialSql,
   initialRun,
@@ -36,10 +50,36 @@ export default function QueryWindow({
   const editorRef = useRef<ReactCodeMirrorRef>(null);
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
   const { runner } = useSqlExecute();
-  const { showErrorDialog } = useDialog();
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedPanel, setSelectedPanel] = useState<Panel>(Panel.RESULT);
+  const [error, setError] = useState();
+
+  const panels = [
+    {
+      key: Panel.RESULT,
+      name: 'Result',
+      icon: <FontAwesomeIcon icon={faTable} style={{ color: '#96dd62' }} />,
+      render: () =>
+        loading ? (
+          <QueryResultLoading />
+        ) : (
+          <QueryMultipleResultViewer key={queryKeyCounter} value={result} />
+        ),
+    },
+    {
+      key: Panel.ERROR,
+      name: 'Error',
+      icon: (
+        <FontAwesomeIcon
+          icon={faCircleExclamation}
+          style={{ color: '#d3453a' }}
+        />
+      ),
+      render: () => <ErrorPanel error={error} />,
+    },
+  ];
   const { schema, currentDatabase } = useSchema();
   const codeMirrorSchema = useMemo(() => {
     return currentDatabase && schema
@@ -142,10 +182,12 @@ export default function QueryWindow({
         .then((r) => {
           setResult(transformResultHeaderUseSchema(r, schema));
           setQueryKeyCounter((prev) => prev + 1);
+          setSelectedPanel(Panel.RESULT);
         })
         .catch((e) => {
           if (e.message) {
-            showErrorDialog(e.message);
+            setSelectedPanel(Panel.ERROR);
+            setError(e.message);
           }
         })
         .finally(() => {
@@ -240,12 +282,54 @@ export default function QueryWindow({
           />
         </div>
       </div>
-      <div style={{ height: '100%' }}>
-        {loading ? (
-          <QueryResultLoading />
-        ) : (
-          <QueryMultipleResultViewer key={queryKeyCounter} value={result} />
-        )}
+      <div className={styles.bottomContainer}>
+        <div className={styles.tabs}>
+          <ul
+            onWheel={(e) => {
+              if (e.currentTarget) {
+                e.currentTarget.scrollLeft += e.deltaY;
+              }
+            }}
+          >
+            {panels.map((tab) => {
+              const isSelectedTab = tab.key === selectedPanel;
+
+              return (
+                <li
+                  key={tab.key}
+                  className={isSelectedTab ? styles.selected : ''}
+                  onClick={() => {
+                    setSelectedPanel(tab.key);
+                  }}
+                >
+                  <span className={styles.icon}>
+                    {tab.icon ? (
+                      tab.icon
+                    ) : (
+                      <FontAwesomeIcon icon={faTableColumns} />
+                    )}
+                  </span>
+                  <span>{tab.name}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div className={styles.contentContainer}>
+          {panels.map((tab) => {
+            return (
+              <div
+                className={styles.content}
+                key={tab.key}
+                style={{
+                  visibility: tab.key === selectedPanel ? 'visible' : 'hidden',
+                }}
+              >
+                {tab.render()}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </Splitter>
   );
