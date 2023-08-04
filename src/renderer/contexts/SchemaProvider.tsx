@@ -1,4 +1,4 @@
-import React, { useState, PropsWithChildren, useContext } from 'react';
+import React, { useState, PropsWithChildren, useContext, useMemo } from 'react';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
 import { DatabaseSchemas } from 'types/SqlSchema';
 import NotImplementCallback from 'libs/NotImplementCallback';
@@ -28,15 +28,18 @@ export function SchemaProvider({
     setting?.config?.database
   );
 
+  const providerValuesMemo = useMemo(
+    () => ({
+      schema,
+      currentDatabase,
+      setCurrentDatabase,
+      reloadSchema,
+    }),
+    [schema, currentDatabase, setCurrentDatabase, reloadSchema]
+  );
+
   return (
-    <SchemaContext.Provider
-      value={{
-        schema,
-        currentDatabase,
-        setCurrentDatabase,
-        reloadSchema,
-      }}
-    >
+    <SchemaContext.Provider value={providerValuesMemo}>
       {children}
     </SchemaContext.Provider>
   );
