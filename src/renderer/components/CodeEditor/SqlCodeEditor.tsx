@@ -37,6 +37,9 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
 
   const enumCompletion = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
+      // dont run if there is no enumSchema
+      if (enumSchema.length === 0) return null;
+
       const isEqualOperator = tree.prevSibling;
 
       // check if it's an operator and id is 15
