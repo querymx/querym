@@ -59,9 +59,6 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         .toString()
         .slice(tableAndColumnNode.from, tableAndColumnNode.to);
 
-      console.log('enumSchema', enumSchema);
-      console.log('tableAndColumnText', tableAndColumnText);
-
       // split the text to table and column
       const [table, column] = tableAndColumnText.split('.');
       // only check for table since column is possibly a keyword
