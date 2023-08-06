@@ -40,19 +40,18 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
       // dont run if there is no enumSchema
       if (enumSchema.length === 0) return null;
 
-      const isEqualOperator = tree.prevSibling;
+      const operatorNode = tree.prevSibling;
+
+      // get the operator text
+      const operatorNodeText = context.state.doc
+        .toString()
+        .slice(operatorNode?.from, operatorNode?.to);
 
       // check if it's an operator and id is 15
-      if (
-        !(
-          isEqualOperator?.type.name === 'Operator' &&
-          isEqualOperator?.type.id === 15
-        )
-      )
-        return null;
+      if (!(operatorNodeText === '=' || operatorNodeText === '!=')) return null;
 
       // get the column name before the equal operator node
-      const tableAndColumnNode = isEqualOperator?.prevSibling;
+      const tableAndColumnNode = operatorNode?.prevSibling;
       if (!tableAndColumnNode) return null;
 
       // get the text from tableAndColumnNode
