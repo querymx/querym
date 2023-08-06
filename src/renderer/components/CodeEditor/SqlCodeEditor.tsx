@@ -63,18 +63,18 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         .slice(tableAndColumnNode.from, tableAndColumnNode.to);
 
       // split the text to table and column
-      const [table, column] = tableAndColumnText.split('.');
+      const [table, column] = tableAndColumnText.replaceAll('`', '').split('.');
       // only check for table since column is possibly a keyword
       if (!table) return null;
 
       const enumValues = enumSchema.find((tempEnum) => {
         if (column) {
           // normally column will be enum
-          return tempEnum.column === column.replaceAll('`', '');
+          return tempEnum.column === column;
         } else {
           // when column is a keyword, the node will be counted as 2
           // so there will be no column, the enum will be in table variable instead
-          return tempEnum.column === table.replaceAll('`', '');
+          return tempEnum.column === table;
         }
       })?.values;
 
