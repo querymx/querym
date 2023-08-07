@@ -24,6 +24,7 @@ import {
   keywordCompletionSource,
   schemaCompletionSource,
 } from 'query-master-lang-sql';
+import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
@@ -37,58 +38,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
 
   const enumCompletion = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
-      // dont run if there is no enumSchema
-      if (enumSchema.length === 0) return null;
-
-      const operatorNode = tree.prevSibling;
-
-      // get the operator text
-      const operatorNodeText = context.state.doc
-        .toString()
-        .slice(operatorNode?.from, operatorNode?.to);
-
-      // check if it's an operator and id is 15
-      if (!(operatorNodeText === '=' || operatorNodeText === '!=')) return null;
-
-      // get the column name before the equal operator node
-      const tableAndColumnNode = operatorNode?.prevSibling;
-      if (!tableAndColumnNode) return null;
-
-      // get the text from tableAndColumnNode
-      // first convert context.state.doc to string
-      // then slice from node.from to node.to
-      const tableAndColumnText = context.state.doc
-        .toString()
-        .slice(tableAndColumnNode.from, tableAndColumnNode.to);
-
-      // split the text to table and column
-      const [table, column] = tableAndColumnText.replaceAll('`', '').split('.');
-      // only check for table since column is possibly a keyword
-      if (!table) return null;
-
-      const enumValues = enumSchema.find((tempEnum) => {
-        if (column) {
-          // normally column will be enum
-          return tempEnum.column === column;
-        } else {
-          // when column is a keyword, the node will be counted as 2
-          // so there will be no column, the enum will be in table variable instead
-          return tempEnum.column === table;
-        }
-      })?.values;
-
-      if (!enumValues) return null;
-
-      const options: CompletionResult['options'] = enumValues.map((value) => ({
-        label: value,
-        displayLabel: value,
-        type: 'keyword',
-      }));
-
-      return {
-        from: tree.from + 1,
-        options,
-      };
+      return handleCustomSqlAutoComplete(context, tree, enumSchema);
     },
     [enumSchema]
   );
