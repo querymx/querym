@@ -46,6 +46,12 @@ const TableCellNumber = createTableCellType({
   diff: (prev: number, current: number) => prev !== current,
   content: TableCellNumberContent,
   editor: TableCellNumberEditor,
+  onCopy: (value: number) => {
+    return value.toString();
+  },
+  onPaste: (value: string) => {
+    return { accept: true, value: Number(value) };
+  },
 });
 
 export default TableCellNumber;

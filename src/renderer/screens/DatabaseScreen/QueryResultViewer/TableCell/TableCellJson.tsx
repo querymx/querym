@@ -82,6 +82,16 @@ const TableCellJson = createTableCellType({
   content: TableCellJsonContent,
   editor: TableCellJsonEditor,
   detachEditor: true,
+  onCopy: (value: string) => {
+    return JSON.stringify(value);
+  },
+  onPaste: (value: string) => {
+    try {
+      return { accept: true, value: JSON.parse(value) };
+    } catch {
+      return { accept: false, value: undefined };
+    }
+  },
 });
 
 export default TableCellJson;

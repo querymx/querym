@@ -46,7 +46,10 @@ interface TableEditableCellProps {
   header: QueryResultHeader;
 }
 
-const TableEditableCell = forwardRef<TableEditableCellHandler, TableEditableCellProps>(function TableEditableCell(
+const TableEditableCell = forwardRef<
+  TableEditableCellHandler,
+  TableEditableCellProps
+>(function TableEditableCell(
   {
     diff,
     detactEditor,
@@ -84,9 +87,9 @@ const TableEditableCell = forwardRef<TableEditableCellHandler, TableEditableCell
 
   const copyHandler = useCallback(() => {
     if (onCopy) {
-      window.navigator.clipboard.writeText(onCopy(value));
+      window.navigator.clipboard.writeText(onCopy(afterValue));
     }
-  }, [onCopy, value]);
+  }, [onCopy, afterValue]);
 
   const pasteHandler = useCallback(() => {
     if (onPaste) {
