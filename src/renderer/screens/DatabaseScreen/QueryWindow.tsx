@@ -21,6 +21,12 @@ import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 
+export type EnumSchema = Array<{
+  table: string;
+  column: string;
+  values: string[];
+}>;
+
 interface QueryWindowProps {
   initialSql?: string;
   initialRun?: boolean;
@@ -34,13 +40,16 @@ export default function QueryWindow({
   tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
-  const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
+
+  const [loading, setLoading] = useState(false);
+  const [queryKeyCounter, setQueryKeyCounter] = useState(0);
+  const [result, setResult] = useState<SqlStatementResult[]>([]);
+
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
-  const [result, setResult] = useState<SqlStatementResult[]>([]);
-  const [queryKeyCounter, setQueryKeyCounter] = useState(0);
-  const [loading, setLoading] = useState(false);
   const { schema, currentDatabase } = useSchema();
+  const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
+
   const codeMirrorSchema = useMemo(() => {
     return currentDatabase && schema
       ? Object.values(schema[currentDatabase].tables).reduce(
@@ -52,6 +61,27 @@ export default function QueryWindow({
         )
       : {};
   }, [schema, currentDatabase]);
+
+  const enumSchema = useMemo(() => {
+    if (!schema || !currentDatabase) return [];
+
+    const results: EnumSchema = [];
+
+    for (const table of Object.values(schema[currentDatabase].tables)) {
+      for (const column of Object.values(table.columns)) {
+        if (column.dataType === 'enum') {
+          results.push({
+            table: table.name,
+            column: column.name,
+            values: column.enumValues || [],
+          });
+        }
+      }
+    }
+
+    return results;
+  }, [schema, currentDatabase]);
+
   const [code, setCode] = useState(initialSql || '');
 
   const { handleContextMenu } = useContextMenu(() => {
@@ -237,6 +267,7 @@ export default function QueryWindow({
             }}
             height="100%"
             schema={codeMirrorSchema}
+            enumSchema={enumSchema}
           />
         </div>
       </div>
