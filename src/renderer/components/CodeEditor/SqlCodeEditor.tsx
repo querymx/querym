@@ -76,7 +76,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         }),
         autocompletion({
           override: [
-            keywordCompletionSource(MySQL),
+            keywordCompletionSource(MySQL, true),
             schemaCompletionSource({ schema }),
             genericCompletion(enumCompletion),
           ],

@@ -79,8 +79,8 @@ function handleEnumAutoComplete(
 
   const options: CompletionResult['options'] = enumValues.map((value) => ({
     label: value,
-    displayLabel: value,
-    type: 'keyword',
+    type: 'enum',
+    detail: 'Enum',
   }));
 
   return {
