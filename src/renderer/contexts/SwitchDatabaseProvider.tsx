@@ -18,7 +18,7 @@ export default function SwitchDatabaseProvider({
         if (
           statement.analyze.type === 'create' ||
           // only has delete, while drop is fired instead
-          // @ts-expect-error TODO: fix this
+          // @ts-expect-error fix this
           statement.analyze.type === 'drop' ||
           statement.analyze.type === 'alter'
         ) {

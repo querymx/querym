@@ -83,7 +83,7 @@ export default function SqlProtectionProvider({ children }: PropsWithChildren) {
             className={'scroll'}
           >
             {confirmStatements.map((statement, idx) => (
-              <div>
+              <div key={idx}>
                 <SyntaxHighlighter
                   lineProps={{
                     style: {

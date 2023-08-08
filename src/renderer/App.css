@@ -200,7 +200,6 @@ hr {
   display: flex;
   align-self: center;
   justify-content: center;
-  justify-item: center;
 }
 
 .cm-tooltip-autocomplete .cm-completionLabel {
