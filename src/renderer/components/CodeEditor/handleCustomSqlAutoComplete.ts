@@ -66,22 +66,13 @@ function handleEnumAutoComplete(
 
   // Let search for identifer
   const identifier = searchForIdentifier(context, currentNode.prevSibling);
-  console.log(identifier);
-
   if (!identifier) return null;
 
   const [table, column] = identifier.replaceAll('`', '').split('.');
   if (!table) return null;
 
   const enumValues = enumSchema.find((tempEnum) => {
-    if (column) {
-      // normally column will be enum
-      return tempEnum.column === column;
-    } else {
-      // when column is a keyword, the node will be counted as 2
-      // so there will be no column, the enum will be in table variable instead
-      return tempEnum.column === table;
-    }
+    return tempEnum.column === column && table === tempEnum.table;
   })?.values;
 
   if (!enumValues) return null;
