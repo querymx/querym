@@ -82,7 +82,7 @@ function DatabaseSelectionModal({
             <p className={styles.noResultsText}>No matching databases found.</p>
           ) : (
             <ListView
-              highlight={searchTerm ? searchTerm : undefined}
+              highlight={searchTerm || undefined}
               selectedItem={selectedDatabase}
               onSelectChange={(item) => setSelectedDatabase(item)}
               items={filteredDatabaseList}
