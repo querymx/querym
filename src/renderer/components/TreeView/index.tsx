@@ -18,6 +18,8 @@ interface TreeViewProps<T> {
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
   onContextMenu?: React.MouseEventHandler;
+  highlight?: string;
+  highlightDepth?: number;
 }
 
 function TreeViewItem<T>({
@@ -30,6 +32,9 @@ function TreeViewItem<T>({
   collapsedKeys,
   onCollapsedChange,
   onDoubleClick,
+
+  highlight,
+  highlightDepth,
 }: {
   item: TreeViewItemData<T>;
   depth: number;
@@ -40,6 +45,8 @@ function TreeViewItem<T>({
   onCollapsedChange?: (value?: string[]) => void;
   collapsedKeys?: string[];
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
+  highlight?: string;
+  highlightDepth?: number;
 }) {
   const hasCollapsed = item.children && item.children.length > 0;
   const isCollapsed = collapsedKeys?.includes(item.id);
@@ -62,6 +69,7 @@ function TreeViewItem<T>({
             onDoubleClick(item);
           }
         }}
+        highlight={depth === highlightDepth ? highlight : undefined}
         hasCollapsed={hasCollapsed}
         collapsed={isCollapsed}
         selected={selected?.id === item.id}
@@ -89,6 +97,8 @@ function TreeViewItem<T>({
                 key={item.id}
                 item={item}
                 depth={depth + 1}
+                highlight={highlight}
+                highlightDepth={highlightDepth}
                 selected={selected}
                 onSelectChange={onSelectChange}
                 collapsedKeys={collapsedKeys}
@@ -111,6 +121,8 @@ export default function TreeView<T>({
   collapsedKeys,
   onDoubleClick,
   onContextMenu,
+  highlight,
+  highlightDepth,
 }: TreeViewProps<T>) {
   return (
     <div className={`${styles.treeView} scroll`} onContextMenu={onContextMenu}>
@@ -120,6 +132,8 @@ export default function TreeView<T>({
             key={item.id}
             item={item}
             depth={0}
+            highlight={highlight}
+            highlightDepth={highlightDepth}
             selected={selected}
             onSelectChange={onSelectChange}
             onDoubleClick={onDoubleClick}

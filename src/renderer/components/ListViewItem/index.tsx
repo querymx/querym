@@ -1,10 +1,11 @@
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
+  highlight?: string;
   icon?: ReactElement;
   changed?: boolean;
   selected?: boolean;
@@ -19,8 +20,16 @@ interface ListViewItemProps {
   onCollapsedClick?: () => void;
 }
 
+function encodeStringToHTML(s: string) {
+  const el = document.createElement('div');
+  el.innerText = el.textContent = s;
+  s = el.innerHTML;
+  return s;
+}
+
 export default function ListViewItem({
   text,
+  highlight,
   icon,
   selected,
   changed,
@@ -35,6 +44,24 @@ export default function ListViewItem({
   onCollapsedClick,
 }: ListViewItemProps) {
   const { theme } = useAppFeature();
+
+  const finalText = useMemo(() => {
+    if (highlight) {
+      const highlightText = encodeStringToHTML(highlight);
+      const santizedText = encodeStringToHTML(text || '');
+      const regex = new RegExp(
+        '(' + highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')',
+        'i'
+      );
+
+      return santizedText.replace(
+        regex,
+        `<mark style="padding: 0; background-color: #047bf8; color: white">$1</mark>`
+      );
+    } else {
+      return encodeStringToHTML(text || '');
+    }
+  }, [text, highlight]);
 
   return (
     <div
@@ -76,7 +103,10 @@ export default function ListViewItem({
           </div>
         ))}
       {!hasCollapsed && <div className={styles.icon}>{icon}</div>}
-      <div className={styles.text}>{text}</div>
+      <div
+        className={styles.text}
+        dangerouslySetInnerHTML={{ __html: finalText }}
+      />
     </div>
   );
 }

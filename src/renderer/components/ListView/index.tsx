@@ -3,6 +3,7 @@ import ListViewItem from '../ListViewItem';
 
 interface ListViewProps<T> {
   items: T[];
+  highlight?: string;
   selectedItem?: T;
   changeItemKeys?: string[];
   emptyComponent?: ReactElement;
@@ -20,6 +21,7 @@ interface ListViewProps<T> {
 
 export default function ListView<T>({
   items,
+  highlight,
   selectedItem,
   changeItemKeys,
   extractMeta,
@@ -64,6 +66,7 @@ export default function ListView<T>({
             key={key}
             text={text}
             icon={icon}
+            highlight={highlight}
             selected={key === selectedKey}
             changed={changeItemKeys?.includes(key)}
             onContextMenu={async (e) => {
