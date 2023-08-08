@@ -1,10 +1,11 @@
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
+  highlight?: string;
   icon?: ReactElement;
   changed?: boolean;
   selected?: boolean;
@@ -28,6 +29,7 @@ function encodeStringToHTML(s: string) {
 
 export default function ListViewItem({
   text,
+  highlight,
   icon,
   selected,
   changed,
@@ -43,16 +45,23 @@ export default function ListViewItem({
 }: ListViewItemProps) {
   const { theme } = useAppFeature();
 
-  const highlightText = encodeStringToHTML('att');
-  const santizedText = encodeStringToHTML(text || '');
-  const regex = new RegExp(
-    '(' + highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')',
-    'i'
-  );
-  const finalText = santizedText.replace(
-    regex,
-    `<mark style="padding: 0; background-color: #047bf8; color: white">$1</mark>`
-  );
+  const finalText = useMemo(() => {
+    if (highlight) {
+      const highlightText = encodeStringToHTML(highlight);
+      const santizedText = encodeStringToHTML(text || '');
+      const regex = new RegExp(
+        '(' + highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')',
+        'i'
+      );
+
+      return santizedText.replace(
+        regex,
+        `<mark style="padding: 0; background-color: #047bf8; color: white">$1</mark>`
+      );
+    } else {
+      return encodeStringToHTML(text || '');
+    }
+  }, [text, highlight]);
 
   return (
     <div

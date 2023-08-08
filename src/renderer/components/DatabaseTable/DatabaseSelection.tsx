@@ -37,7 +37,7 @@ function DatabaseSelectionModal({
   const { common } = useSqlExecute();
 
   const filteredDatabaseList = useMemo(() => {
-    return databaseList.filter(database =>
+    return databaseList.filter((database) =>
       database.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [databaseList, searchTerm]);
@@ -82,6 +82,7 @@ function DatabaseSelectionModal({
             <p className={styles.noResultsText}>No matching databases found.</p>
           ) : (
             <ListView
+              highlight={searchTerm ? searchTerm : undefined}
               selectedItem={selectedDatabase}
               onSelectChange={(item) => setSelectedDatabase(item)}
               items={filteredDatabaseList}

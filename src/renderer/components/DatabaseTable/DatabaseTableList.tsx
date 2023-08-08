@@ -179,6 +179,8 @@ export default function DatabaseTableList() {
         <Layout.Grow>
           {currentDatabase ? (
             <TreeView
+              highlight={search ? search : undefined}
+              highlightDepth={1}
               selected={selected}
               onSelectChange={setSelected}
               collapsedKeys={collapsed}
