@@ -24,12 +24,20 @@ function searchForIdentifier(
   let currentNode = node.prevSibling;
   while (currentNode) {
     if (['CompositeIdentifier', 'Identifier'].includes(currentNode.type.name)) {
-      return getNodeString(context, currentNode);
+      const maybeIdentifier = getNodeString(context, currentNode);
+      if (maybeIdentifier[maybeIdentifier.length - 1] === '.') {
+        // Maybe the identifier is not complete
+        const nextNode = currentNode.nextSibling;
+        if (nextNode && nextNode.type.name === 'Builtin') {
+          return maybeIdentifier + getNodeString(context, nextNode);
+        }
+      }
+      return maybeIdentifier;
     } else if (!allowNodeWhenSearchForIdentify(context, node)) {
       return null;
     }
 
-    currentNode = node.prevSibling;
+    currentNode = currentNode.prevSibling;
   }
 
   return null;
@@ -46,6 +54,8 @@ function handleEnumAutoComplete(
     return null;
   }
 
+  console.log(currentNode);
+
   // This will handle
   // SELECT * FROM tblA WHERE tblA.colA IN (....)
   if (currentNode?.parent?.type?.name === 'Parens') {
@@ -56,6 +66,8 @@ function handleEnumAutoComplete(
 
   // Let search for identifer
   const identifier = searchForIdentifier(context, currentNode.prevSibling);
+  console.log(identifier);
+
   if (!identifier) return null;
 
   const [table, column] = identifier.replaceAll('`', '').split('.');
