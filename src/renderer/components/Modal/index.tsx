@@ -1,4 +1,5 @@
 import { PropsWithChildren } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
 
@@ -18,28 +19,31 @@ export default function Modal({
   wide,
   maxWidth,
 }: PropsWithChildren<ModalProps>) {
-  return open ? (
-    <>
-      <div className={styles.blur} onClick={onClose} />
-      <div
-        className={styles.modalContainer}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          className={styles.modal}
-          style={{ width: wide ? '80%' : undefined, maxWidth }}
-        >
-          <div className={styles.modalHeader}>
-            <div className={styles.modalTitle}>{title}</div>
-            <div className={styles.modalClose} onClick={onClose}>
-              <Icon.Close />
+  return open
+    ? createPortal(
+        <>
+          <div className={styles.blur} onClick={onClose} />
+          <div
+            className={styles.modalContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className={styles.modal}
+              style={{ width: wide ? '80%' : undefined, maxWidth }}
+            >
+              <div className={styles.modalHeader}>
+                <div className={styles.modalTitle}>{title}</div>
+                <div className={styles.modalClose} onClick={onClose}>
+                  <Icon.Close />
+                </div>
+              </div>
+              <div>{children}</div>
             </div>
           </div>
-          <div>{children}</div>
-        </div>
-      </div>
-    </>
-  ) : null;
+        </>,
+        document.body
+      )
+    : null;
 }
 
 Modal.Body = ({
