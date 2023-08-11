@@ -50,18 +50,6 @@ export default function QueryWindow({
   const { schema, currentDatabase } = useSchema();
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
 
-  const codeMirrorSchema = useMemo(() => {
-    return currentDatabase && schema
-      ? Object.values(schema[currentDatabase].tables).reduce(
-          (prev, current) => ({
-            ...prev,
-            [current.name]: Object.keys(current.columns),
-          }),
-          {}
-        )
-      : {};
-  }, [schema, currentDatabase]);
-
   const enumSchema = useMemo(() => {
     if (!schema || !currentDatabase) return [];
 
@@ -266,7 +254,8 @@ export default function QueryWindow({
               setTabData(tabKey, { sql: newCode, type: 'query' });
             }}
             height="100%"
-            schema={codeMirrorSchema}
+            schema={schema}
+            currentDatabase={currentDatabase}
             enumSchema={enumSchema}
           />
         </div>

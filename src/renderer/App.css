@@ -172,7 +172,7 @@ hr {
   content: '🔑' !important;
 }
 
-.cm-completionIcon-type::after {
+.cm-completionIcon-table::after {
   display: block !important;
   background-size: contain !important;
   content: '' !important;
@@ -207,5 +207,5 @@ hr {
 }
 
 .cm-tooltip-autocomplete .cm-completionDetail {
-  margin-right: 8px;
+  padding-left: 15px;
 }

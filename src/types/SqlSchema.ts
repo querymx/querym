@@ -20,7 +20,7 @@ interface TableConstraintSchema {
   type: TableConstraintTypeSchema;
 }
 
-interface TableSchema {
+export interface TableSchema {
   name: string;
   type: TableType;
   columns: Record<string, TableColumnSchema>;

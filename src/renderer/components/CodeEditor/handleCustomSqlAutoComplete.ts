@@ -1,6 +1,13 @@
 import { SyntaxNode } from '@lezer/common';
-import { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import {
+  CompletionContext,
+  CompletionResult,
+  Completion,
+} from '@codemirror/autocomplete';
 import { EnumSchema } from 'renderer/screens/DatabaseScreen/QueryWindow';
+import { DatabaseSchemas, TableSchema } from 'types/SqlSchema';
+import SchemaCompletionTree from './SchemaCompletionTree';
+import SqlCompletionHelper from './SqlCompletionHelper';
 
 function getNodeString(context: CompletionContext, node: SyntaxNode) {
   return context.state.doc.sliceString(node.from, node.to);
@@ -15,6 +22,28 @@ function allowNodeWhenSearchForIdentify(
     return ['IN'].includes(getNodeString(context, node).toUpperCase());
   }
   return false;
+}
+
+function getIdentifierParentPath(
+  context: CompletionContext,
+  node: SyntaxNode | null
+): string[] {
+  const result: string[] = [];
+  let prev = node;
+
+  while (prev) {
+    if (prev.type.name !== '.') break;
+
+    prev = prev.prevSibling;
+    if (!prev) break;
+
+    if (!['Identifier', 'QuotedIdentifer'].includes(prev.type.name)) break;
+    result.push(getNodeString(context, prev));
+    prev = prev.prevSibling;
+  }
+
+  result.reverse();
+  return result;
 }
 
 function searchForIdentifier(
@@ -54,8 +83,6 @@ function handleEnumAutoComplete(
     return null;
   }
 
-  console.log(currentNode);
-
   // This will handle
   // SELECT * FROM tblA WHERE tblA.colA IN (....)
   if (currentNode?.parent?.type?.name === 'Parens') {
@@ -80,7 +107,7 @@ function handleEnumAutoComplete(
   const options: CompletionResult['options'] = enumValues.map((value) => ({
     label: value,
     type: 'enum',
-    detail: 'Enum',
+    detail: 'enum',
   }));
 
   return {
@@ -90,13 +117,108 @@ function handleEnumAutoComplete(
   };
 }
 
+function getSchemaSuggestionFromPath(
+  schema: DatabaseSchemas | undefined,
+  currentDatabase: string | undefined,
+  path: string[]
+) {
+  if (!schema) return [];
+
+  const tree = SchemaCompletionTree.build(schema, currentDatabase);
+  let treeWalk: SchemaCompletionTree | undefined = tree;
+
+  for (const currentPath of path) {
+    if (treeWalk) treeWalk = treeWalk.getChild(currentPath);
+  }
+
+  if (treeWalk) {
+    return treeWalk.getOptions();
+  }
+
+  return [];
+}
+
 export default function handleCustomSqlAutoComplete(
   context: CompletionContext,
   tree: SyntaxNode,
+  schema: DatabaseSchemas | undefined,
+  currentDatabase: string | undefined,
   enumSchema: EnumSchema
 ): CompletionResult | null {
   // dont run if there is no enumSchema
   if (enumSchema.length === 0) return null;
+  if (!schema) return null;
 
-  return handleEnumAutoComplete(context, tree, enumSchema);
+  const currentSelectedTableNames = SqlCompletionHelper.fromTables(
+    context,
+    tree
+  );
+
+  const currentSelectedTables = currentSelectedTableNames
+    .map((tableName) =>
+      SqlCompletionHelper.getTableFromIdentifier(
+        schema,
+        currentDatabase,
+        tableName
+      )
+    )
+    .filter(Boolean) as TableSchema[];
+
+  const currentExposedColumns = currentSelectedTables
+    .map((table) => Object.values(table.columns))
+    .flat();
+
+  const currentColumnCompletion: Completion[] = currentExposedColumns.map(
+    (column) => ({
+      label: column.name,
+      type: 'property',
+      detail: column.dataType,
+      boost: 3,
+    })
+  );
+
+  const enumSuggestion = handleEnumAutoComplete(context, tree, enumSchema);
+  if (enumSuggestion) {
+    return enumSuggestion;
+  }
+
+  if (tree.type.name === 'Identifier') {
+    return {
+      from: tree.from,
+      to: tree.to,
+      validFor: /^\w*$/,
+      options: [
+        ...currentColumnCompletion,
+        ...getSchemaSuggestionFromPath(
+          schema,
+          currentDatabase,
+          getIdentifierParentPath(context, tree.prevSibling)
+        ),
+      ],
+    };
+  } else if (tree.type.name === '.') {
+    return {
+      from: context.pos,
+      validFor: /^\w*$/,
+      options: [
+        ...currentColumnCompletion,
+        ...getSchemaSuggestionFromPath(
+          schema,
+          currentDatabase,
+          getIdentifierParentPath(context, tree)
+        ),
+      ],
+    };
+  } else if (context.explicit) {
+    return {
+      from: context.pos,
+      options: [
+        ...currentColumnCompletion,
+        ...getSchemaSuggestionFromPath(schema, currentDatabase, []),
+      ],
+      validFor: /^\w*$/,
+    };
+  }
+
+  return null;
 }

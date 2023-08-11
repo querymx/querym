@@ -17,30 +17,36 @@ import useCodeEditorTheme from './useCodeEditorTheme';
 import type { EnumSchema } from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { SyntaxNode } from '@lezer/common';
 import {
-  SQLConfig,
   sql,
   MySQL,
   genericCompletion,
   keywordCompletionSource,
-  schemaCompletionSource,
 } from 'query-master-lang-sql';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
+import { DatabaseSchemas } from 'types/SqlSchema';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
-    schema: SQLConfig['schema'];
+    schema?: DatabaseSchemas;
+    currentDatabase?: string;
     enumSchema: EnumSchema;
   },
   ref: Ref<ReactCodeMirrorRef>
 ) {
-  const { schema, enumSchema, ...codeMirrorProps } = props;
+  const { schema, enumSchema, currentDatabase, ...codeMirrorProps } = props;
   const theme = useCodeEditorTheme();
 
   const enumCompletion = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
-      return handleCustomSqlAutoComplete(context, tree, enumSchema);
+      return handleCustomSqlAutoComplete(
+        context,
+        tree,
+        schema,
+        currentDatabase,
+        enumSchema
+      );
     },
-    [enumSchema]
+    [enumSchema, schema, currentDatabase]
   );
 
   return (
@@ -77,7 +83,6 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         autocompletion({
           override: [
             keywordCompletionSource(MySQL, true),
-            schemaCompletionSource({ schema }),
             genericCompletion(enumCompletion),
           ],
         }),
