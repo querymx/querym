@@ -44,6 +44,55 @@ export default class SqlCompletionHelper {
     return null;
   }
 
+  /**
+   * Detect if we are inside the table section. For example
+   * SELECT * FROM tableA | <-- this is inside FROM section
+   * SELECT * FROM tableA WHERE id = |  <-- this is not inside
+   *
+   * @param context
+   * @param node
+   * @returns
+   */
+  static isInsideFrom(context: CompletionContext, node: SyntaxNode): boolean {
+    let ptr: SyntaxNode | null = node;
+    while (ptr) {
+      const currentString = getNodeString(context, ptr);
+
+      if (
+        ptr.type.name === 'Keyword' &&
+        ['WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT', 'FOR'].includes(
+          currentString.toUpperCase()
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        ptr.type.name === 'Keyword' &&
+        currentString.toUpperCase() === 'FROM'
+      ) {
+        return true;
+      }
+
+      ptr = ptr.prevSibling;
+    }
+
+    return false;
+  }
+
+  static resolveInner(tree: SyntaxNode, pos: number): SyntaxNode | null {
+    if (tree.from > pos || tree.to < pos) return null;
+
+    let ptr = tree.firstChild;
+    while (ptr) {
+      const resolvedChild = SqlCompletionHelper.resolveInner(ptr, pos);
+      if (resolvedChild) return resolvedChild;
+      ptr = ptr.nextSibling;
+    }
+
+    return tree;
+  }
+
   static fromTables(context: CompletionContext, node: SyntaxNode): string[] {
     const parent = node.type.name === 'Statement' ? node : node.parent;
     if (!parent) return [];

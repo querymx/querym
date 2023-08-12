@@ -37,8 +37,13 @@ function getIdentifierParentPath(
     prev = prev.prevSibling;
     if (!prev) break;
 
-    if (!['Identifier', 'QuotedIdentifer'].includes(prev.type.name)) break;
-    result.push(getNodeString(context, prev));
+    if (
+      !['Identifier', 'QuotedIdentifer', 'CompositeIdentifier'].includes(
+        prev.type.name
+      )
+    )
+      break;
+    result.push(getNodeString(context, prev).replaceAll('.', ''));
     prev = prev.prevSibling;
   }
 
@@ -149,6 +154,18 @@ export default function handleCustomSqlAutoComplete(
   if (enumSchema.length === 0) return null;
   if (!schema) return null;
 
+  if (tree.type.name === 'Script') {
+    tree = tree.resolveInner(
+      context.state.doc.sliceString(0, context.pos).trimEnd().length,
+      -1
+    );
+  }
+
+  if (tree.type.name === 'Parens' || tree.type.name === 'Statement') {
+    tree = SqlCompletionHelper.resolveInner(tree, context.pos) || tree;
+  }
+  console.log(tree);
+
   const currentSelectedTableNames = SqlCompletionHelper.fromTables(
     context,
     tree
@@ -168,7 +185,7 @@ export default function handleCustomSqlAutoComplete(
     .map((table) => Object.values(table.columns))
     .flat();
 
-  const currentColumnCompletion: Completion[] = currentExposedColumns.map(
+  let currentColumnCompletion: Completion[] = currentExposedColumns.map(
     (column) => ({
       label: column.name,
       type: 'property',
@@ -176,6 +193,10 @@ export default function handleCustomSqlAutoComplete(
       boost: 3,
     })
   );
+
+  if (SqlCompletionHelper.isInsideFrom(context, tree)) {
+    currentColumnCompletion = [];
+  }
 
   const enumSuggestion = handleEnumAutoComplete(context, tree, enumSchema);
   if (enumSuggestion) {
@@ -196,7 +217,10 @@ export default function handleCustomSqlAutoComplete(
         ),
       ],
     };
-  } else if (tree.type.name === '.') {
+  } else if (
+    tree.type.name === '.' ||
+    tree.type.name === 'CompositeIdentifier'
+  ) {
     return {
       from: context.pos,
       validFor: /^\w*$/,
@@ -209,16 +233,16 @@ export default function handleCustomSqlAutoComplete(
         ),
       ],
     };
-  } else if (context.explicit) {
-    return {
-      from: context.pos,
-      options: [
-        ...currentColumnCompletion,
-        ...getSchemaSuggestionFromPath(schema, currentDatabase, []),
-      ],
-      validFor: /^\w*$/,
-    };
   }
 
-  return null;
+  if (!context.explicit) return null;
+
+  return {
+    from: context.pos,
+    options: [
+      ...currentColumnCompletion,
+      ...getSchemaSuggestionFromPath(schema, currentDatabase, []),
+    ],
+    validFor: /^\w*$/,
+  };
 }
