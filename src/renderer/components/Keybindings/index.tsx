@@ -45,13 +45,11 @@ export default function Keybindings() {
             <p>All keybindings are disabled in this screen.</p>
           </div>
           <div className={Styles['keybinds-list']}>
-            {Object.entries(keybindings).map(([name, keybinding], index) => {
-              // if (!isValidAction(name)) return;
-
+            {Object.entries(keybindings).map(([name, keybinding]) => {
               return (
                 <div
                   className={Styles['keybinds-list__item']}
-                  key={name + index}
+                  key={name}
                   onClick={() => {
                     setRecordingAction(name as Action);
                     setEditModalOpen(true);

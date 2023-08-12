@@ -36,7 +36,7 @@ export const useKeybindings = () => {
     if (!keybindings) throw new Error('Keybindings not found');
 
     if (typeof keybind === 'string') {
-      return Object.values(keybindings.keybindings as Keybindings).some(
+      return Object.values(keybindings.keybindings).some(
         (existingKeybind) => existingKeybind.all === keybind
       );
     }
@@ -44,7 +44,7 @@ export const useKeybindings = () => {
     const { win, mac, linux, all } = keybind;
     const keybinds = [win, mac, linux, all];
     return keybinds.some((keybind) => {
-      return Object.values(keybindings.keybindings as Keybindings).some(
+      return Object.values(keybindings.keybindings).some(
         (existingKeybind) => existingKeybind.all === keybind
       );
     });
@@ -76,10 +76,10 @@ export const useKeybindings = () => {
       updatedKeybindings = {
         ...keybindings.keybindings,
         [action]: {
-          win: newKeybind.win || '',
-          mac: newKeybind.mac || '',
-          linux: newKeybind.linux || '',
-          all: newKeybind.all || '',
+          win: newKeybind.win ?? '',
+          mac: newKeybind.mac ?? '',
+          linux: newKeybind.linux ?? '',
+          all: newKeybind.all ?? '',
         },
       };
     }
@@ -90,7 +90,7 @@ export const useKeybindings = () => {
   };
 
   return {
-    keybindings: keybindings?.keybindings || keybindingsDefault,
+    keybindings: keybindings?.keybindings ?? keybindingsDefault,
     setKeybinding,
     isValidAction,
   };

@@ -15,14 +15,14 @@ export const useHotkeyRecorder = (customWindow?: Window | null) => {
 
   const stopRecording = () => {
     setRecording(false);
-    const currentWindow = customWindow || window;
+    const currentWindow = customWindow ?? window;
     currentWindow.removeEventListener('keydown', handleKeyDown);
   };
 
   const clearRecordedKeys = () => setRecordedKeys([]);
 
   useEffect(() => {
-    const currentWindow = customWindow || window;
+    const currentWindow = customWindow ?? window;
 
     // Start recording immediately when the component is mounted
     currentWindow.addEventListener('keydown', handleKeyDown);
