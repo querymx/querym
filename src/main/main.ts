@@ -7,7 +7,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, session, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, session, BrowserWindow, ipcMain } from 'electron';
 import { resolveHtmlPath } from './util';
 
 import electronDebug from 'electron-debug';
