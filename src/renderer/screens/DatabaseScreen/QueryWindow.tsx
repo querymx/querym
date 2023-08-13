@@ -2,7 +2,7 @@ import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
@@ -49,26 +49,6 @@ export default function QueryWindow({
   const { showErrorDialog } = useDialog();
   const { schema, currentDatabase } = useSchema();
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
-
-  const enumSchema = useMemo(() => {
-    if (!schema || !currentDatabase) return [];
-
-    const results: EnumSchema = [];
-
-    for (const table of Object.values(schema[currentDatabase].tables)) {
-      for (const column of Object.values(table.columns)) {
-        if (column.dataType === 'enum') {
-          results.push({
-            table: table.name,
-            column: column.name,
-            values: column.enumValues || [],
-          });
-        }
-      }
-    }
-
-    return results;
-  }, [schema, currentDatabase]);
 
   const [code, setCode] = useState(initialSql || '');
 
@@ -256,7 +236,6 @@ export default function QueryWindow({
             height="100%"
             schema={schema}
             currentDatabase={currentDatabase}
-            enumSchema={enumSchema}
           />
         </div>
       </div>

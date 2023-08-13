@@ -9,6 +9,7 @@ function buildTableCompletionTree(table: TableSchema): SchemaCompletionTree {
       label: col.name,
       type: 'property',
       detail: col.dataType,
+      boost: 3,
     });
   }
 
@@ -25,6 +26,7 @@ function buildDatabaseCompletionTree(
       label: table.name,
       type: 'table',
       detail: 'table',
+      boost: 1,
     });
 
     root.addChild(table.name, buildTableCompletionTree(table));
@@ -47,6 +49,7 @@ function buildCompletionTree(
         label: table.name,
         type: 'table',
         detail: 'table',
+        boost: 1,
       });
 
       root.addChild(table.name, buildTableCompletionTree(table));

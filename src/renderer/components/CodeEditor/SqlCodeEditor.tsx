@@ -14,7 +14,6 @@ import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
 import { Ref, forwardRef, useCallback } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
-import type { EnumSchema } from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { SyntaxNode } from '@lezer/common';
 import {
   sql,
@@ -29,11 +28,10 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
     schema?: DatabaseSchemas;
     currentDatabase?: string;
-    enumSchema: EnumSchema;
   },
   ref: Ref<ReactCodeMirrorRef>
 ) {
-  const { schema, enumSchema, currentDatabase, ...codeMirrorProps } = props;
+  const { schema, currentDatabase, ...codeMirrorProps } = props;
   const theme = useCodeEditorTheme();
 
   const enumCompletion = useCallback(
@@ -42,11 +40,10 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         context,
         tree,
         schema,
-        currentDatabase,
-        enumSchema
+        currentDatabase
       );
     },
-    [enumSchema, schema, currentDatabase]
+    [schema, currentDatabase]
   );
 
   return (

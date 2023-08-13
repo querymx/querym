@@ -1,12 +1,63 @@
 import { CompletionContext } from '@codemirror/autocomplete';
 import { SyntaxNode } from '@lezer/common';
-import { DatabaseSchemas, TableSchema } from 'types/SqlSchema';
+import {
+  DatabaseSchemas,
+  TableColumnSchema,
+  TableSchema,
+} from 'types/SqlSchema';
 
 function getNodeString(context: CompletionContext, node: SyntaxNode) {
   return context.state.doc.sliceString(node.from, node.to);
 }
 
 export default class SqlCompletionHelper {
+  /**
+   *
+   */
+  static trimIdentifier(id: string) {
+    return id.replaceAll('`', '');
+  }
+
+  static getColumnFromIdentifier(
+    schema: DatabaseSchemas,
+    currentDatabase: string | undefined,
+    exposedTables: TableSchema[],
+    identifier: string
+  ): TableColumnSchema | undefined {
+    return this.getColumnFromIdentifierPath(
+      schema,
+      currentDatabase,
+      exposedTables,
+      identifier.split('.').map(this.trimIdentifier)
+    );
+  }
+
+  static getColumnFromIdentifierPath(
+    schema: DatabaseSchemas,
+    currentDatabase: string | undefined,
+    exposedTables: TableSchema[],
+    path: string[]
+  ): TableColumnSchema | undefined {
+    if (path.length === 1) {
+      return exposedTables
+        .map((table) => Object.values(table.columns))
+        .flat()
+        .find((column) => column.name === path[0]);
+    } else if (
+      path.length === 2 &&
+      currentDatabase &&
+      schema[currentDatabase]
+    ) {
+      // This is tableName.columnName
+      const [tableName, columnName] = path;
+      return schema[currentDatabase]?.tables[tableName]?.columns[columnName];
+    } else if (path.length === 3) {
+      // This is databaseName.tableName.columnName
+      const [databaseName, tableName, columnName] = path;
+      return schema[databaseName]?.tables[tableName]?.columns[columnName];
+    }
+  }
+
   /**
    * Giving the identifier and schema, we will get the table schema back.
    * For example: databaseA.tableA will search for tableA in databaseA.
@@ -22,7 +73,7 @@ export default class SqlCompletionHelper {
     return this.getTableFromIdentifierPath(
       schema,
       currentDatabase,
-      identifier.split('.')
+      identifier.split('.').map(this.trimIdentifier)
     );
   }
 
@@ -80,6 +131,9 @@ export default class SqlCompletionHelper {
     return false;
   }
 
+  /**
+   * Find the inner node of the tree from given position
+   */
   static resolveInner(tree: SyntaxNode, pos: number): SyntaxNode | null {
     if (tree.from > pos || tree.to < pos) return null;
 

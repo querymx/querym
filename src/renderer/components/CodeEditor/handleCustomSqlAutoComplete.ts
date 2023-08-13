@@ -4,7 +4,6 @@ import {
   CompletionResult,
   Completion,
 } from '@codemirror/autocomplete';
-import { EnumSchema } from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { DatabaseSchemas, TableSchema } from 'types/SqlSchema';
 import SchemaCompletionTree from './SchemaCompletionTree';
 import SqlCompletionHelper from './SqlCompletionHelper';
@@ -38,7 +37,7 @@ function getIdentifierParentPath(
     if (!prev) break;
 
     if (
-      !['Identifier', 'QuotedIdentifer', 'CompositeIdentifier'].includes(
+      !['Identifier', 'QuotedIdentifier', 'CompositeIdentifier'].includes(
         prev.type.name
       )
     )
@@ -48,7 +47,7 @@ function getIdentifierParentPath(
   }
 
   result.reverse();
-  return result;
+  return result.map(SqlCompletionHelper.trimIdentifier);
 }
 
 function searchForIdentifier(
@@ -80,7 +79,9 @@ function searchForIdentifier(
 function handleEnumAutoComplete(
   context: CompletionContext,
   node: SyntaxNode,
-  enumSchema: EnumSchema
+  schema: DatabaseSchemas,
+  currentDatabase: string | undefined,
+  exposedTable: TableSchema[]
 ): CompletionResult | null {
   let currentNode = node;
 
@@ -100,26 +101,35 @@ function handleEnumAutoComplete(
   const identifier = searchForIdentifier(context, currentNode.prevSibling);
   if (!identifier) return null;
 
-  const [table, column] = identifier.replaceAll('`', '').split('.');
-  if (!table) return null;
+  const column = SqlCompletionHelper.getColumnFromIdentifier(
+    schema,
+    currentDatabase,
+    exposedTable,
+    identifier
+  );
 
-  const enumValues = enumSchema.find((tempEnum) => {
-    return tempEnum.column === column && table === tempEnum.table;
-  })?.values;
+  if (
+    column &&
+    column.dataType === 'enum' &&
+    column.enumValues &&
+    column.enumValues.length > 0
+  ) {
+    const options: CompletionResult['options'] = column.enumValues.map(
+      (value) => ({
+        label: value,
+        type: 'enum',
+        detail: 'enum',
+      })
+    );
 
-  if (!enumValues) return null;
+    return {
+      from: node.from + 1,
+      to: node.to - 1,
+      options,
+    };
+  }
 
-  const options: CompletionResult['options'] = enumValues.map((value) => ({
-    label: value,
-    type: 'enum',
-    detail: 'enum',
-  }));
-
-  return {
-    from: node.from + 1,
-    to: node.to - 1,
-    options,
-  };
+  return null;
 }
 
 function getSchemaSuggestionFromPath(
@@ -147,11 +157,8 @@ export default function handleCustomSqlAutoComplete(
   context: CompletionContext,
   tree: SyntaxNode,
   schema: DatabaseSchemas | undefined,
-  currentDatabase: string | undefined,
-  enumSchema: EnumSchema
+  currentDatabase: string | undefined
 ): CompletionResult | null {
-  // dont run if there is no enumSchema
-  if (enumSchema.length === 0) return null;
   if (!schema) return null;
 
   if (tree.type.name === 'Script') {
@@ -164,7 +171,6 @@ export default function handleCustomSqlAutoComplete(
   if (tree.type.name === 'Parens' || tree.type.name === 'Statement') {
     tree = SqlCompletionHelper.resolveInner(tree, context.pos) || tree;
   }
-  console.log(tree);
 
   const currentSelectedTableNames = SqlCompletionHelper.fromTables(
     context,
@@ -198,16 +204,23 @@ export default function handleCustomSqlAutoComplete(
     currentColumnCompletion = [];
   }
 
-  const enumSuggestion = handleEnumAutoComplete(context, tree, enumSchema);
+  const enumSuggestion = handleEnumAutoComplete(
+    context,
+    tree,
+    schema,
+    currentDatabase,
+    currentSelectedTables
+  );
   if (enumSuggestion) {
     return enumSuggestion;
   }
 
-  if (tree.type.name === 'Identifier') {
+  if (['Identifier', 'QuotedIdentifier', 'Keyword'].includes(tree.type.name)) {
     return {
-      from: tree.from,
-      to: tree.to,
-      validFor: /^\w*$/,
+      from: tree.type.name === 'QuotedIdentifier' ? tree.from + 1 : tree.from,
+      to: tree.type.name === 'QuotedIdentifier' ? tree.to - 1 : tree.to,
+      validFor:
+        tree.type.name === 'QuotedIdentifier' ? /^[`'"]?\w*[`'"]?$/ : /^\w*$/,
       options: [
         ...currentColumnCompletion,
         ...getSchemaSuggestionFromPath(
@@ -225,7 +238,6 @@ export default function handleCustomSqlAutoComplete(
       from: context.pos,
       validFor: /^\w*$/,
       options: [
-        ...currentColumnCompletion,
         ...getSchemaSuggestionFromPath(
           schema,
           currentDatabase,
