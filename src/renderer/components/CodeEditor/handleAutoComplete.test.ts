@@ -107,7 +107,7 @@ const schema1: DatabaseSchemas = {
             dataType: 'varchar',
             nullable: false,
           },
-          address: {
+          product_type: {
             name: 'product_type',
             comment: '',
             charLength: 0,
@@ -140,5 +140,16 @@ describe('SQL completion', () => {
     expect(
       str(get('select users.|', { schema: schema1, currentDatabase: 'foo' }))
     ).toBe('address, id, name');
+  });
+
+  it('completes enum value', () => {
+    expect(
+      str(
+        get("select * from products where product_type = 'H|'", {
+          schema: schema1,
+          currentDatabase: 'foo',
+        })
+      )
+    ).toBe('BOOK, FASHION, HOME');
   });
 });
