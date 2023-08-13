@@ -14,33 +14,36 @@ import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
 import { Ref, forwardRef, useCallback } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
-import type { EnumSchema } from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { SyntaxNode } from '@lezer/common';
 import {
-  SQLConfig,
   sql,
   MySQL,
   genericCompletion,
   keywordCompletionSource,
-  schemaCompletionSource,
 } from 'query-master-lang-sql';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
+import { DatabaseSchemas } from 'types/SqlSchema';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
-    schema: SQLConfig['schema'];
-    enumSchema: EnumSchema;
+    schema?: DatabaseSchemas;
+    currentDatabase?: string;
   },
   ref: Ref<ReactCodeMirrorRef>
 ) {
-  const { schema, enumSchema, ...codeMirrorProps } = props;
+  const { schema, currentDatabase, ...codeMirrorProps } = props;
   const theme = useCodeEditorTheme();
 
   const enumCompletion = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
-      return handleCustomSqlAutoComplete(context, tree, enumSchema);
+      return handleCustomSqlAutoComplete(
+        context,
+        tree,
+        schema,
+        currentDatabase
+      );
     },
-    [enumSchema]
+    [schema, currentDatabase]
   );
 
   return (
@@ -77,7 +80,6 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         autocompletion({
           override: [
             keywordCompletionSource(MySQL, true),
-            schemaCompletionSource({ schema }),
             genericCompletion(enumCompletion),
           ],
         }),
