@@ -9,7 +9,6 @@ import { DialogProvider } from './contexts/DialogProvider';
 import AppFeatureContext from './contexts/AppFeatureProvider';
 import NativeMenuProvider from './contexts/NativeMenuProvider';
 import NotImplementCallback from 'libs/NotImplementCallback';
-import Layout from './components/Layout';
 import StatusBar from './components/StatusBar';
 
 const ConnectionContext = createContext<{
@@ -48,20 +47,12 @@ export default function App() {
           <DialogProvider>
             <NativeMenuProvider>
               <SqlExecuteProvider>
-                <div style={{ width: '100vw', height: '100vh' }}>
-                  <Layout>
-                    <Layout.Grow>
-                      {config ? (
-                        <DatabaseScreen config={config} />
-                      ) : (
-                        <HomeScreen />
-                      )}
-                    </Layout.Grow>
-                    <Layout.Fixed>
-                      <StatusBar />
-                    </Layout.Fixed>
-                  </Layout>
+                <div
+                  style={{ width: '100vw', height: '100vh', paddingBottom: 26 }}
+                >
+                  {config ? <DatabaseScreen config={config} /> : <HomeScreen />}
                 </div>
+                <StatusBar />
               </SqlExecuteProvider>
             </NativeMenuProvider>
           </DialogProvider>

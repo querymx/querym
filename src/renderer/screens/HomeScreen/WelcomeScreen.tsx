@@ -5,11 +5,10 @@ import pkg from './../../../../package.json';
 import { MouseEvent } from 'react';
 
 export default function WelcomeScreen() {
-
   const handleOnClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    window.electron.openExternal("https://github.com/invisal/query-master");
-  }
+    window.electron.openExternal('https://github.com/invisal/query-master');
+  };
 
   return (
     <Stack padding vertical full center>
@@ -22,7 +21,12 @@ export default function WelcomeScreen() {
         platform database graphical client.
       </p>
 
-      <p>Please support us on <a href="" onClick={handleOnClick}>Github</a></p>
+      <p>
+        Please support us on{' '}
+        <a href="" onClick={handleOnClick}>
+          Github
+        </a>
+      </p>
     </Stack>
   );
 }

@@ -4,19 +4,18 @@
   overflow: hidden;
   display: flex;
   flex-direction: row;
+}
 
-  .connectionList {
-    background: var(--color-list-surface);
-    height: 100%;
-    width: 300px;
-  }
+.connectionList {
+  background: var(--color-list-surface);
+  height: 100%;
+}
 
-  .connectionDetail {
-    flex-grow: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
+.connectionDetail {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .databaseDetailContainer {
