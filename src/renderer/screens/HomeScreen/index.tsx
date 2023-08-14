@@ -17,10 +17,11 @@ import Button from 'renderer/components/Button';
 import deepEqual from 'deep-equal';
 import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
-import WelcomeScreen from './WelcomeScreen';
+import WelcomeScreen from '../WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { db } from 'renderer/db';
 import { useConnection } from 'renderer/App';
+import SplitterLayout from 'renderer/components/Splitter/Splitter';
 
 export default function HomeScreen() {
   const { connect } = useConnection();
@@ -171,72 +172,80 @@ export default function HomeScreen() {
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.connectionList}>
-        <ListView
-          selectedItem={selectedItem}
-          emptyComponent={
-            <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
-          }
-          items={connectionList}
-          changeItemKeys={hasChange && selectedItem ? [selectedItem.id] : []}
-          onSelectChange={setSelectedItem}
-          onBeforeSelectChange={onBeforeSelectChange}
-          onDoubleClick={(item) => connect(item)}
-          extractMeta={(item) => ({
-            icon: <Icon.MySql />,
-            text: item.name,
-            key: item.id,
-          })}
-          onContextMenu={handleContextMenu}
-        />
-      </div>
+      <SplitterLayout
+        secondaryMinSize={200}
+        primaryIndex={1}
+        secondaryInitialSize={300}
+        primaryMinSize={500}
+      >
+        <div className={styles.connectionList}>
+          <ListView
+            selectedItem={selectedItem}
+            emptyComponent={
+              <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
+            }
+            items={connectionList}
+            changeItemKeys={hasChange && selectedItem ? [selectedItem.id] : []}
+            onSelectChange={setSelectedItem}
+            onBeforeSelectChange={onBeforeSelectChange}
+            onDoubleClick={(item) => connect(item)}
+            extractMeta={(item) => ({
+              icon: <Icon.MySql />,
+              text: item.name,
+              key: item.id,
+            })}
+            onContextMenu={handleContextMenu}
+          />
+        </div>
 
-      <div className={styles.connectionDetail}>
-        {selectedItemChanged && (
-          <div className={styles.databaseActionFooter}>
-            <ButtonGroup>
-              <Button
-                primary
-                onClick={() => {
-                  if (hasChange) {
-                    window.electron
-                      .showMessageBox({
-                        title: 'Save Your Change',
-                        message: 'Do you want to save this connection setting?',
-                        buttons: ['Yes', 'No'],
-                      })
-                      .then((buttonIdx) => {
-                        if (buttonIdx === 0) {
-                          onSaveClick();
-                        }
-                        connect(selectedItemChanged);
-                      });
-                  } else {
-                    connect(selectedItemChanged);
-                  }
-                }}
-              >
-                Connect
-              </Button>
-              <Button primary onClick={onSaveClick} disabled={!hasChange}>
-                Save
-              </Button>
-            </ButtonGroup>
-          </div>
-        )}
+        <div className={styles.connectionDetail}>
+          {selectedItemChanged && (
+            <div className={styles.databaseActionFooter}>
+              <ButtonGroup>
+                <Button
+                  primary
+                  onClick={() => {
+                    if (hasChange) {
+                      window.electron
+                        .showMessageBox({
+                          title: 'Save Your Change',
+                          message:
+                            'Do you want to save this connection setting?',
+                          buttons: ['Yes', 'No'],
+                        })
+                        .then((buttonIdx) => {
+                          if (buttonIdx === 0) {
+                            onSaveClick();
+                          }
+                          connect(selectedItemChanged);
+                        });
+                    } else {
+                      connect(selectedItemChanged);
+                    }
+                  }}
+                >
+                  Connect
+                </Button>
+                <Button primary onClick={onSaveClick} disabled={!hasChange}>
+                  Save
+                </Button>
+              </ButtonGroup>
+            </div>
+          )}
 
-        {selectedItemChanged ? (
-          <div className={styles.databaseDetailContainer}>
-            <DatabaseConfigEditor
-              key={selectedItemChanged.id}
-              value={selectedItemChanged}
-              onChange={setSelectedItemChanged}
-            />
-          </div>
-        ) : (
-          <WelcomeScreen />
-        )}
-      </div>
+          {selectedItemChanged ? (
+            <div className={styles.databaseDetailContainer}>
+              <DatabaseConfigEditor
+                key={selectedItemChanged.id}
+                value={selectedItemChanged}
+                onChange={setSelectedItemChanged}
+              />
+            </div>
+          ) : (
+            <WelcomeScreen />
+          )}
+        </div>
+      </SplitterLayout>
     </div>
   );
 }
