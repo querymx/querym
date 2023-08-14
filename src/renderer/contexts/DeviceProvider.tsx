@@ -19,8 +19,12 @@ export function DeviceProvider({ children }: PropsWithChildren) {
     return generatedId;
   }, []);
 
+  const contextValue = useMemo(() => {
+    return { deviceId };
+  }, [deviceId]);
+
   return (
-    <DeviceContext.Provider value={{ deviceId }}>
+    <DeviceContext.Provider value={contextValue}>
       {children}
     </DeviceContext.Provider>
   );

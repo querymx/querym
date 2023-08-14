@@ -3,7 +3,6 @@ import Stack from 'renderer/components/Stack';
 import Heading from 'renderer/components/Typo/Heading';
 import imageLogo from './../../../../assets/icon.svg';
 import pkg from '../../../../package.json';
-import { MouseEvent } from 'react';
 import Contributors from './Contributors';
 import Button from 'renderer/components/Button';
 import ButtonGroup from 'renderer/components/ButtonGroup';
