@@ -59,6 +59,7 @@
     "@uiw/codemirror-theme-bbedit": "^4.21.8",
     "@uiw/codemirror-theme-vscode": "^4.21.7",
     "@uiw/react-codemirror": "^4.19.9",
+    "axios": "^1.4.0",
     "dbgate-query-splitter": "^4.9.3",
     "decimal.js": "^10.4.3",
     "deep-equal": "^2.2.1",
@@ -75,6 +76,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "sql-formatter": "^12.2.4",
     "sqlstring": "^2.3.3",
+    "swr": "^2.2.1",
     "uuid": "^9.0.0",
     "xlsx": "^0.18.5"
   },

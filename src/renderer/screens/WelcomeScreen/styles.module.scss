@@ -1,0 +1,30 @@
+.contributorList {
+  margin-top: 1rem;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+
+  li {
+    margin-right: 15px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+
+  figure {
+    display: flex;
+    width: 175px;
+
+    img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      border-radius: 8px;
+    }
+
+    figcaption {
+      display: flex;
+      gap: 2px;
+      flex-direction: column;;
+    }
+  }
+}

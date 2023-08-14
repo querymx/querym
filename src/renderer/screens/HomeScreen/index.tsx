@@ -17,7 +17,7 @@ import Button from 'renderer/components/Button';
 import deepEqual from 'deep-equal';
 import { useDebounce } from 'hooks/useDebounce';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
-import WelcomeScreen from './WelcomeScreen';
+import WelcomeScreen from '../WelcomeScreen';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { db } from 'renderer/db';
 import { useConnection } from 'renderer/App';
