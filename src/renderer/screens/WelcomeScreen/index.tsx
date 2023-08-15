@@ -24,12 +24,12 @@ export default function WelcomeScreen() {
 
       <Heading>Query Master v{pkg.version}</Heading>
 
-      <p>
+      <div>
         <strong>Query Master</strong> is a complete free open-source cross
         platform database graphical client. Please support us on:
-      </p>
+      </div>
 
-      <p>
+      <div>
         <ButtonGroup>
           <Button primary onClick={onGithubClicked}>
             Github
@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
             Report Issue
           </Button>
         </ButtonGroup>
-      </p>
+      </div>
 
       <Contributors />
     </Stack>
