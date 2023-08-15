@@ -23,7 +23,7 @@
   flex-grow: 1;
 }
 
-.container { 
+.container {
   flex-grow:  1;
   white-space: nowrap;
   overflow: hidden;
@@ -35,9 +35,4 @@
   height: 100%;
   flex-direction: column;
   display: flex;
-  justify-items: center;
-  align-items: center;
-  padding: 30px;
-  gap: 10px;
-  padding-top: 50px;
 }

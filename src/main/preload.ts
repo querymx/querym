@@ -44,6 +44,7 @@ const electronHandler = {
 
   connect: (storeConfig: ConnectionStoreItem) =>
     ipcRenderer.invoke('connect', [storeConfig]),
+  killCurrentQuery: () => ipcRenderer.invoke('kill-current-query'),
   query: (sql: string, params?: Record<string, unknown>) =>
     ipcRenderer.invoke('query', [sql, params]),
   close: () => {

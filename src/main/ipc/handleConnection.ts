@@ -41,6 +41,10 @@ export default class ConnectionIpcHandler {
     ipcMain.handle('close', () => {
       this.cleanup();
     });
+
+    ipcMain.handle('kill-current-query', async () => {
+      return await this.connection?.killCurrentQuery();
+    });
   }
 
   cleanup() {

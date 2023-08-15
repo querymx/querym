@@ -44,5 +44,7 @@ export default abstract class SQLLikeConnection {
     params?: Record<string, unknown>
   ): Promise<QueryResult>;
 
+  abstract killCurrentQuery(): Promise<void>;
+
   abstract close(): void;
 }

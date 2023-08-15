@@ -6,7 +6,12 @@ import {
 import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from './SQLLikeConnection';
-import { createPool, Pool } from 'mysql2/promise';
+import {
+  PoolConnection,
+  createPool,
+  Pool,
+  createConnection,
+} from 'mysql2/promise';
 
 interface ColumnDefinition {
   _buf: Buffer;
@@ -67,7 +72,8 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 
 export default class MySQLConnection extends SQLLikeConnection {
   protected connectionConfig: DatabaseConnectionConfig;
-  protected connection: Pool | undefined;
+  protected pool: Pool | undefined;
+  protected currentConnection: PoolConnection | undefined;
   protected onStateChangedCallback: (state: string) => void;
 
   constructor(
@@ -80,8 +86,8 @@ export default class MySQLConnection extends SQLLikeConnection {
   }
 
   protected async getConnection() {
-    if (!this.connection) {
-      this.connection = createPool({
+    if (!this.pool) {
+      this.pool = createPool({
         ...this.connectionConfig,
         dateStrings: true,
         namedPlaceholders: true,
@@ -89,9 +95,26 @@ export default class MySQLConnection extends SQLLikeConnection {
       });
 
       this.onStateChangedCallback('Connected');
+
+      this.pool.on('connection', (connection) => {
+        this.currentConnection = connection;
+      });
     }
 
-    return this.connection;
+    return this.pool;
+  }
+
+  async killCurrentQuery() {
+    if (this.currentConnection) {
+      // Make another connection quickly to cancel the query
+      const tmpConnection = await createConnection(this.connectionConfig);
+      tmpConnection
+        .query('KILL QUERY ?;', [this.currentConnection.threadId])
+        .then()
+        .catch();
+      tmpConnection.end();
+      tmpConnection.destroy();
+    }
   }
 
   async query(
@@ -140,7 +163,7 @@ export default class MySQLConnection extends SQLLikeConnection {
   }
 
   async close() {
-    if (this.connection) {
+    if (this.pool) {
       const conn = await this.getConnection();
       conn.end();
       conn.destroy();
