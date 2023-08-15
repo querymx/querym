@@ -157,9 +157,9 @@ const TableEditableCell = forwardRef<
   useEffect(() => {
     if (onFocus) {
       const onKeyBinding = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key === 'c') {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
           copyHandler();
-        } else if (e.ctrlKey && e.key === 'v') {
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
           pasteHandler();
         }
       };
