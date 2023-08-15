@@ -215,7 +215,7 @@ export default function handleCustomSqlAutoComplete(
     return enumSuggestion;
   }
 
-  if (['Identifier', 'QuotedIdentifier', 'Keyword'].includes(tree.type.name)) {
+  if (['Identifier', 'QuotedIdentifier'].includes(tree.type.name)) {
     return {
       from: tree.type.name === 'QuotedIdentifier' ? tree.from + 1 : tree.from,
       to: tree.type.name === 'QuotedIdentifier' ? tree.to - 1 : tree.to,
