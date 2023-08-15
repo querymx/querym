@@ -51,7 +51,11 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
       ref={ref}
       theme={theme}
       indentWithTab={false}
-      basicSetup={{ defaultKeymap: false, completionKeymap: false }}
+      basicSetup={{
+        defaultKeymap: false,
+        completionKeymap: false,
+        drawSelection: false,
+      }}
       extensions={[
         keymap.of([
           {
