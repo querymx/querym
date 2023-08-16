@@ -7,6 +7,24 @@
 .queryEditor {
   flex-grow: 1;
   overflow-y: auto;
+  div, cm-editer{
+    &::-webkit-scrollbar {
+      width: 13px;
+      height: 13px;
+    }
+    &::-webkit-scrollbar-corner {
+      background: var(--color-scrollbar);
+    }
+    &::-webkit-scrollbar-track {
+      background: var(--color-scrollbar-track);
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-scrollbar);
+    }
+    &:hover::-webkit-scrollbar-thumb {
+      background: var(--color-scrollbar-hover);
+    }
+  }
 }
 
 .queryNameEditor {
