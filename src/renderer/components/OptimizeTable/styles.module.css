@@ -5,6 +5,10 @@
   position: relative;
 }
 
+.tableContainer::-webkit-scrollbar-corner {
+  background: var(--color-scrollbar);
+}
+
 .tableContainer table {
   position: absolute;
   display: grid;
