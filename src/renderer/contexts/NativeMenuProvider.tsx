@@ -11,8 +11,12 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
         label: 'File',
         submenu: [
           {
-            label: 'Exit',
+            label: 'Close',
             role: 'close',
+          },
+          {
+            label: 'Exit',
+            role: 'quit',
           },
         ],
       },
