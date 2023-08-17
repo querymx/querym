@@ -5,12 +5,16 @@ import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
+  draggable?: boolean;
   highlight?: string;
   icon?: ReactElement;
   changed?: boolean;
   selected?: boolean;
   onClick?: () => void;
   onDoubleClick?: () => void;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
 
   // This is used for rendering TreeView
@@ -36,6 +40,10 @@ export default function ListViewItem({
   onClick,
   onDoubleClick,
   onContextMenu,
+  draggable,
+  onDragStart,
+  onDragOver,
+  onDrop,
 
   // For TreeView
   depth,
@@ -75,6 +83,10 @@ export default function ListViewItem({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
+      draggable={draggable}
+      onDragOver={onDragOver}
+      onDragStart={onDragStart}
+      onDrop={onDrop}
     >
       {!!depth &&
         new Array(depth)

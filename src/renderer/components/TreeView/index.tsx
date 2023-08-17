@@ -2,6 +2,8 @@ import styles from './styles.module.scss';
 import ListViewItem from '../ListViewItem';
 import { ReactElement, useCallback } from 'react';
 
+let GLOBAL_TREE_DRAG_ITEM: unknown;
+
 export interface TreeViewItemData<T> {
   id: string;
   text?: string;
@@ -14,10 +16,27 @@ interface TreeViewProps<T> {
   items: TreeViewItemData<T>[];
   selected?: TreeViewItemData<T>;
   collapsedKeys?: string[];
+  draggable?: boolean;
+  onDragItem?: (from: TreeViewItemData<T>, to: TreeViewItemData<T>) => void;
   onCollapsedChange?: (value?: string[]) => void;
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
+  onBeforeSelectChange?: () => Promise<boolean>;
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
   onContextMenu?: React.MouseEventHandler;
+  highlight?: string;
+  highlightDepth?: number;
+}
+
+interface TreeViewItemProps<T> {
+  draggable?: boolean;
+  onDragItem?: (from: TreeViewItemData<T>, to: TreeViewItemData<T>) => void;
+  item: TreeViewItemData<T>;
+  depth: number;
+  selected?: TreeViewItemData<T>;
+  onSelectChange?: (value?: TreeViewItemData<T>) => void;
+  onCollapsedChange?: (value?: string[]) => void;
+  collapsedKeys?: string[];
+  onDoubleClick?: (value: TreeViewItemData<T>) => void;
   highlight?: string;
   highlightDepth?: number;
 }
@@ -25,29 +44,16 @@ interface TreeViewProps<T> {
 function TreeViewItem<T>({
   item,
   depth,
-
+  draggable,
   selected,
   onSelectChange,
-
   collapsedKeys,
   onCollapsedChange,
   onDoubleClick,
-
   highlight,
   highlightDepth,
-}: {
-  item: TreeViewItemData<T>;
-  depth: number;
-
-  selected?: TreeViewItemData<T>;
-  onSelectChange?: (value?: TreeViewItemData<T>) => void;
-
-  onCollapsedChange?: (value?: string[]) => void;
-  collapsedKeys?: string[];
-  onDoubleClick?: (value: TreeViewItemData<T>) => void;
-  highlight?: string;
-  highlightDepth?: number;
-}) {
+  onDragItem,
+}: TreeViewItemProps<T>) {
   const hasCollapsed = item.children && item.children.length > 0;
   const isCollapsed = collapsedKeys?.includes(item.id);
 
@@ -60,6 +66,18 @@ function TreeViewItem<T>({
   return (
     <div>
       <ListViewItem
+        draggable={draggable}
+        onDragStart={() => {
+          GLOBAL_TREE_DRAG_ITEM = item;
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => {
+          if (onDragItem) {
+            if (GLOBAL_TREE_DRAG_ITEM) {
+              onDragItem(GLOBAL_TREE_DRAG_ITEM as TreeViewItemData<T>, item);
+            }
+          }
+        }}
         key={item.id}
         text={item.text || ''}
         icon={item.icon}
@@ -94,6 +112,8 @@ function TreeViewItem<T>({
           {item.children?.map((item) => {
             return (
               <TreeViewItem
+                onDragItem={onDragItem}
+                draggable={draggable}
                 key={item.id}
                 item={item}
                 depth={depth + 1}
@@ -115,8 +135,11 @@ function TreeViewItem<T>({
 
 export default function TreeView<T>({
   items,
+  draggable,
+  onDragItem,
   selected,
   onSelectChange,
+  onBeforeSelectChange,
   onCollapsedChange,
   collapsedKeys,
   onDoubleClick,
@@ -124,18 +147,33 @@ export default function TreeView<T>({
   highlight,
   highlightDepth,
 }: TreeViewProps<T>) {
+  const onSelectChangeWithHook = useCallback(
+    (item: TreeViewItemData<T> | undefined) => {
+      if (onSelectChange) {
+        if (onBeforeSelectChange) {
+          onBeforeSelectChange().then(() => onSelectChange(item));
+        } else {
+          onSelectChange(item);
+        }
+      }
+    },
+    [onSelectChange, onBeforeSelectChange]
+  );
+
   return (
     <div className={`${styles.treeView} scroll`} onContextMenu={onContextMenu}>
       {items.map((item) => {
         return (
           <TreeViewItem
+            onDragItem={onDragItem}
+            draggable={draggable}
             key={item.id}
             item={item}
             depth={0}
             highlight={highlight}
             highlightDepth={highlightDepth}
             selected={selected}
-            onSelectChange={onSelectChange}
+            onSelectChange={onSelectChangeWithHook}
             onDoubleClick={onDoubleClick}
             onCollapsedChange={onCollapsedChange}
             collapsedKeys={collapsedKeys}

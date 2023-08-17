@@ -1,12 +1,8 @@
-import { v1 as uuidv1 } from 'uuid';
-import { useCallback, useEffect, useState } from 'react';
-
-import ListView from 'renderer/components/ListView';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import Icon from 'renderer/components/Icon';
-import generateDatabaseName from 'renderer/utils/generateDatabaseName';
 
 import {
-  ConnectionStoreConfig,
+  ConnectionConfigTree,
   ConnectionStoreItem,
 } from 'drivers/SQLLikeConnection';
 import styles from './styles.module.scss';
@@ -16,123 +12,169 @@ import Button from 'renderer/components/Button';
 
 import deepEqual from 'deep-equal';
 import { useDebounce } from 'hooks/useDebounce';
-import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import WelcomeScreen from '../WelcomeScreen';
-import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
-import { db } from 'renderer/db';
 import { useConnection } from 'renderer/App';
 import SplitterLayout from 'renderer/components/Splitter/Splitter';
+import { useIndexDbConnection } from 'renderer/hooks/useIndexDbConnections';
+import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
+import useConnectionContextMenu from './useConnectionContextMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFolder } from '@fortawesome/free-solid-svg-icons';
 
 export default function HomeScreen() {
   const { connect } = useConnection();
-  const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
-    []
-  );
-  const [selectedItem, setSelectedItem] = useState<ConnectionStoreItem>();
+
+  const { connections, setConnections } = useIndexDbConnection();
+  const [selectedItem, setSelectedItem] =
+    useState<TreeViewItemData<ConnectionConfigTree>>();
   const [selectedItemChanged, setSelectedItemChanged] =
     useState<ConnectionStoreItem>();
 
+  const [collapsedKeys, setCollapsedKeys] = useState<string[] | undefined>([]);
+
   useEffect(() => {
-    setSelectedItemChanged(selectedItem);
+    setSelectedItemChanged(selectedItem?.data?.config);
   }, [selectedItem, setSelectedItemChanged]);
 
   // Check if the selected item has unsaved changed
   const hasChange = useDebounce(
-    !!selectedItem &&
+    !!selectedItem?.data &&
       !!selectedItemChanged &&
-      !deepEqual(selectedItem, selectedItemChanged),
+      !deepEqual(selectedItem.data.config, selectedItemChanged),
     200
   );
 
-  useEffect(() => {
-    db.table('database_config').toArray().then(setConnectionList);
-  }, [setConnectionList]);
+  const { treeItems, treeDict } = useMemo(() => {
+    const treeDict: Record<string, ConnectionConfigTree> = {};
+
+    function buildTree(
+      configs: ConnectionConfigTree[]
+    ): TreeViewItemData<ConnectionConfigTree>[] {
+      return configs.map((config) => {
+        treeDict[config.id] = config;
+
+        return {
+          id: config.id,
+          data: config,
+          icon:
+            config.nodeType === 'folder' ? (
+              <FontAwesomeIcon icon={faFolder} />
+            ) : (
+              <Icon.MySql />
+            ),
+          text: config.name,
+          children:
+            config.children && config.children.length > 0
+              ? buildTree(config.children)
+              : undefined,
+        };
+      });
+    }
+
+    if (connections) {
+      return { treeItems: buildTree(connections), treeDict };
+    }
+
+    return { treeItems: [], treeDict };
+  }, [connections]);
 
   // ----------------------------------------------
   // Handle duplicated database
   // ----------------------------------------------
-  const onDuplicateClick = useCallback(() => {
-    if (selectedItem) {
-      const newDuplicateDatabase: ConnectionStoreItem = {
-        ...selectedItem,
-        config: { ...selectedItem.config },
-        name: generateDatabaseName(connectionList, selectedItem.name),
-        id: uuidv1(),
-      };
+  // const onDuplicateClick = useCallback(() => {
+  //   if (selectedItem) {
+  //     const newDuplicateDatabase: ConnectionStoreItem = {
+  //       ...selectedItem,
+  //       config: { ...selectedItem.config },
+  //       name: generateDatabaseName(connectionList, selectedItem.name),
+  //       id: uuidv1(),
+  //     };
 
-      setConnectionList((prev) => {
-        const selectedIndex = prev.findIndex((db) => db.id === selectedItem.id);
-        return [
-          ...prev.slice(0, selectedIndex + 1),
-          newDuplicateDatabase,
-          ...prev.slice(selectedIndex + 1),
-        ];
-      });
+  //     setConnectionList((prev) => {
+  //       const selectedIndex = prev.findIndex((db) => db.id === selectedItem.id);
+  //       return [
+  //         ...prev.slice(0, selectedIndex + 1),
+  //         newDuplicateDatabase,
+  //         ...prev.slice(selectedIndex + 1),
+  //       ];
+  //     });
 
-      setSelectedItem(newDuplicateDatabase);
-      db.table('database_config').put(newDuplicateDatabase);
-    }
-  }, [selectedItem, setConnectionList, connectionList, setSelectedItem]);
+  //     setSelectedItem(newDuplicateDatabase);
+  //     db.table('database_config').put(newDuplicateDatabase);
+  //   }
+  // }, [selectedItem, setConnectionList, connectionList, setSelectedItem]);
 
-  // ----------------------------------------------
-  // Handle remove database
-  // ----------------------------------------------
-  const onRemoveClick = useCallback(() => {
-    if (selectedItem) {
-      setConnectionList((prev) =>
-        prev.filter((db) => db.id !== selectedItem.id)
-      );
-      setSelectedItem(undefined);
-      db.table('database_config').delete(selectedItem.id);
-    }
-  }, [selectedItem, setSelectedItem, setConnectionList]);
+  // // ----------------------------------------------
+  // // Handle remove database
+  // // ----------------------------------------------
+  // const onRemoveClick = useCallback(() => {
+  //   if (selectedItem) {
+  //     setConnectionList((prev) =>
+  //       prev.filter((db) => db.id !== selectedItem.id)
+  //     );
+  //     setSelectedItem(undefined);
+  //     db.table('database_config').delete(selectedItem.id);
+  //   }
+  // }, [selectedItem, setSelectedItem, setConnectionList]);
 
-  // -----------------------------------------------
-  // Handle save database
-  // -----------------------------------------------
+  // // -----------------------------------------------
+  // // Handle save database
+  // // -----------------------------------------------
   const onSaveClick = useCallback(() => {
-    if (selectedItemChanged) {
-      setSelectedItem(selectedItemChanged);
-      setConnectionList((prev) =>
-        prev.map((db) => {
-          if (db.id === selectedItemChanged.id) return selectedItemChanged;
-          return db;
-        })
-      );
-      db.table('database_config').put(selectedItemChanged);
+    if (selectedItemChanged && selectedItem?.data && connections) {
+      selectedItem.text = selectedItemChanged.name;
+      selectedItem.data.name = selectedItemChanged.name;
+      selectedItem.data.config = selectedItemChanged;
+      setSelectedItem(selectedItem);
+      setConnections([...connections]);
     }
-  }, [selectedItem, selectedItemChanged, setSelectedItem, setConnectionList]);
+  }, [connections, selectedItem, selectedItemChanged, setConnections]);
 
-  // ----------------------------------------------
-  // Handle new connection
-  // ----------------------------------------------
-  const newMySQLDatabaseSetting = useCallback(() => {
-    const newDatabaseSetting = {
-      id: uuidv1(),
-      name: generateDatabaseName(connectionList, 'Unnamed'),
-      type: 'mysql',
-      config: {
-        database: '',
-        host: '',
-        password: '',
-        port: '3306',
-        user: '',
-      } as ConnectionStoreConfig,
-    };
+  const handleDragAndOverItem = useCallback(
+    (
+      from: TreeViewItemData<ConnectionConfigTree>,
+      to: TreeViewItemData<ConnectionConfigTree>
+    ) => {
+      if (connections) {
+        // You cannot drag anything into connection
+        if (to.data?.nodeType === 'connection') return;
 
-    setConnectionList((prev) => [...prev, newDatabaseSetting]);
-    setSelectedItem(newDatabaseSetting);
-  }, [setConnectionList, setSelectedItem, connectionList]);
+        const fromData = from.data;
+        const toData = to.data;
 
-  // -----------------------------------------------
-  // Handle before select change
-  // -----------------------------------------------
+        if (!toData) return;
+        if (!fromData) return;
+
+        // Remove itself from its parent;
+        if (fromData.parentId) {
+          const parent = treeDict[fromData.parentId];
+          if (parent && parent.children) {
+            parent.children = parent.children.filter(
+              (child) => child.id !== fromData.id
+            );
+          }
+        }
+
+        fromData.parentId = toData.id;
+        toData.children = [...(toData.children || []), fromData];
+
+        setConnections([
+          ...connections.filter((child) => child.id !== fromData.id),
+        ]);
+      }
+    },
+    [treeDict, connections, setConnections]
+  );
+
+  // // -----------------------------------------------
+  // // Handle before select change
+  // // -----------------------------------------------
   const onBeforeSelectChange = useCallback(async () => {
-    if (hasChange && selectedItem) {
+    if (hasChange && selectedItemChanged) {
       const buttonIndex = await window.electron.showMessageBox({
         title: 'Save modifications?',
         type: 'warning',
-        message: `Setting for ${selectedItem.name} were changed`,
+        message: `Setting for ${selectedItemChanged.name} were changed`,
         buttons: ['Yes', 'No', 'Cancel'],
       });
 
@@ -146,29 +188,13 @@ export default function HomeScreen() {
     }
 
     return true;
-  }, [selectedItem, onSaveClick, hasChange]);
+  }, [selectedItemChanged, onSaveClick, hasChange]);
 
-  const { handleContextMenu } = useContextMenu(() => {
-    return [
-      {
-        text: 'New MySQL Database',
-        icon: <Icon.MySql />,
-        onClick: newMySQLDatabaseSetting,
-        separator: true,
-      },
-      {
-        text: 'Duplicate',
-        onClick: onDuplicateClick,
-        disabled: !selectedItem,
-      },
-      {
-        text: 'Remove',
-        onClick: onRemoveClick,
-        disabled: !selectedItem,
-        destructive: true,
-      },
-    ];
-  }, [newMySQLDatabaseSetting, onDuplicateClick, onRemoveClick, selectedItem]);
+  const { handleContextMenu } = useConnectionContextMenu({
+    connections,
+    setSelectedItem,
+    setConnections,
+  });
 
   return (
     <div className={styles.dashboard}>
@@ -179,23 +205,23 @@ export default function HomeScreen() {
         primaryMinSize={500}
       >
         <div className={styles.connectionList}>
-          <ListView
-            selectedItem={selectedItem}
-            emptyComponent={
-              <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
-            }
-            items={connectionList}
-            changeItemKeys={hasChange && selectedItem ? [selectedItem.id] : []}
+          <TreeView
+            draggable
+            onDragItem={handleDragAndOverItem}
+            items={treeItems}
+            onCollapsedChange={setCollapsedKeys}
+            collapsedKeys={collapsedKeys}
             onSelectChange={setSelectedItem}
+            onDoubleClick={(item) => {
+              if (item.data?.config) {
+                connect(item.data?.config);
+              }
+            }}
+            selected={selectedItem}
             onBeforeSelectChange={onBeforeSelectChange}
-            onDoubleClick={(item) => connect(item)}
-            extractMeta={(item) => ({
-              icon: <Icon.MySql />,
-              text: item.name,
-              key: item.id,
-            })}
             onContextMenu={handleContextMenu}
           />
+          {/* <ListViewEmptyState text="There is no database setting. Right click to create new setting." /> */}
         </div>
 
         <div className={styles.connectionDetail}>

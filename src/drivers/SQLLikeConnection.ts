@@ -24,6 +24,15 @@ export interface SqliteConnectionConfig {
   path: string;
 }
 
+export interface ConnectionConfigTree {
+  id: string;
+  name: string;
+  nodeType: 'folder' | 'connection';
+  config?: ConnectionStoreItem;
+  parentId?: string;
+  children?: ConnectionConfigTree[];
+}
+
 export interface ConnectionStoreItem {
   id: string;
   name: string;
