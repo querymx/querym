@@ -4,13 +4,7 @@ import {
 } from 'drivers/SQLLikeConnection';
 import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
-
-interface MySqlConnectionEditorState {
-  showPassword: boolean;
-}
+import PasswordField from 'renderer/components/PasswordField';
 
 export default function MySQLConnectionEditor({
   config,
@@ -19,11 +13,6 @@ export default function MySQLConnectionEditor({
   config: MySqlConnectionConfig;
   onChange: (value: ConnectionStoreConfig) => void;
 }) {
-  //Using generic states for future configurations on this component
-  const [state, setState] = useState<MySqlConnectionEditorState>({
-    showPassword: false,
-  });
-
   return (
     <Stack vertical>
       <TextField
@@ -43,17 +32,10 @@ export default function MySQLConnectionEditor({
         value={config?.user}
         onChange={(value) => onChange({ ...config, user: value })}
       />
-      <TextField
-        type={state.showPassword ? 'text' : 'password'}
+      <PasswordField
         label="Password"
         value={config?.password}
         onChange={(value) => onChange({ ...config, password: value })}
-        actionIcon={
-          <FontAwesomeIcon icon={state.showPassword ? faEye : faEyeSlash} />
-        }
-        actionClick={() =>
-          setState({ ...state, showPassword: !state.showPassword })
-        }
       />
       <TextField
         label="Database"
