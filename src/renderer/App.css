@@ -12,7 +12,7 @@ body {
   --color-surface-hover: #eee;
 
   --color-shadow: rgba(0, 0, 0, 0.25);
-  --color-border: #aaa;
+  --color-border: #d4d4d4;
 
   --color-text: #000;
   --color-text-link: #1a64f4;
@@ -63,7 +63,7 @@ body.dark {
   --color-surface-hover: #3f3f3f;
 
   --color-shadow: rgba(200, 200, 200, 0.2);
-  --color-border: #aaa;
+  --color-border: #454545;
 
   --color-text: #fff;
   --color-text-link: #1a64f4;

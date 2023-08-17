@@ -125,11 +125,15 @@ ContextMenu.Item = function ({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className={styles.icon}>
-        {tick ? <FontAwesomeIcon icon={faCheck} /> : icon}
-      </span>
-      <span className={styles.text}>{text}</span>
-      <span className={styles.hotkey}>{hotkey}</span>
+      <div className={styles.icon}>
+        <span>{tick ? <FontAwesomeIcon icon={faCheck} /> : icon}</span>
+      </div>
+      <div className={styles.text}>
+        <span>{text}</span>
+      </div>
+      <div className={styles.hotkey}>
+        <span>{hotkey}</span>
+      </div>
     </li>
   );
 };
