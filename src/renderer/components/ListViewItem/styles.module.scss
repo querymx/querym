@@ -26,6 +26,14 @@
   text-overflow: ellipsis;
   flex-grow: 1;
   overflow: hidden;
+
+  input {
+    border: 0;
+    background: inherit;
+    color: inherit;
+    outline: none;
+    width: 100%;
+  }
 }
 
 .icon {
@@ -34,7 +42,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   img {
     width: 20px;
     height: 20px;

@@ -12,48 +12,61 @@ export interface TreeViewItemData<T> {
   children?: TreeViewItemData<T>[];
 }
 
-interface TreeViewProps<T> {
-  items: TreeViewItemData<T>[];
-  selected?: TreeViewItemData<T>;
-  collapsedKeys?: string[];
+interface TreeViewCommonProps<T> {
   draggable?: boolean;
   onDragItem?: (from: TreeViewItemData<T>, to: TreeViewItemData<T>) => void;
   onCollapsedChange?: (value?: string[]) => void;
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
-  onBeforeSelectChange?: () => Promise<boolean>;
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
-  onContextMenu?: React.MouseEventHandler;
+  selected?: TreeViewItemData<T>;
+  collapsedKeys?: string[];
   highlight?: string;
   highlightDepth?: number;
+
+  /**
+   * When renameSelectedItem is true, it will render, the current
+   * selected item as editable field.
+   */
+  renameSelectedItem?: boolean;
+
+  /**
+   * When Enter or Lost Focus, it will treat as successful rename
+   * If user press escape, it will cancel the rename
+   *
+   * @param newName The new name that we just rename into.
+   *                If it is null, it means we cancel the rename
+   * @returns
+   */
+  onRenamedSelectedItem?: (newName: string | null) => void;
 }
 
-interface TreeViewItemProps<T> {
-  draggable?: boolean;
-  onDragItem?: (from: TreeViewItemData<T>, to: TreeViewItemData<T>) => void;
+interface TreeViewProps<T> extends TreeViewCommonProps<T> {
+  items: TreeViewItemData<T>[];
+  onBeforeSelectChange?: () => Promise<boolean>;
+  onContextMenu?: React.MouseEventHandler;
+}
+
+interface TreeViewItemProps<T> extends TreeViewCommonProps<T> {
   item: TreeViewItemData<T>;
   depth: number;
-  selected?: TreeViewItemData<T>;
-  onSelectChange?: (value?: TreeViewItemData<T>) => void;
-  onCollapsedChange?: (value?: string[]) => void;
-  collapsedKeys?: string[];
-  onDoubleClick?: (value: TreeViewItemData<T>) => void;
-  highlight?: string;
-  highlightDepth?: number;
 }
 
-function TreeViewItem<T>({
-  item,
-  depth,
-  draggable,
-  selected,
-  onSelectChange,
-  collapsedKeys,
-  onCollapsedChange,
-  onDoubleClick,
-  highlight,
-  highlightDepth,
-  onDragItem,
-}: TreeViewItemProps<T>) {
+function TreeViewItem<T>(props: TreeViewItemProps<T>) {
+  const { depth, item, ...common } = props;
+  const {
+    collapsedKeys,
+    draggable,
+    onDragItem,
+    onDoubleClick,
+    highlight,
+    selected,
+    onSelectChange,
+    onCollapsedChange,
+    highlightDepth,
+    renameSelectedItem,
+    onRenamedSelectedItem,
+  } = props;
+
   const hasCollapsed = item.children && item.children.length > 0;
   const isCollapsed = collapsedKeys?.includes(item.id);
 
@@ -62,6 +75,8 @@ function TreeViewItem<T>({
       onSelectChange(item);
     }
   }, [onSelectChange, item]);
+
+  const isSelected = selected?.id === item.id;
 
   return (
     <div>
@@ -90,7 +105,9 @@ function TreeViewItem<T>({
         highlight={depth === highlightDepth ? highlight : undefined}
         hasCollapsed={hasCollapsed}
         collapsed={isCollapsed}
-        selected={selected?.id === item.id}
+        selected={isSelected}
+        renaming={isSelected && renameSelectedItem}
+        onRenamed={onRenamedSelectedItem}
         onClick={onSelectChangeCallback}
         onContextMenu={onSelectChangeCallback}
         onCollapsedClick={() => {
@@ -112,18 +129,10 @@ function TreeViewItem<T>({
           {item.children?.map((item) => {
             return (
               <TreeViewItem
-                onDragItem={onDragItem}
-                draggable={draggable}
+                {...common}
                 key={item.id}
                 item={item}
                 depth={depth + 1}
-                highlight={highlight}
-                highlightDepth={highlightDepth}
-                selected={selected}
-                onSelectChange={onSelectChange}
-                collapsedKeys={collapsedKeys}
-                onCollapsedChange={onCollapsedChange}
-                onDoubleClick={onDoubleClick}
               />
             );
           })}
@@ -133,20 +142,15 @@ function TreeViewItem<T>({
   );
 }
 
-export default function TreeView<T>({
-  items,
-  draggable,
-  onDragItem,
-  selected,
-  onSelectChange,
-  onBeforeSelectChange,
-  onCollapsedChange,
-  collapsedKeys,
-  onDoubleClick,
-  onContextMenu,
-  highlight,
-  highlightDepth,
-}: TreeViewProps<T>) {
+export default function TreeView<T>(props: TreeViewProps<T>) {
+  const {
+    items,
+    onSelectChange,
+    onBeforeSelectChange,
+    onContextMenu,
+    ...common
+  } = props;
+
   const onSelectChangeWithHook = useCallback(
     (item: TreeViewItemData<T> | undefined) => {
       if (onSelectChange) {
@@ -165,18 +169,11 @@ export default function TreeView<T>({
       {items.map((item) => {
         return (
           <TreeViewItem
-            onDragItem={onDragItem}
-            draggable={draggable}
+            {...common}
+            onSelectChange={onSelectChangeWithHook}
             key={item.id}
             item={item}
             depth={0}
-            highlight={highlight}
-            highlightDepth={highlightDepth}
-            selected={selected}
-            onSelectChange={onSelectChangeWithHook}
-            onDoubleClick={onDoubleClick}
-            onCollapsedChange={onCollapsedChange}
-            collapsedKeys={collapsedKeys}
           />
         );
       })}

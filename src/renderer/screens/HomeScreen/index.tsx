@@ -44,6 +44,8 @@ export default function HomeScreen() {
     200
   );
 
+  const [renameSelectedItem, setRenameSelectedItem] = useState(false);
+
   const { treeItems, treeDict } = useMemo(() => {
     const treeDict: Record<string, ConnectionConfigTree> = {};
 
@@ -166,9 +168,36 @@ export default function HomeScreen() {
     [treeDict, connections, setConnections]
   );
 
-  // // -----------------------------------------------
-  // // Handle before select change
-  // // -----------------------------------------------
+  const handleRenameExit = useCallback(
+    (newValue: string | null) => {
+      if (connections && selectedItem && newValue) {
+        selectedItem.text = newValue;
+        if (selectedItem.data) {
+          selectedItem.data.name = newValue;
+          if (selectedItem.data.config) {
+            selectedItem.data.config.name = newValue;
+          }
+        }
+
+        setSelectedItemChanged((prev) =>
+          prev ? { ...prev, name: newValue } : prev
+        );
+        setConnections([...connections]);
+      }
+      setRenameSelectedItem(false);
+    },
+    [
+      connections,
+      setConnections,
+      selectedItem,
+      setSelectedItemChanged,
+      setRenameSelectedItem,
+    ]
+  );
+
+  // -----------------------------------------------
+  // Handle before select change
+  // -----------------------------------------------
   const onBeforeSelectChange = useCallback(async () => {
     if (hasChange && selectedItemChanged) {
       const buttonIndex = await window.electron.showMessageBox({
@@ -194,6 +223,7 @@ export default function HomeScreen() {
     connections,
     setSelectedItem,
     setConnections,
+    setRenameSelectedItem,
   });
 
   return (
@@ -207,6 +237,8 @@ export default function HomeScreen() {
         <div className={styles.connectionList}>
           <TreeView
             draggable
+            renameSelectedItem={renameSelectedItem}
+            onRenamedSelectedItem={handleRenameExit}
             onDragItem={handleDragAndOverItem}
             items={treeItems}
             onCollapsedChange={setCollapsedKeys}

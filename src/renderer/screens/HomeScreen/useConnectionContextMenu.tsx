@@ -13,16 +13,18 @@ export default function useConnectionContextMenu({
   connections,
   setConnections,
   setSelectedItem,
+  setRenameSelectedItem,
 }: {
   connections: ConnectionConfigTree[] | undefined;
   setConnections: (v: ConnectionConfigTree[]) => void;
   setSelectedItem: (
     v: TreeViewItemData<ConnectionConfigTree> | undefined
   ) => void;
+  setRenameSelectedItem: (v: boolean) => void;
 }) {
-  // // ----------------------------------------------
-  // // Handle new connection
-  // // ----------------------------------------------
+  // ----------------------------------------------
+  // Handle new connection
+  // ----------------------------------------------
   const newMySQLDatabaseSetting = useCallback(() => {
     const newConnectionId = uuidv1();
     const newConfig = {
@@ -78,6 +80,11 @@ export default function useConnectionContextMenu({
   const { handleContextMenu } = useContextMenu(() => {
     return [
       {
+        text: 'Rename',
+        onClick: () => setRenameSelectedItem(true),
+        separator: true,
+      },
+      {
         text: 'New Folder',
         onClick: newFolderClicked,
       },
@@ -98,7 +105,7 @@ export default function useConnectionContextMenu({
       //   destructive: true,
       // },
     ];
-  }, [newMySQLDatabaseSetting, newFolderClicked]);
+  }, [newMySQLDatabaseSetting, newFolderClicked, setRenameSelectedItem]);
 
   return { handleContextMenu };
 }
