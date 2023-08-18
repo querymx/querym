@@ -94,21 +94,18 @@ export default function HomeScreen() {
       });
     }
 
+    const welcomeNode = {
+      id: WELCOME_SCREEN_ID,
+      icon: (
+        <FontAwesomeIcon icon={faCircleDot} color={'var(--color-critical)'} />
+      ),
+      text: 'Welcome to QueryMaster',
+    } as TreeViewItemData<ConnectionConfigTree>;
+
     if (connections) {
+      const treeNode = buildTree(connections);
       return {
-        treeItems: [
-          {
-            id: WELCOME_SCREEN_ID,
-            icon: (
-              <FontAwesomeIcon
-                icon={faCircleDot}
-                color={'var(--color-critical)'}
-              />
-            ),
-            text: 'Welcome to QueryMaster',
-          } as TreeViewItemData<ConnectionConfigTree>,
-          ...buildTree(connections),
-        ],
+        treeItems: treeNode.length > 0 ? [welcomeNode, ...treeNode] : [],
         treeDict,
       };
     }
@@ -119,7 +116,7 @@ export default function HomeScreen() {
   const setSaveCollapsedKeys = useCallback(
     (keys: string[] | undefined) => {
       setCollapsedKeys(keys?.filter((key) => !!treeDict[key]));
-      saveCollapsed(keys || []);
+      saveCollapsed(keys ?? []);
     },
     [setCollapsedKeys, saveCollapsed, treeDict]
   );
@@ -332,8 +329,10 @@ export default function HomeScreen() {
                 onChange={setSelectedItemChanged}
               />
             </div>
-          ) : (
+          ) : !selectedItem?.data?.nodeType ? (
             <WelcomeScreen />
+          ) : (
+            <div />
           )}
         </div>
       </SplitterLayout>

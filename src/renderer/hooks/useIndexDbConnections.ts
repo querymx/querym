@@ -8,7 +8,7 @@ export function useIndexDbConnection() {
 
   const initialCollapsed = useMemo<string[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem('db_collapsed_keys') || '[]');
+      return JSON.parse(localStorage.getItem('db_collapsed_keys') ?? '[]');
     } catch {
       return [];
     }

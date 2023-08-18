@@ -18,7 +18,7 @@ function insertNodeToConnection(
 ) {
   if (connections) {
     let insideFolder: ConnectionConfigTree | undefined;
-    if (selectedItem && selectedItem.data) {
+    if (selectedItem?.data) {
       if (selectedItem.data.nodeType === 'folder') {
         insideFolder = selectedItem.data;
       } else if (selectedItem.data?.parentId) {
@@ -26,7 +26,7 @@ function insertNodeToConnection(
       }
     }
 
-    if (insideFolder && insideFolder.children) {
+    if (insideFolder?.children) {
       newNode.parentId = insideFolder.id;
       insideFolder.children = sortConnection([
         ...insideFolder.children,
