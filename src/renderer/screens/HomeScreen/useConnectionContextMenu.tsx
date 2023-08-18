@@ -72,7 +72,7 @@ export default function useConnectionContextMenu({
 
       if (selectedItem.data?.parentId) {
         const parent = treeDict[selectedItem.data.parentId];
-        if (parent && parent.children) {
+        if (parent?.children) {
           parent.children = parent.children.filter(
             (node) => node.id !== selectedItem.id
           );

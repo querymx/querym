@@ -132,7 +132,6 @@ export default function HomeScreen() {
       selectedItem.text = selectedItemChanged.name;
       selectedItem.data.name = selectedItemChanged.name;
       selectedItem.data.config = selectedItemChanged;
-      setSelectedItem(selectedItem);
       setConnections([...connections]);
     }
   }, [connections, selectedItem, selectedItemChanged, setConnections]);
@@ -165,7 +164,7 @@ export default function HomeScreen() {
         // Remove itself from its parent;
         if (fromData.parentId) {
           const parent = treeDict[fromData.parentId];
-          if (parent && parent.children) {
+          if (parent?.children) {
             parent.children = parent.children.filter(
               (child) => child.id !== fromData.id
             );
@@ -209,7 +208,7 @@ export default function HomeScreen() {
         );
 
         const parent = treeDict[selectedItem.id];
-        if (parent && parent.children) {
+        if (parent?.children) {
           parent.children = sortConnection(parent.children);
         }
 
