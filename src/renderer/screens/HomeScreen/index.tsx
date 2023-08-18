@@ -21,6 +21,21 @@ import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 
+function sortConnection(tree: ConnectionConfigTree[]) {
+  const tmp = [...tree];
+  tmp.sort((a, b) => {
+    if (a.nodeType === 'folder' && b.nodeType === 'folder')
+      return a.name.localeCompare(b.name);
+    else if (a.nodeType === 'folder') {
+      return -1;
+    } else if (b.nodeType === 'folder') {
+      return 1;
+    }
+    return a.name.localeCompare(b.name);
+  });
+  return tmp;
+}
+
 export default function HomeScreen() {
   const { connect } = useConnection();
 
@@ -138,14 +153,24 @@ export default function HomeScreen() {
       to: TreeViewItemData<ConnectionConfigTree>
     ) => {
       if (connections) {
+        let toData;
+
         // You cannot drag anything into connection
-        if (to.data?.nodeType === 'connection') return;
+        if (to.data?.nodeType === 'connection') {
+          if (to.data?.parentId) {
+            const parentTo = treeDict[to.data.parentId];
+            if (parentTo) {
+              toData = parentTo;
+            }
+          }
+        } else {
+          toData = to.data;
+        }
 
         const fromData = from.data;
-        const toData = to.data;
-
-        if (!toData) return;
         if (!fromData) return;
+
+        let newConnection = connections;
 
         // Remove itself from its parent;
         if (fromData.parentId) {
@@ -155,14 +180,24 @@ export default function HomeScreen() {
               (child) => child.id !== fromData.id
             );
           }
+        } else {
+          newConnection = connections.filter(
+            (child) => child.id !== fromData.id
+          );
         }
 
-        fromData.parentId = toData.id;
-        toData.children = [...(toData.children || []), fromData];
+        if (toData) {
+          fromData.parentId = toData.id;
+          toData.children = sortConnection([
+            ...(toData.children || []),
+            fromData,
+          ]);
+        } else {
+          fromData.parentId = undefined;
+          newConnection = [...newConnection, fromData];
+        }
 
-        setConnections([
-          ...connections.filter((child) => child.id !== fromData.id),
-        ]);
+        setConnections(sortConnection(newConnection));
       }
     },
     [treeDict, connections, setConnections]
@@ -182,11 +217,18 @@ export default function HomeScreen() {
         setSelectedItemChanged((prev) =>
           prev ? { ...prev, name: newValue } : prev
         );
-        setConnections([...connections]);
+
+        const parent = treeDict[selectedItem.id];
+        if (parent && parent.children) {
+          parent.children = sortConnection(parent.children);
+        }
+
+        setConnections(sortConnection(connections));
       }
       setRenameSelectedItem(false);
     },
     [
+      treeDict,
       connections,
       setConnections,
       selectedItem,
