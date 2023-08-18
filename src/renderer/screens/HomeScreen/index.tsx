@@ -116,8 +116,11 @@ export default function HomeScreen() {
 
   const setSaveCollapsedKeys = useCallback(
     (keys: string[] | undefined) => {
-      setCollapsedKeys(keys?.filter((key) => !!treeDict[key]));
-      saveCollapsed(keys ?? []);
+      const legitKeys = Array.from(
+        new Set(keys?.filter((key) => !!treeDict[key]))
+      );
+
+      setCollapsedKeys(legitKeys);
     },
     [setCollapsedKeys, saveCollapsed, treeDict]
   );
