@@ -1,17 +1,20 @@
 import { ReactElement } from 'react';
 import styles from './styles.module.scss';
 
-interface TextFieldProps {
+export interface TextFieldCommonProps {
+  readOnly?: boolean;
+  onChange?: (value: string) => void;
   label?: string;
   value?: string;
   autoFocus?: boolean;
   placeholder?: string;
+}
+
+interface TextFieldProps extends TextFieldCommonProps {
   multipleLine?: boolean;
   type?: 'text' | 'password';
-  onChange?: (value: string) => void;
   actionIcon?: ReactElement;
   actionClick?: () => void;
-  readOnly?: boolean;
 }
 
 export default function TextField({

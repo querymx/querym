@@ -4,6 +4,7 @@ import {
 } from 'drivers/SQLLikeConnection';
 import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';
+import PasswordField from 'renderer/components/PasswordField';
 
 export default function MySQLConnectionEditor({
   config,
@@ -31,8 +32,7 @@ export default function MySQLConnectionEditor({
         value={config?.user}
         onChange={(value) => onChange({ ...config, user: value })}
       />
-      <TextField
-        type="password"
+      <PasswordField
         label="Password"
         value={config?.password}
         onChange={(value) => onChange({ ...config, password: value })}

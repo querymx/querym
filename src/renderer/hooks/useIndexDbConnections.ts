@@ -11,6 +11,7 @@ export function useIndexDbConnection() {
     return new ConnectionSettingTree(connections ?? []);
   }, [connections]);
 
+
   const initialCollapsed = useMemo<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('db_collapsed_keys') ?? '[]');
