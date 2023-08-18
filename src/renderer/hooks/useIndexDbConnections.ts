@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { db } from 'renderer/db';
 import { ConnectionConfigTree } from 'drivers/SQLLikeConnection';
+import ConnectionSettingTree from 'libs/ConnectionSettingTree';
 
 export function useIndexDbConnection() {
   const [connections, setInternalConnections] =
     useState<ConnectionConfigTree[]>();
+
+  const connectionTree = useMemo(() => {
+    return new ConnectionSettingTree(connections ?? []);
+  }, [connections]);
 
   const initialCollapsed = useMemo<string[]>(() => {
     try {
@@ -36,5 +41,11 @@ export function useIndexDbConnection() {
     [setInternalConnections]
   );
 
-  return { connections, setConnections, initialCollapsed, saveCollapsed };
+  return {
+    connections,
+    setConnections,
+    connectionTree,
+    initialCollapsed,
+    saveCollapsed,
+  };
 }

@@ -8,40 +8,10 @@ import {
   ConnectionStoreConfig,
 } from 'drivers/SQLLikeConnection';
 import { TreeViewItemData } from 'renderer/components/TreeView';
-import { sortConnection } from '.';
-
-function insertNodeToConnection(
-  connections: ConnectionConfigTree[] | undefined,
-  selectedItem: TreeViewItemData<ConnectionConfigTree> | undefined,
-  treeDict: Record<string, ConnectionConfigTree>,
-  newNode: ConnectionConfigTree
-) {
-  if (connections) {
-    let insideFolder: ConnectionConfigTree | undefined;
-    if (selectedItem?.data) {
-      if (selectedItem.data.nodeType === 'folder') {
-        insideFolder = selectedItem.data;
-      } else if (selectedItem.data?.parentId) {
-        insideFolder = treeDict[selectedItem.data.parentId];
-      }
-    }
-
-    if (insideFolder?.children) {
-      newNode.parentId = insideFolder.id;
-      insideFolder.children = sortConnection([
-        ...insideFolder.children,
-        newNode,
-      ]);
-      return [...connections];
-    } else {
-      return sortConnection([...connections, newNode]);
-    }
-  }
-  return [];
-}
+import ConnectionSettingTree from 'libs/ConnectionSettingTree';
 
 export default function useConnectionContextMenu({
-  treeDict,
+  connectionTree,
   connections,
   selectedItem,
   setConnections,
@@ -50,7 +20,7 @@ export default function useConnectionContextMenu({
   setSaveCollapsedKeys,
   collapsedKeys,
 }: {
-  treeDict: Record<string, ConnectionConfigTree>;
+  connectionTree: ConnectionSettingTree;
   connections: ConnectionConfigTree[] | undefined;
   selectedItem?: TreeViewItemData<ConnectionConfigTree>;
   setConnections: (v: ConnectionConfigTree[]) => void;
@@ -75,7 +45,7 @@ export default function useConnectionContextMenu({
       if (buttonIndex !== 0) return;
 
       if (selectedItem.data?.parentId) {
-        const parent = treeDict[selectedItem.data.parentId];
+        const parent = connectionTree.getById(selectedItem.data.parentId);
         if (parent?.children) {
           parent.children = parent.children.filter(
             (node) => node.id !== selectedItem.id
@@ -86,7 +56,13 @@ export default function useConnectionContextMenu({
       setConnections(connections.filter((db) => db.id !== selectedItem.id));
       setSelectedItem(undefined);
     }
-  }, [selectedItem, setSelectedItem, connections, setConnections, treeDict]);
+  }, [
+    selectedItem,
+    setSelectedItem,
+    connections,
+    setConnections,
+    connectionTree,
+  ]);
 
   // ----------------------------------------------
   // Handle new connection
@@ -96,7 +72,7 @@ export default function useConnectionContextMenu({
     const newConfig = {
       id: newConnectionId,
       name: generateIncrementalName(
-        Object.values(treeDict).map((node) => node.name),
+        connectionTree.getAllNodes().map((node) => node.name),
         'Unnamed'
       ),
       type: 'mysql',
@@ -123,9 +99,8 @@ export default function useConnectionContextMenu({
       icon: <Icon.MySql />,
     });
 
-    setConnections(
-      insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
-    );
+    connectionTree.insertNode(newTreeNode, selectedItem?.id);
+    setConnections(connectionTree.getNewTree());
 
     if (selectedItem) {
       setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
@@ -135,7 +110,7 @@ export default function useConnectionContextMenu({
     setSelectedItem,
     selectedItem,
     connections,
-    treeDict,
+    connectionTree,
     collapsedKeys,
     setSaveCollapsedKeys,
   ]);
@@ -143,7 +118,7 @@ export default function useConnectionContextMenu({
   const newFolderClicked = useCallback(() => {
     const newFolderId = uuidv1();
     const newFolderName = generateIncrementalName(
-      Object.values(treeDict).map((node) => node.name),
+      connectionTree.getAllNodes().map((node) => node.name),
       'Unnamed Folders'
     );
 
@@ -160,9 +135,8 @@ export default function useConnectionContextMenu({
       data: newTreeNode,
     });
 
-    setConnections(
-      insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
-    );
+    connectionTree.insertNode(newTreeNode, selectedItem?.id);
+    setConnections(connectionTree.getNewTree());
 
     if (selectedItem) {
       setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
@@ -172,7 +146,7 @@ export default function useConnectionContextMenu({
     setSelectedItem,
     connections,
     selectedItem,
-    treeDict,
+    connectionTree,
     collapsedKeys,
     setSaveCollapsedKeys,
   ]);

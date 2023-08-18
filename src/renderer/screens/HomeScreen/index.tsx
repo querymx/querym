@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import Icon from 'renderer/components/Icon';
-
 import {
   ConnectionConfigTree,
   ConnectionStoreItem,
@@ -19,7 +17,7 @@ import { useIndexDbConnection } from 'renderer/hooks/useIndexDbConnections';
 import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
 import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleDot, faFolder } from '@fortawesome/free-solid-svg-icons';
+import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 
 const WELCOME_SCREEN_ID = '00000000000000000000';
@@ -42,8 +40,13 @@ export function sortConnection(tree: ConnectionConfigTree[]) {
 export default function HomeScreen() {
   const { connect } = useConnection();
 
-  const { connections, setConnections, initialCollapsed, saveCollapsed } =
-    useIndexDbConnection();
+  const {
+    connections,
+    setConnections,
+    connectionTree,
+    initialCollapsed,
+    saveCollapsed,
+  } = useIndexDbConnection();
   const [selectedItem, setSelectedItem] = useState<
     TreeViewItemData<ConnectionConfigTree> | undefined
   >({ id: WELCOME_SCREEN_ID });
@@ -68,32 +71,8 @@ export default function HomeScreen() {
 
   const [renameSelectedItem, setRenameSelectedItem] = useState(false);
 
-  const { treeItems, treeDict } = useMemo(() => {
-    const treeDict: Record<string, ConnectionConfigTree> = {};
-
-    function buildTree(
-      configs: ConnectionConfigTree[]
-    ): TreeViewItemData<ConnectionConfigTree>[] {
-      return configs.map((config) => {
-        treeDict[config.id] = config;
-
-        return {
-          id: config.id,
-          data: config,
-          icon:
-            config.nodeType === 'folder' ? (
-              <FontAwesomeIcon icon={faFolder} color="#f39c12" />
-            ) : (
-              <Icon.MySql />
-            ),
-          text: config.name,
-          children:
-            config.children && config.children.length > 0
-              ? buildTree(config.children)
-              : undefined,
-        };
-      });
-    }
+  const treeItems = useMemo(() => {
+    const treeNode = connectionTree.buildTreeView();
 
     const welcomeNode = {
       id: WELCOME_SCREEN_ID,
@@ -103,26 +82,18 @@ export default function HomeScreen() {
       text: 'Welcome to QueryMaster',
     } as TreeViewItemData<ConnectionConfigTree>;
 
-    if (connections) {
-      const treeNode = buildTree(connections);
-      return {
-        treeItems: treeNode.length > 0 ? [welcomeNode, ...treeNode] : [],
-        treeDict,
-      };
-    }
-
-    return { treeItems: [], treeDict };
-  }, [connections]);
+    return treeNode.length > 0 ? [welcomeNode, ...treeNode] : [];
+  }, [connectionTree]);
 
   const setSaveCollapsedKeys = useCallback(
     (keys: string[] | undefined) => {
       const legitKeys = Array.from(
-        new Set(keys?.filter((key) => !!treeDict[key]))
+        new Set(keys?.filter((key) => !!connectionTree.getById(key)))
       );
 
       setCollapsedKeys(legitKeys);
     },
-    [setCollapsedKeys, saveCollapsed, treeDict]
+    [setCollapsedKeys, saveCollapsed, connectionTree]
   );
 
   // -----------------------------------------------
@@ -142,55 +113,15 @@ export default function HomeScreen() {
       from: TreeViewItemData<ConnectionConfigTree>,
       to: TreeViewItemData<ConnectionConfigTree>
     ) => {
-      if (connections) {
-        let toData;
-
-        // You cannot drag anything into connection
-        if (to.data?.nodeType === 'connection') {
-          if (to.data?.parentId) {
-            const parentTo = treeDict[to.data.parentId];
-            if (parentTo) {
-              toData = parentTo;
-            }
-          }
-        } else {
-          toData = to.data;
-        }
-
-        const fromData = from.data;
-        if (!fromData) return;
-
-        let newConnection = connections;
-
-        // Remove itself from its parent;
-        if (fromData.parentId) {
-          const parent = treeDict[fromData.parentId];
-          if (parent?.children) {
-            parent.children = parent.children.filter(
-              (child) => child.id !== fromData.id
-            );
-          }
-        } else {
-          newConnection = connections.filter(
-            (child) => child.id !== fromData.id
-          );
-        }
-
-        if (toData) {
-          fromData.parentId = toData.id;
-          toData.children = sortConnection([
-            ...(toData.children || []),
-            fromData,
-          ]);
-        } else {
-          fromData.parentId = undefined;
-          newConnection = [...newConnection, fromData];
-        }
-
-        setConnections(sortConnection(newConnection));
+      if (from.data && to.data) {
+        connectionTree.moveNode(from.data, to.data);
+        setConnections(connectionTree.getNewTree());
+      } else if (from.data) {
+        connectionTree.moveNodeToRoot(from.data);
+        setConnections(connectionTree.getNewTree());
       }
     },
-    [treeDict, connections, setConnections]
+    [connectionTree, setConnections]
   );
 
   const handleRenameExit = useCallback(
@@ -208,7 +139,7 @@ export default function HomeScreen() {
           prev ? { ...prev, name: newValue } : prev
         );
 
-        const parent = treeDict[selectedItem.id];
+        const parent = connectionTree.getById(selectedItem.id);
         if (parent?.children) {
           parent.children = sortConnection(parent.children);
         }
@@ -218,7 +149,7 @@ export default function HomeScreen() {
       setRenameSelectedItem(false);
     },
     [
-      treeDict,
+      connectionTree,
       connections,
       setConnections,
       selectedItem,
@@ -259,7 +190,7 @@ export default function HomeScreen() {
     setConnections,
     setRenameSelectedItem,
     selectedItem,
-    treeDict,
+    connectionTree,
   });
 
   return (
