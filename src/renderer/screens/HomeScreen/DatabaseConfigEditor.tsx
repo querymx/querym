@@ -43,7 +43,6 @@ export default function DatabaseConfigEditor({
         <Stack vertical>
           <TextField
             label="Name"
-            autoFocus
             value={value.name}
             onChange={(v) => {
               onChange({ ...value, name: v });

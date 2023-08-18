@@ -1,17 +1,24 @@
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
+  draggable?: boolean;
   highlight?: string;
   icon?: ReactElement;
   changed?: boolean;
   selected?: boolean;
   onClick?: () => void;
   onDoubleClick?: () => void;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
+
+  renaming?: boolean;
+  onRenamed?: (newName: string | null) => void;
 
   // This is used for rendering TreeView
   depth?: number;
@@ -36,6 +43,12 @@ export default function ListViewItem({
   onClick,
   onDoubleClick,
   onContextMenu,
+  draggable,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  renaming,
+  onRenamed,
 
   // For TreeView
   depth,
@@ -44,6 +57,18 @@ export default function ListViewItem({
   onCollapsedClick,
 }: ListViewItemProps) {
   const { theme } = useAppFeature();
+  const [renameDraftValue, setRenameDraftValue] = useState('');
+
+  useEffect(() => {
+    setRenameDraftValue(text);
+  }, [renaming, text, setRenameDraftValue]);
+
+  const onRenameDone = useCallback(
+    (value: string | null) => {
+      if (onRenamed) onRenamed(value);
+    },
+    [onRenamed]
+  );
 
   const finalText = useMemo(() => {
     if (highlight) {
@@ -75,6 +100,10 @@ export default function ListViewItem({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
+      draggable={draggable}
+      onDragOver={onDragOver}
+      onDragStart={onDragStart}
+      onDrop={onDrop}
     >
       {!!depth &&
         new Array(depth)
@@ -103,10 +132,31 @@ export default function ListViewItem({
           </div>
         ))}
       {!hasCollapsed && <div className={styles.icon}>{icon}</div>}
-      <div
-        className={styles.text}
-        dangerouslySetInnerHTML={{ __html: finalText }}
-      />
+      {renaming ? (
+        <div className={styles.text}>
+          <input
+            autoFocus
+            onBlur={() => {
+              onRenameDone(renameDraftValue);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                onRenameDone(renameDraftValue);
+              } else if (e.key === 'Escape') {
+                onRenameDone(null);
+              }
+            }}
+            type="text"
+            value={renameDraftValue}
+            onChange={(e) => setRenameDraftValue(e.currentTarget.value)}
+          />
+        </div>
+      ) : (
+        <div
+          className={styles.text}
+          dangerouslySetInnerHTML={{ __html: finalText }}
+        />
+      )}
     </div>
   );
 }
