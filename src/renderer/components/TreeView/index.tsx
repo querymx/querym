@@ -44,6 +44,7 @@ interface TreeViewProps<T> extends TreeViewCommonProps<T> {
   items: TreeViewItemData<T>[];
   onBeforeSelectChange?: () => Promise<boolean>;
   onContextMenu?: React.MouseEventHandler;
+  emptyState?: ReactElement;
 }
 
 interface TreeViewItemProps<T> extends TreeViewCommonProps<T> {
@@ -148,6 +149,7 @@ export default function TreeView<T>(props: TreeViewProps<T>) {
     onSelectChange,
     onBeforeSelectChange,
     onContextMenu,
+    emptyState,
     ...common
   } = props;
 
@@ -166,17 +168,19 @@ export default function TreeView<T>(props: TreeViewProps<T>) {
 
   return (
     <div className={`${styles.treeView} scroll`} onContextMenu={onContextMenu}>
-      {items.map((item) => {
-        return (
-          <TreeViewItem
-            {...common}
-            onSelectChange={onSelectChangeWithHook}
-            key={item.id}
-            item={item}
-            depth={0}
-          />
-        );
-      })}
+      {items.length > 0
+        ? items.map((item) => {
+            return (
+              <TreeViewItem
+                {...common}
+                onSelectChange={onSelectChangeWithHook}
+                key={item.id}
+                item={item}
+                depth={0}
+              />
+            );
+          })
+        : emptyState}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
 import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleDot, faFolder } from '@fortawesome/free-solid-svg-icons';
+import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 
 const WELCOME_SCREEN_ID = '00000000000000000000';
 
@@ -249,6 +250,8 @@ export default function HomeScreen() {
 
   const { handleContextMenu } = useConnectionContextMenu({
     connections,
+    setSaveCollapsedKeys,
+    collapsedKeys,
     setSelectedItem,
     setConnections,
     setRenameSelectedItem,
@@ -282,8 +285,10 @@ export default function HomeScreen() {
             selected={selectedItem}
             onBeforeSelectChange={onBeforeSelectChange}
             onContextMenu={handleContextMenu}
+            emptyState={
+              <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
+            }
           />
-          {/* <ListViewEmptyState text="There is no database setting. Right click to create new setting." /> */}
         </div>
 
         <div className={styles.connectionDetail}>

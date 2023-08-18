@@ -47,6 +47,8 @@ export default function useConnectionContextMenu({
   setConnections,
   setSelectedItem,
   setRenameSelectedItem,
+  setSaveCollapsedKeys,
+  collapsedKeys,
 }: {
   treeDict: Record<string, ConnectionConfigTree>;
   connections: ConnectionConfigTree[] | undefined;
@@ -56,6 +58,8 @@ export default function useConnectionContextMenu({
     v: TreeViewItemData<ConnectionConfigTree> | undefined
   ) => void;
   setRenameSelectedItem: (v: boolean) => void;
+  collapsedKeys: string[] | undefined;
+  setSaveCollapsedKeys: (v: string[] | undefined) => void;
 }) {
   // ----------------------------------------------
   // Handle remove database
@@ -122,7 +126,19 @@ export default function useConnectionContextMenu({
     setConnections(
       insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
     );
-  }, [setConnections, setSelectedItem, selectedItem, connections, treeDict]);
+
+    if (selectedItem) {
+      setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
+    }
+  }, [
+    setConnections,
+    setSelectedItem,
+    selectedItem,
+    connections,
+    treeDict,
+    collapsedKeys,
+    setSaveCollapsedKeys,
+  ]);
 
   const newFolderClicked = useCallback(() => {
     const newFolderId = uuidv1();
@@ -138,16 +154,34 @@ export default function useConnectionContextMenu({
       children: [],
     };
 
+    setSelectedItem({
+      id: newTreeNode.id,
+      text: newTreeNode.name,
+      data: newTreeNode,
+    });
+
     setConnections(
       insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
     );
-  }, [setConnections, connections, selectedItem, treeDict]);
+
+    if (selectedItem) {
+      setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
+    }
+  }, [
+    setConnections,
+    setSelectedItem,
+    connections,
+    selectedItem,
+    treeDict,
+    collapsedKeys,
+    setSaveCollapsedKeys,
+  ]);
 
   const { handleContextMenu } = useContextMenu(() => {
     return [
       {
         text: 'Rename',
-        disabled: !selectedItem,
+        disabled: !selectedItem?.data,
         onClick: () => setRenameSelectedItem(true),
         separator: true,
       },
@@ -164,7 +198,7 @@ export default function useConnectionContextMenu({
       {
         text: 'Remove',
         onClick: onRemoveClick,
-        disabled: !selectedItem,
+        disabled: !selectedItem?.data,
         destructive: true,
       },
     ];
