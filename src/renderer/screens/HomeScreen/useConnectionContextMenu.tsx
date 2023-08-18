@@ -10,18 +10,49 @@ import {
 import { TreeViewItemData } from 'renderer/components/TreeView';
 
 export default function useConnectionContextMenu({
+  treeDict,
   connections,
+  selectedItem,
   setConnections,
   setSelectedItem,
   setRenameSelectedItem,
 }: {
+  treeDict: Record<string, ConnectionConfigTree>;
   connections: ConnectionConfigTree[] | undefined;
+  selectedItem?: TreeViewItemData<ConnectionConfigTree>;
   setConnections: (v: ConnectionConfigTree[]) => void;
   setSelectedItem: (
     v: TreeViewItemData<ConnectionConfigTree> | undefined
   ) => void;
   setRenameSelectedItem: (v: boolean) => void;
 }) {
+  // ----------------------------------------------
+  // Handle remove database
+  // ----------------------------------------------
+  const onRemoveClick = useCallback(async () => {
+    if (selectedItem && connections) {
+      const buttonIndex = await window.electron.showMessageBox({
+        title: 'Do you want to remove?',
+        message: `Do you want to remove ${selectedItem.text}?`,
+        buttons: ['Yes', 'No'],
+      });
+
+      if (buttonIndex !== 0) return;
+
+      if (selectedItem.data?.parentId) {
+        const parent = treeDict[selectedItem.data.parentId];
+        if (parent && parent.children) {
+          parent.children = parent.children.filter(
+            (node) => node.id === selectedItem.id
+          );
+        }
+      }
+
+      setConnections(connections.filter((db) => db.id !== selectedItem.id));
+      setSelectedItem(undefined);
+    }
+  }, [selectedItem, setSelectedItem, connections, setConnections, treeDict]);
+
   // ----------------------------------------------
   // Handle new connection
   // ----------------------------------------------
@@ -81,6 +112,7 @@ export default function useConnectionContextMenu({
     return [
       {
         text: 'Rename',
+        disabled: !selectedItem,
         onClick: () => setRenameSelectedItem(true),
         separator: true,
       },
@@ -92,20 +124,21 @@ export default function useConnectionContextMenu({
         text: 'New MySQL Database',
         icon: <Icon.MySql />,
         onClick: newMySQLDatabaseSetting,
+        separator: true,
       },
-      // {
-      //   text: 'Duplicate',
-      //   onClick: onDuplicateClick,
-      //   disabled: !selectedItem,
-      // },
-      // {
-      //   text: 'Remove',
-      //   onClick: onRemoveClick,
-      //   disabled: !selectedItem,
-      //   destructive: true,
-      // },
+      {
+        text: 'Remove',
+        onClick: onRemoveClick,
+        disabled: !selectedItem,
+        destructive: true,
+      },
     ];
-  }, [newMySQLDatabaseSetting, newFolderClicked, setRenameSelectedItem]);
+  }, [
+    selectedItem,
+    newMySQLDatabaseSetting,
+    newFolderClicked,
+    setRenameSelectedItem,
+  ]);
 
   return { handleContextMenu };
 }

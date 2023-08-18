@@ -95,48 +95,9 @@ export default function HomeScreen() {
     return { treeItems: [], treeDict };
   }, [connections]);
 
-  // ----------------------------------------------
-  // Handle duplicated database
-  // ----------------------------------------------
-  // const onDuplicateClick = useCallback(() => {
-  //   if (selectedItem) {
-  //     const newDuplicateDatabase: ConnectionStoreItem = {
-  //       ...selectedItem,
-  //       config: { ...selectedItem.config },
-  //       name: generateDatabaseName(connectionList, selectedItem.name),
-  //       id: uuidv1(),
-  //     };
-
-  //     setConnectionList((prev) => {
-  //       const selectedIndex = prev.findIndex((db) => db.id === selectedItem.id);
-  //       return [
-  //         ...prev.slice(0, selectedIndex + 1),
-  //         newDuplicateDatabase,
-  //         ...prev.slice(selectedIndex + 1),
-  //       ];
-  //     });
-
-  //     setSelectedItem(newDuplicateDatabase);
-  //     db.table('database_config').put(newDuplicateDatabase);
-  //   }
-  // }, [selectedItem, setConnectionList, connectionList, setSelectedItem]);
-
-  // // ----------------------------------------------
-  // // Handle remove database
-  // // ----------------------------------------------
-  // const onRemoveClick = useCallback(() => {
-  //   if (selectedItem) {
-  //     setConnectionList((prev) =>
-  //       prev.filter((db) => db.id !== selectedItem.id)
-  //     );
-  //     setSelectedItem(undefined);
-  //     db.table('database_config').delete(selectedItem.id);
-  //   }
-  // }, [selectedItem, setSelectedItem, setConnectionList]);
-
-  // // -----------------------------------------------
-  // // Handle save database
-  // // -----------------------------------------------
+  // -----------------------------------------------
+  // Handle save database
+  // -----------------------------------------------
   const onSaveClick = useCallback(() => {
     if (selectedItemChanged && selectedItem?.data && connections) {
       selectedItem.text = selectedItemChanged.name;
@@ -266,6 +227,8 @@ export default function HomeScreen() {
     setSelectedItem,
     setConnections,
     setRenameSelectedItem,
+    selectedItem,
+    treeDict,
   });
 
   return (
