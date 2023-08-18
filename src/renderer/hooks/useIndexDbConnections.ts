@@ -1,10 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { db } from 'renderer/db';
 import { ConnectionConfigTree } from 'drivers/SQLLikeConnection';
 
 export function useIndexDbConnection() {
   const [connections, setInternalConnections] =
     useState<ConnectionConfigTree[]>();
+
+  const initialCollapsed = useMemo<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('db_collapsed_keys') || '[]');
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const saveCollapsed = useCallback((keys: string[]) => {
+    localStorage.setItem('db_collapsed_keys', JSON.stringify(keys));
+  }, []);
 
   useEffect(() => {
     db.table<{ name: string; value: ConnectionConfigTree[] }>('setting')
@@ -24,5 +36,5 @@ export function useIndexDbConnection() {
     [setInternalConnections]
   );
 
-  return { connections, setConnections };
+  return { connections, setConnections, initialCollapsed, saveCollapsed };
 }

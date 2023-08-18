@@ -8,6 +8,37 @@ import {
   ConnectionStoreConfig,
 } from 'drivers/SQLLikeConnection';
 import { TreeViewItemData } from 'renderer/components/TreeView';
+import { sortConnection } from '.';
+
+function insertNodeToConnection(
+  connections: ConnectionConfigTree[] | undefined,
+  selectedItem: TreeViewItemData<ConnectionConfigTree> | undefined,
+  treeDict: Record<string, ConnectionConfigTree>,
+  newNode: ConnectionConfigTree
+) {
+  if (connections) {
+    let insideFolder: ConnectionConfigTree | undefined;
+    if (selectedItem && selectedItem.data) {
+      if (selectedItem.data.nodeType === 'folder') {
+        insideFolder = selectedItem.data;
+      } else if (selectedItem.data?.parentId) {
+        insideFolder = treeDict[selectedItem.data.parentId];
+      }
+    }
+
+    if (insideFolder && insideFolder.children) {
+      newNode.parentId = insideFolder.id;
+      insideFolder.children = sortConnection([
+        ...insideFolder.children,
+        newNode,
+      ]);
+      return [...connections];
+    } else {
+      return sortConnection([...connections, newNode]);
+    }
+  }
+  return [];
+}
 
 export default function useConnectionContextMenu({
   treeDict,
@@ -43,7 +74,7 @@ export default function useConnectionContextMenu({
         const parent = treeDict[selectedItem.data.parentId];
         if (parent && parent.children) {
           parent.children = parent.children.filter(
-            (node) => node.id === selectedItem.id
+            (node) => node.id !== selectedItem.id
           );
         }
       }
@@ -61,7 +92,7 @@ export default function useConnectionContextMenu({
     const newConfig = {
       id: newConnectionId,
       name: generateIncrementalName(
-        (connections || []).map((c) => c.name),
+        Object.values(treeDict).map((node) => node.name),
         'Unnamed'
       ),
       type: 'mysql',
@@ -88,13 +119,15 @@ export default function useConnectionContextMenu({
       icon: <Icon.MySql />,
     });
 
-    setConnections([...(connections || []), newTreeNode]);
-  }, [setConnections, setSelectedItem, connections]);
+    setConnections(
+      insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
+    );
+  }, [setConnections, setSelectedItem, selectedItem, connections, treeDict]);
 
   const newFolderClicked = useCallback(() => {
     const newFolderId = uuidv1();
     const newFolderName = generateIncrementalName(
-      (connections || []).map((c) => c.name),
+      Object.values(treeDict).map((node) => node.name),
       'Unnamed Folders'
     );
 
@@ -105,8 +138,10 @@ export default function useConnectionContextMenu({
       children: [],
     };
 
-    setConnections([...(connections || []), newTreeNode]);
-  }, [setConnections, connections]);
+    setConnections(
+      insertNodeToConnection(connections, selectedItem, treeDict, newTreeNode)
+    );
+  }, [setConnections, connections, selectedItem, treeDict]);
 
   const { handleContextMenu } = useContextMenu(() => {
     return [

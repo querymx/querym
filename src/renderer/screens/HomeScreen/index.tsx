@@ -19,9 +19,11 @@ import { useIndexDbConnection } from 'renderer/hooks/useIndexDbConnections';
 import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
 import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
+import { faCircleDot, faFolder } from '@fortawesome/free-solid-svg-icons';
 
-function sortConnection(tree: ConnectionConfigTree[]) {
+const WELCOME_SCREEN_ID = '00000000000000000000';
+
+export function sortConnection(tree: ConnectionConfigTree[]) {
   const tmp = [...tree];
   tmp.sort((a, b) => {
     if (a.nodeType === 'folder' && b.nodeType === 'folder')
@@ -39,13 +41,17 @@ function sortConnection(tree: ConnectionConfigTree[]) {
 export default function HomeScreen() {
   const { connect } = useConnection();
 
-  const { connections, setConnections } = useIndexDbConnection();
-  const [selectedItem, setSelectedItem] =
-    useState<TreeViewItemData<ConnectionConfigTree>>();
+  const { connections, setConnections, initialCollapsed, saveCollapsed } =
+    useIndexDbConnection();
+  const [selectedItem, setSelectedItem] = useState<
+    TreeViewItemData<ConnectionConfigTree> | undefined
+  >({ id: WELCOME_SCREEN_ID });
   const [selectedItemChanged, setSelectedItemChanged] =
     useState<ConnectionStoreItem>();
 
-  const [collapsedKeys, setCollapsedKeys] = useState<string[] | undefined>([]);
+  const [collapsedKeys, setCollapsedKeys] = useState<string[] | undefined>(
+    initialCollapsed
+  );
 
   useEffect(() => {
     setSelectedItemChanged(selectedItem?.data?.config);
@@ -75,7 +81,7 @@ export default function HomeScreen() {
           data: config,
           icon:
             config.nodeType === 'folder' ? (
-              <FontAwesomeIcon icon={faFolder} />
+              <FontAwesomeIcon icon={faFolder} color="#f39c12" />
             ) : (
               <Icon.MySql />
             ),
@@ -89,11 +95,34 @@ export default function HomeScreen() {
     }
 
     if (connections) {
-      return { treeItems: buildTree(connections), treeDict };
+      return {
+        treeItems: [
+          {
+            id: WELCOME_SCREEN_ID,
+            icon: (
+              <FontAwesomeIcon
+                icon={faCircleDot}
+                color={'var(--color-critical)'}
+              />
+            ),
+            text: 'Welcome to QueryMaster',
+          } as TreeViewItemData<ConnectionConfigTree>,
+          ...buildTree(connections),
+        ],
+        treeDict,
+      };
     }
 
     return { treeItems: [], treeDict };
   }, [connections]);
+
+  const setSaveCollapsedKeys = useCallback(
+    (keys: string[] | undefined) => {
+      setCollapsedKeys(keys?.filter((key) => !!treeDict[key]));
+      saveCollapsed(keys || []);
+    },
+    [setCollapsedKeys, saveCollapsed, treeDict]
+  );
 
   // -----------------------------------------------
   // Handle save database
@@ -246,7 +275,7 @@ export default function HomeScreen() {
             onRenamedSelectedItem={handleRenameExit}
             onDragItem={handleDragAndOverItem}
             items={treeItems}
-            onCollapsedChange={setCollapsedKeys}
+            onCollapsedChange={setSaveCollapsedKeys}
             collapsedKeys={collapsedKeys}
             onSelectChange={setSelectedItem}
             onDoubleClick={(item) => {
