@@ -66,7 +66,13 @@ QueryMaster aims to provide the best experience for writing SQL, which includes 
 
 ### Connection Management
 
-- ✅ Manage your connections in nested folders. 
+- ✅ Manage your connections in nested folders.
+- ❌ MySQL Support
+- ❌ SQLite Support
+- ❌ PostgreSQL Support
+- ❌ Oracle Support
+- ❌ Microsoft SQL Support
+- ❌ Cassandra 
 
 ### Editing Schema
 
