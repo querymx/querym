@@ -75,6 +75,9 @@ export default class MySQLConnection extends SQLLikeConnection {
   protected pool: Pool | undefined;
   protected currentConnection: PoolConnection | undefined;
   protected onStateChangedCallback: (state: string) => void;
+  protected lastActivity = 0;
+  protected isRunning = false;
+  protected keepAliveTimerId?: NodeJS.Timer;
 
   constructor(
     connectionConfig: DatabaseConnectionConfig,
@@ -94,7 +97,15 @@ export default class MySQLConnection extends SQLLikeConnection {
         connectionLimit: 1,
       });
 
+      this.lastActivity = Date.now();
       this.onStateChangedCallback('Connected');
+
+      this.keepAliveTimerId = setInterval(() => {
+        if (Date.now() - this.lastActivity > 6000 && !this.isRunning) {
+          this.lastActivity = Date.now();
+          this.ping();
+        }
+      }, 5000);
 
       this.pool.on('connection', (connection) => {
         this.currentConnection = connection;
@@ -102,6 +113,10 @@ export default class MySQLConnection extends SQLLikeConnection {
     }
 
     return this.pool;
+  }
+
+  protected async ping() {
+    this.currentConnection?.ping();
   }
 
   async killCurrentQuery() {
@@ -121,6 +136,9 @@ export default class MySQLConnection extends SQLLikeConnection {
     sql: string,
     params?: Record<string, unknown>
   ): Promise<QueryResult> {
+    this.lastActivity = Date.now();
+    this.isRunning = true;
+
     try {
       const conn = await this.getConnection();
       const result = await conn.query(sql, params);
@@ -144,6 +162,7 @@ export default class MySQLConnection extends SQLLikeConnection {
         mapHeaderType
       );
 
+      this.isRunning = false;
       return {
         headers,
         rows: result[0] as Record<string, unknown>[],
@@ -151,6 +170,8 @@ export default class MySQLConnection extends SQLLikeConnection {
         error: null,
       };
     } catch (e: unknown) {
+      this.isRunning = false;
+
       return {
         headers: [],
         rows: [],
@@ -167,6 +188,10 @@ export default class MySQLConnection extends SQLLikeConnection {
       const conn = await this.getConnection();
       conn.end();
       conn.destroy();
+    }
+
+    if (this.keepAliveTimerId) {
+      clearTimeout(this.keepAliveTimerId);
     }
   }
 }
