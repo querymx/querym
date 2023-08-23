@@ -20,3 +20,18 @@ export function useDebounce<T>(value: T, delay: number) {
   );
   return debouncedValue;
 }
+
+export function useDebounceEffect(
+  cb: () => void,
+  deps: unknown[],
+  delay: number
+) {
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      cb();
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [...deps, delay]);
+}

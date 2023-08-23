@@ -19,6 +19,7 @@ export type BeforeEachEventCallback = (
 
 export interface SqlStatementResult {
   statement: SqlStatement;
+  time: number;
   result: QueryResult;
 }
 
@@ -85,6 +86,7 @@ export class SqlRunnerManager {
 
         console.log(statement.sql);
 
+        const startTime = Date.now();
         const returnedResult = await this.executor(
           statement.sql,
           statement.params
@@ -93,6 +95,7 @@ export class SqlRunnerManager {
         if (!returnedResult?.error) {
           result.push({
             statement,
+            time: Date.now() - startTime,
             result: returnedResult,
           });
         } else {

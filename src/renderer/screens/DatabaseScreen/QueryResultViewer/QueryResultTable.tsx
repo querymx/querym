@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-import { QueryResult, QueryResultHeader } from 'types/SqlResult';
+import { QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
@@ -13,12 +13,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 interface QueryResultTableProps {
-  result: QueryResult;
+  headers: QueryResultHeader[];
+  result: { data: Record<string, unknown>; rowIndex: number }[];
   page: number;
   pageSize: number;
 }
 
-function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
+function QueryResultTable({
+  headers,
+  result,
+  page,
+  pageSize,
+}: QueryResultTableProps) {
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
@@ -121,34 +127,24 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         .map((_, newRowIndex) => {
           return {
             rowIndex: -(newRowIndex + 1),
-            data: result.headers.reduce(
+            data: headers.reduce(
               (prev, header) => ({ ...prev, [header.name]: undefined }),
               {}
             ),
           };
         });
 
-      return [
-        ...newRows,
-        ...result.rows
-          .slice(page * pageSize, (page + 1) * pageSize)
-          .map((value, rowIndex) => {
-            return {
-              rowIndex: rowIndex + page * pageSize,
-              data: value,
-            };
-          }),
-      ];
-    }, [page, pageSize, result, newRowCount]);
+      return [...newRows, ...result];
+    }, [result, newRowCount]);
 
   const updatableTables = useMemo(() => {
-    if (result?.headers && currentDatabase && schema) {
-      return getUpdatableTable(result?.headers, schema[currentDatabase]);
+    if (headers && currentDatabase && schema) {
+      return getUpdatableTable(headers, schema[currentDatabase]);
     }
     return {};
   }, [result, schema, currentDatabase]);
 
-  if (!result?.headers || !result?.rows) {
+  if (!headers || !result) {
     return <div>No result</div>;
   }
 
@@ -162,7 +158,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
       ) {
         // Check the last 100 records
         const maxLength = Math.max(
-          ...result.rows.slice(0, 100).map((row) => {
+          ...result.slice(0, 100).map(({ data: row }) => {
             if (typeof row[header.name] === 'string')
               return (row[header.name] as string).length;
             return 10;
@@ -175,7 +171,7 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
       return 150;
     }
 
-    return result.headers.map((header, idx) => ({
+    return headers.map((header, idx) => ({
       name: header.name || '',
       resizable: true,
       icon: header?.schema?.primaryKey ? (
@@ -194,11 +190,11 @@ function QueryResultTable({ result, page, pageSize }: QueryResultTableProps) {
         return (
           <TableCell
             key={data[y].rowIndex}
-            value={data[y].data[result.headers[x].name]}
-            header={result.headers[x]}
+            value={data[y].data[headers[x].name]}
+            header={headers[x]}
             col={x}
             row={data[y].rowIndex}
-            readOnly={!updatableTables[result.headers[x]?.schema?.table || '']}
+            readOnly={!updatableTables[headers[x]?.schema?.table || '']}
           />
         );
       }

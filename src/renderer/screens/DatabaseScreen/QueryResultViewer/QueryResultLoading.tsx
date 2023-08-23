@@ -25,7 +25,7 @@ export default function QueryResultLoading() {
   return (
     <div className={styles.result}>
       <div className={styles.container}></div>
-      <div className={styles.footer}>
+      <div className={styles.footer} style={{ padding: '5px 10px' }}>
         <Stack>
           <div
             style={{
