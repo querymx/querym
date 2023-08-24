@@ -5,7 +5,7 @@ import {
   CompletionSource,
 } from '@codemirror/autocomplete';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
-import { MySQL, genericCompletion } from './../../../language/sql/lang_sql';
+import { MySQL, genericCompletion } from './../../../language/dist';
 import { DatabaseSchemas } from 'types/SqlSchema';
 
 function get(
