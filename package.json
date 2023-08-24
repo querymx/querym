@@ -30,6 +30,7 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "prepare": "cm-buildhelper src/language/sql/sql.ts",
     "test": "jest",
+    "clean": "npx git-clear-branch",
     "type": "tsc --noEmit"
   },
   "browserslist": [],
