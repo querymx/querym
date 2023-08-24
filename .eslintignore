@@ -34,4 +34,5 @@ npm-debug.log.*
 .eslintrc.js
 
 exts
+src/language/sql
 sign.js

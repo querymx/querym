@@ -10,6 +10,7 @@ import {
   CompletionContext,
   CompletionResult,
 } from '@codemirror/autocomplete';
+import { indentUnit } from '@codemirror/language';
 import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
 import { Ref, forwardRef, useCallback } from 'react';
@@ -20,7 +21,7 @@ import {
   MySQL,
   genericCompletion,
   keywordCompletionSource,
-} from 'query-master-lang-sql';
+} from '../../../language/dist/';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { DatabaseSchemas } from 'types/SqlSchema';
 
@@ -87,6 +88,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
             genericCompletion(enumCompletion),
           ],
         }),
+        indentUnit.of('  '),
       ]}
       {...codeMirrorProps}
     />

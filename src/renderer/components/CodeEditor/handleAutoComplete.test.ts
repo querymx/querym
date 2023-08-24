@@ -4,9 +4,8 @@ import {
   CompletionResult,
   CompletionSource,
 } from '@codemirror/autocomplete';
-import { MySQL } from '@codemirror/lang-sql';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
-import { genericCompletion } from 'query-master-lang-sql';
+import { MySQL, genericCompletion } from './../../../language/sql/lang_sql';
 import { DatabaseSchemas } from 'types/SqlSchema';
 
 function get(
