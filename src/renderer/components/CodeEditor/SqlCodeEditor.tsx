@@ -13,7 +13,7 @@ import {
 import { indentUnit } from '@codemirror/language';
 import { defaultKeymap, insertTab } from '@codemirror/commands';
 import { keymap } from '@codemirror/view';
-import { Ref, forwardRef, useCallback } from 'react';
+import { Ref, forwardRef, useCallback, useMemo } from 'react';
 import useCodeEditorTheme from './useCodeEditorTheme';
 import { SyntaxNode } from '@lezer/common';
 import {
@@ -22,8 +22,10 @@ import {
   genericCompletion,
   keywordCompletionSource,
 } from '../../../language/dist/';
+
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { DatabaseSchemas } from 'types/SqlSchema';
+import createSQLTableNameHighlightPlugin from './SQLTableNameHightlight';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
@@ -46,6 +48,15 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
     },
     [schema, currentDatabase]
   );
+
+  const tableNameHighlightPlugin = useMemo(() => {
+    if (schema && currentDatabase && schema[currentDatabase]) {
+      return createSQLTableNameHighlightPlugin(
+        Object.keys(schema[currentDatabase].tables)
+      );
+    }
+    return createSQLTableNameHighlightPlugin([]);
+  }, [schema, currentDatabase]);
 
   return (
     <CodeMirror
@@ -89,6 +100,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
           ],
         }),
         indentUnit.of('  '),
+        tableNameHighlightPlugin,
       ]}
       {...codeMirrorProps}
     />

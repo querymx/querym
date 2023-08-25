@@ -209,3 +209,15 @@ hr {
 .cm-tooltip-autocomplete .cm-completionDetail {
   padding-left: 15px;
 }
+
+.cm-table-name {
+  color: #e84393;
+}
+
+.darl .cm-table-name {
+  color: #fd79a8;
+}
+
+.cm-table-name > span {
+  color: inherit !important;
+}

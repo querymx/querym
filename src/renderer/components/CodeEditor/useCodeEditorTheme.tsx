@@ -24,10 +24,10 @@ export default function useCodeEditorTheme() {
             'Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace',
         },
         styles: [
-          { tag: [t.meta, t.comment, t.name], color: '#804000' },
+          { tag: [t.meta, t.comment], color: '#804000' },
           { tag: [t.keyword, t.strong], color: '#0000FF' },
           { tag: [t.number], color: '#FF0080' },
-          { tag: [t.string], color: '#FF0080' },
+          { tag: [t.string], color: '#e17055' },
           { tag: [t.variableName], color: '#006600' },
           { tag: [t.escape], color: '#33CC33' },
           { tag: [t.tagName], color: '#1C02FF' },
@@ -56,6 +56,7 @@ export default function useCodeEditorTheme() {
             'Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace',
         },
         styles: [
+          { tag: [t.number], color: '#fbc531' },
           { tag: t.keyword, color: '#3498db' },
           { tag: t.comment, color: '#27ae60' },
           { tag: t.definition(t.typeName), color: '#27ae60' },
