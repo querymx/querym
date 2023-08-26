@@ -31,9 +31,22 @@
     "prepare": "cm-buildhelper src/language/sql/sql.ts",
     "test": "jest",
     "clean": "npx git-clear-branch",
-    "type": "tsc --noEmit"
+    "type": "tsc --noEmit",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
-  "browserslist": [],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "prettier": {
     "singleQuote": true,
     "overrides": [
@@ -57,6 +70,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@lezer/highlight": "^1.1.3",
     "@lezer/lr": "^1.3.10",
+    "@storybook/addon-styling": "^1.3.7",
     "@uiw/codemirror-theme-atomone": "^4.19.9",
     "@uiw/codemirror-theme-bbedit": "^4.21.8",
     "@uiw/codemirror-theme-vscode": "^4.21.7",
@@ -86,9 +100,21 @@
     "dmg-license": "^1.0.11"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.22.10",
+    "@babel/preset-react": "^7.22.5",
+    "@babel/preset-typescript": "^7.22.11",
+    "@codemirror/buildhelper": "^1.0.0",
     "@electron/notarize": "^1.2.3",
     "@electron/rebuild": "^3.2.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
+    "@storybook/addon-essentials": "^7.3.2",
+    "@storybook/addon-interactions": "^7.3.2",
+    "@storybook/addon-links": "^7.3.2",
+    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/blocks": "^7.3.2",
+    "@storybook/react": "^7.3.2",
+    "@storybook/react-webpack5": "^7.3.2",
+    "@storybook/testing-library": "^0.2.0",
     "@svgr/webpack": "^6.5.1",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
     "@testing-library/jest-dom": "^5.16.5",
@@ -131,6 +157,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^0.6.13",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
@@ -143,6 +170,7 @@
     "rimraf": "^4.1.2",
     "sass": "^1.58.0",
     "sass-loader": "^13.3.2",
+    "storybook": "^7.3.2",
     "style-loader": "^3.3.3",
     "terser-webpack-plugin": "^5.3.9",
     "ts-jest": "^29.0.5",
@@ -155,8 +183,7 @@
     "webpack-bundle-analyzer": "^4.7.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
-    "webpack-merge": "^5.8.0",
-    "@codemirror/buildhelper": "^1.0.0"
+    "webpack-merge": "^5.8.0"
   },
   "build": {
     "productName": "QueryMaster",

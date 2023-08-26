@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactNode } from 'react';
 import styles from './styles.module.scss';
 import { ContextMenuItemProps } from '../ContextMenu';
-import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import { useContextMenu } from './../../contexts/ContextMenuProvider';
 
 interface ToolbarItemProps {
   icon?: ReactNode;
