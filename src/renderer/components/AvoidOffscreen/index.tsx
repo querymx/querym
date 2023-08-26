@@ -8,7 +8,7 @@ import {
 
 export default function AvoidOffscreen({ children }: PropsWithChildren) {
   const ref = useRef<HTMLDivElement>(null);
-
+  const [computed, setComputed] = useState(false);
   const [offsetTop, setOffsetTop] = useState(0);
   const [offsetLeft, setOffsetLeft] = useState(0);
   const [flip, setFlip] = useState(false);
@@ -23,6 +23,8 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
 
       setOffsetTop(Math.min(0, viewportHeight - bound.bottom));
 
+      if (bound.width === 0) return false;
+
       if (!flip) {
         setFlip(bound.right > viewportWidth);
         if (
@@ -32,8 +34,10 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
           setOffsetLeft(bound.width);
         }
       }
+
+      setComputed(true);
     }
-  }, [ref, setOffsetTop, setFlip, offsetLeft, flip]);
+  }, [ref, setOffsetTop, setFlip, offsetLeft, flip, setComputed]);
 
   useEffect(() => {
     if (ref.current) {
@@ -46,12 +50,11 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
     }
   }, [ref, computePosition]);
 
-  console.log(flip, offsetTop);
-
   return (
     <div
       ref={ref}
       style={{
+        visibility: computed ? 'visible' : 'hidden',
         position: 'absolute',
         top: offsetTop,
         ...(flip

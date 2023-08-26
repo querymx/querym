@@ -1,21 +1,23 @@
 import {
   CSSProperties,
   PropsWithChildren,
-  ReactNode,
+  ReactElement,
   createContext,
   useCallback,
   useContext,
   useEffect,
-  useRef,
-  useState,
 } from 'react';
 import styles from './styles.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import AvoidOffscreen from '../AvoidOffscreen';
+import OptionList from '../OptionList';
+import OptionListItem from '../OptionList/OptionListItem';
+import DropContainer from '../DropContainer';
 
 export interface ContextMenuItemProps {
   text: string;
-  icon?: ReactNode;
+  icon?: ReactElement;
   hotkey?: string;
   disabled?: boolean;
   destructive?: boolean;
@@ -46,10 +48,6 @@ export default function ContextMenu({
   onClose: () => void;
   minWidth?: number;
 }>) {
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [menuWidth, setMenuWidth] = useState(0);
-  const [menuHeight, setMenuHeight] = useState(0);
-
   useEffect(() => {
     const onDocumentClicked = () => {
       onClose();
@@ -61,36 +59,27 @@ export default function ContextMenu({
     };
   }, [onClose]);
 
-  useEffect(() => {
-    if (menuRef.current) {
-      const { width, height } = menuRef.current.getBoundingClientRect();
-      setMenuWidth(width);
-      setMenuHeight(height);
-    }
-  }, [status.open]);
-
-  const viewportWidth =
-    window.innerWidth || document.documentElement.clientWidth;
-  const viewportHeight =
-    window.innerHeight || document.documentElement.clientHeight;
-
   const menuStyle: CSSProperties = {
-    visibility: status.open ? 'visible' : 'hidden',
-    top: Math.min(status.y, viewportHeight - menuHeight - 10),
-    left: Math.min(status.x, viewportWidth - menuWidth - 10),
     minWidth,
+    left: status.x,
+    top: status.y,
   };
 
   return (
     <ContextMenuContext.Provider value={{ handleClose: onClose }}>
-      <div
-        ref={menuRef}
-        className={styles.contextMenu}
-        style={menuStyle}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <ul>{children}</ul>
-      </div>
+      {status.open && (
+        <div
+          className={styles.contextMenu}
+          style={menuStyle}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <AvoidOffscreen>
+            <DropContainer>
+              <OptionList>{children}</OptionList>
+            </DropContainer>
+          </AvoidOffscreen>
+        </div>
+      )}
     </ContextMenuContext.Provider>
   );
 }
@@ -115,25 +104,35 @@ ContextMenu.Item = function ({
   }, [handleClose, onClick]);
 
   return (
-    <li
+    <OptionListItem
+      label={text}
       onClick={!disabled ? onMenuClicked : undefined}
-      className={[
-        disabled ? styles.disabled : undefined,
-        separator ? styles.separator : undefined,
-        !disabled && destructive ? styles.destructive : undefined,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-    >
-      <div className={styles.icon}>
-        <span>{tick ? <FontAwesomeIcon icon={faCheck} /> : icon}</span>
-      </div>
-      <div className={styles.text}>
-        <span>{text}</span>
-      </div>
-      <div className={styles.hotkey}>
-        <span>{hotkey}</span>
-      </div>
-    </li>
+      destructive={destructive}
+      disabled={disabled}
+      right={hotkey}
+      icon={tick ? <FontAwesomeIcon icon={faCheck} /> : icon}
+      labelWidth={300}
+      separator={separator}
+    />
+    // <li
+    //   onClick={!disabled ? onMenuClicked : undefined}
+    //   className={[
+    //     disabled ? styles.disabled : undefined,
+    //     separator ? styles.separator : undefined,
+    //     !disabled && destructive ? styles.destructive : undefined,
+    //   ]
+    //     .filter(Boolean)
+    //     .join(' ')}
+    // >
+    //   <div className={styles.icon}>
+    //     <span>{tick ? <FontAwesomeIcon icon={faCheck} /> : icon}</span>
+    //   </div>
+    //   <div className={styles.text}>
+    //     <span>{text}</span>
+    //   </div>
+    //   <div className={styles.hotkey}>
+    //     <span>{hotkey}</span>
+    //   </div>
+    // </li>
   );
 };
