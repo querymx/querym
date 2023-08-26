@@ -50,6 +50,13 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
     }
   }, [ref, computePosition]);
 
+  const flipTranslateStyle = {
+    right: '100%',
+    transform: `translateX(-${offsetLeft}px)`,
+  };
+  const flipNormalStyle = { right: '100%' };
+  const flipStyle = offsetLeft ? flipTranslateStyle : flipNormalStyle;
+
   return (
     <div
       ref={ref}
@@ -57,11 +64,7 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
         visibility: computed ? 'visible' : 'hidden',
         position: 'absolute',
         top: offsetTop,
-        ...(flip
-          ? offsetLeft
-            ? { right: '100%', transform: `translateX(-${offsetLeft}px)` }
-            : { right: '100%' }
-          : { left: '100%' }),
+        ...(flip ? flipStyle : { left: '100%' }),
       }}
     >
       {children}

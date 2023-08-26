@@ -1,25 +1,27 @@
 import { PropsWithChildren, ReactElement, useMemo } from 'react';
 import styles from './styles.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import AvoidOffscreen from '../AvoidOffscreen';
 
-interface OptionListItemProps {
-  label: string;
+export interface OptionListItemProps {
+  text: string;
   icon?: ReactElement;
   selected?: boolean;
   right?: string;
   labelWidth?: number;
   disabled?: boolean;
+  tick?: boolean;
   destructive?: boolean;
   separator?: boolean;
   onClick?: (e: React.MouseEvent) => void;
 }
 
 export default function OptionListItem({
-  label,
+  text,
   icon,
   right,
+  tick,
   labelWidth,
   children,
   onClick,
@@ -46,9 +48,11 @@ export default function OptionListItem({
   return (
     <div className={outterClassName} onClick={disabled ? undefined : onClick}>
       <div className={className}>
-        <div className={styles.icon}>{icon}</div>
+        <div className={styles.icon}>
+          {tick ? <FontAwesomeIcon icon={faCheck} /> : icon}
+        </div>
         <div className={styles.label} style={{ width: labelWidth }}>
-          {label}
+          {text}
         </div>
         <div className={styles.right}>{right}</div>
         <div className={styles.arrow}>

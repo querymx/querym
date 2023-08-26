@@ -1,3 +1,4 @@
+import NotImplementCallback from 'libs/NotImplementCallback';
 import {
   useState,
   PropsWithChildren,
@@ -16,15 +17,9 @@ const ContextMenuContext = createContext<{
   setMenuItem: (items: ContextMenuItemProps[]) => void;
   open: boolean;
 }>({
-  handleContextMenu: () => {
-    throw 'Not implemented';
-  },
-  handleClick: () => {
-    throw 'Not implemented';
-  },
-  setMenuItem: () => {
-    throw 'Not implemented';
-  },
+  handleContextMenu: NotImplementCallback,
+  handleClick: NotImplementCallback,
+  setMenuItem: NotImplementCallback,
   open: false,
 });
 
@@ -114,16 +109,22 @@ export function ContextMenuProvider({ children }: PropsWithChildren) {
     [setStatus]
   );
 
+  console.log('re-render');
+
   return (
     <ContextMenuContext.Provider
       value={{ handleContextMenu, setMenuItem, open: status.open, handleClick }}
     >
       {children}
-      <ContextMenu status={status} onClose={onClose}>
-        {menuItem.map((itemProps, idx) => {
-          return <ContextMenu.Item {...itemProps} key={idx} />;
-        })}
-      </ContextMenu>
+      {status.open && (
+        <ContextMenu
+          x={status.x}
+          y={status.y}
+          onClose={onClose}
+          items={menuItem}
+          open={status.open}
+        />
+      )}
     </ContextMenuContext.Provider>
   );
 }

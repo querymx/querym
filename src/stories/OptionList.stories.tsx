@@ -12,31 +12,31 @@ function StoryPage() {
       <div style={{ position: 'absolute', left: 300 }}>
         <DropContainer>
           <OptionList>
-            <OptionListItem labelWidth={150} label="Copy As" />
+            <OptionListItem labelWidth={150} text="Copy As" />
             <OptionListItem
               labelWidth={150}
-              label="Copy"
+              text="Copy"
               right="Ctrl + C"
               icon={<FontAwesomeIcon icon={faCopy} />}
             />
-            <OptionListItem labelWidth={150} label="Paste" />
-            <OptionListItem labelWidth={150} label="Export to">
+            <OptionListItem labelWidth={150} text="Paste" />
+            <OptionListItem labelWidth={150} text="Export to">
               <DropContainer>
                 <OptionList>
-                  <OptionListItem labelWidth={100} label="Export as Excel" />
-                  <OptionListItem labelWidth={100} label="Export as CSV" />
-                  <OptionListItem labelWidth={100} label="Export as JSON" />
-                  <OptionListItem labelWidth={100} label="Export as Excel" />
-                  <OptionListItem labelWidth={100} label="Export as CSV" />
-                  <OptionListItem labelWidth={100} label="Export as JSON" />
-                  <OptionListItem labelWidth={100} label="Export as Excel" />
-                  <OptionListItem labelWidth={100} label="Export as CSV" />
-                  <OptionListItem labelWidth={100} label="Export as JSON" />
+                  <OptionListItem labelWidth={100} text="Export as Excel" />
+                  <OptionListItem labelWidth={100} text="Export as CSV" />
+                  <OptionListItem labelWidth={100} text="Export as JSON" />
+                  <OptionListItem labelWidth={100} text="Export as Excel" />
+                  <OptionListItem labelWidth={100} text="Export as CSV" />
+                  <OptionListItem labelWidth={100} text="Export as JSON" />
+                  <OptionListItem labelWidth={100} text="Export as Excel" />
+                  <OptionListItem labelWidth={100} text="Export as CSV" />
+                  <OptionListItem labelWidth={100} text="Export as JSON" />
                 </OptionList>
               </DropContainer>
             </OptionListItem>
-            <OptionListItem labelWidth={150} label="Import from" />
-            <OptionListItem labelWidth={150} label="Beautify SQL Code" />
+            <OptionListItem labelWidth={150} text="Import from" />
+            <OptionListItem labelWidth={150} text="Beautify SQL Code" />
           </OptionList>
         </DropContainer>
       </div>
