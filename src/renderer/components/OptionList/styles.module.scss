@@ -1,0 +1,57 @@
+.outerItem {
+  margin: 0 5px;
+  position: relative;
+
+  &:hover {
+    > .item {
+      background: var(--color-surface-hover);
+    }
+
+    > .child {
+      visibility: visible;
+    }
+  }
+
+  .child {
+    visibility: hidden;
+    display: content;
+  }
+}
+
+.item {
+  display: flex;
+  cursor: pointer;
+  border-radius: 4px;
+
+  .label {
+    padding: 7px 5px;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .icon {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-left: 10px;
+    width: 15px;
+    flex-shrink: 0;
+  }
+
+  .right {
+    padding: 7px 5px;
+    margin: 0 5px;
+    flex-shrink: 0;
+  }
+
+  .arrow {
+    width: 20px;
+    margin: 0 5px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+  }
+}
