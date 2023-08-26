@@ -86,6 +86,11 @@ function QueryResultTable({
         separator: true,
       },
       {
+        text: 'Transform',
+        disabled: !selectedCell,
+        children: [{ text: 'Bcrypt Password Hash' }, { text: 'MD5' }],
+      },
+      {
         text: 'Copy',
         hotkey: 'Ctrl + C',
         disabled: !selectedCell,

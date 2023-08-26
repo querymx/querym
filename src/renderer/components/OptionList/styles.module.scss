@@ -2,6 +2,10 @@
   margin: 0 5px;
   position: relative;
 
+  .child {
+    display: none;
+  }
+
   &:hover {
     > .item {
       background: var(--color-surface-hover);
@@ -12,14 +16,10 @@
     }
 
     > .child {
-      visibility: visible;
+      display: contents;
     }
   }
 
-  .child {
-    visibility: hidden;
-    display: content;
-  }
 }
 
 .item {

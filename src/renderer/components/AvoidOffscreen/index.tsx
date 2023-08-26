@@ -10,7 +10,6 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
   const ref = useRef<HTMLDivElement>(null);
   const [computed, setComputed] = useState(false);
   const [offsetTop, setOffsetTop] = useState(0);
-  const [offsetLeft, setOffsetLeft] = useState(0);
   const [flip, setFlip] = useState(false);
 
   const computePosition = useCallback(() => {
@@ -21,23 +20,19 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
       const viewportHeight =
         window.innerHeight || document.documentElement.clientHeight;
 
-      setOffsetTop(Math.min(0, viewportHeight - bound.bottom));
+      if (offsetTop === 0) {
+        setOffsetTop(Math.min(0, viewportHeight - bound.bottom));
+      }
 
       if (bound.width === 0) return false;
 
       if (!flip) {
         setFlip(bound.right > viewportWidth);
-        if (
-          ref.current.parentElement &&
-          ref.current.parentElement.style.position === 'fixed'
-        ) {
-          setOffsetLeft(bound.width);
-        }
       }
 
       setComputed(true);
     }
-  }, [ref, setOffsetTop, setFlip, offsetLeft, flip, setComputed]);
+  }, [ref, setOffsetTop, setFlip, flip, offsetTop, setComputed]);
 
   useEffect(() => {
     if (ref.current) {
@@ -50,13 +45,6 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
     }
   }, [ref, computePosition]);
 
-  const flipTranslateStyle = {
-    right: '100%',
-    transform: `translateX(-${offsetLeft}px)`,
-  };
-  const flipNormalStyle = { right: '100%' };
-  const flipStyle = offsetLeft ? flipTranslateStyle : flipNormalStyle;
-
   return (
     <div
       ref={ref}
@@ -64,7 +52,7 @@ export default function AvoidOffscreen({ children }: PropsWithChildren) {
         visibility: computed ? 'visible' : 'hidden',
         position: 'absolute',
         top: offsetTop,
-        ...(flip ? flipStyle : { left: '100%' }),
+        ...(flip ? { right: '100%' } : { left: '100%' }),
       }}
     >
       {children}

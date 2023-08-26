@@ -109,8 +109,6 @@ export function ContextMenuProvider({ children }: PropsWithChildren) {
     [setStatus]
   );
 
-  console.log('re-render');
-
   return (
     <ContextMenuContext.Provider
       value={{ handleContextMenu, setMenuItem, open: status.open, handleClick }}
