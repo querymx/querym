@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useCallback } from 'react';
 import styles from './styles.module.scss';
 import { ContextMenuItemProps } from '../ContextMenu';
 import AttachedContextMenu from '../ContextMenu/AttachedContextMenu';
@@ -93,17 +93,14 @@ Toolbar.ContextMenu = function ({
   text: string;
   icon?: ReactNode;
 }) {
-  return (
-    <AttachedContextMenu
-      items={items}
-      activator={() => {
-        return (
-          <li className={styles.button}>
-            {icon && <span className={styles.icon}>{icon}</span>}
-            <span>{text}</span>
-          </li>
-        );
-      }}
-    />
-  );
+  const activator = useCallback(() => {
+    return (
+      <li className={styles.button}>
+        {icon && <span className={styles.icon}>{icon}</span>}
+        <span>{text}</span>
+      </li>
+    );
+  }, []);
+
+  return <AttachedContextMenu items={items} activator={activator} />;
 };

@@ -28,6 +28,7 @@ function renderArrayOfMenu(
     <DropContainer>
       <OptionList minWidth={minWidth}>
         {items.map((value, idx) => {
+          const key = value.text + idx;
           const { children, onClick, ...props } = value;
 
           const overrideOnClick = (e: React.MouseEvent) => {
@@ -37,13 +38,13 @@ function renderArrayOfMenu(
 
           if (children && children.length > 0) {
             return (
-              <OptionListItem {...props} key={idx} onClick={overrideOnClick}>
+              <OptionListItem {...props} key={key} onClick={overrideOnClick}>
                 {renderArrayOfMenu(children, onClose)}
               </OptionListItem>
             );
           }
           return (
-            <OptionListItem key={idx} {...props} onClick={overrideOnClick} />
+            <OptionListItem key={key} {...props} onClick={overrideOnClick} />
           );
         })}
       </OptionList>
