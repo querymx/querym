@@ -70,8 +70,6 @@ export default function ContextMenu({
     };
   }, [onClose]);
 
-  console.log(items);
-
   return open ? (
     <div
       style={{ position: 'fixed', zIndex: 90000, left: x, top: y }}
