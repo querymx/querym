@@ -46,7 +46,10 @@ export default function OptionListItem({
   }, []);
 
   return (
-    <div className={outterClassName} onClick={disabled ? undefined : onClick}>
+    <div
+      className={outterClassName}
+      onClick={disabled || children ? undefined : onClick}
+    >
       <div className={className}>
         <div className={styles.icon}>
           {tick ? <FontAwesomeIcon icon={faCheck} /> : icon}
@@ -56,11 +59,11 @@ export default function OptionListItem({
         </div>
         <div className={styles.right}>{right}</div>
         <div className={styles.arrow}>
-          {children && <FontAwesomeIcon icon={faChevronRight} />}
+          {children && !disabled && <FontAwesomeIcon icon={faChevronRight} />}
         </div>
       </div>
 
-      {children && (
+      {children && !disabled && (
         <div className={styles.child}>
           <AvoidOffscreen>{children}</AvoidOffscreen>
         </div>

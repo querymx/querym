@@ -4,13 +4,11 @@ import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCe
 import { QueryResultHeader } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
-import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useTableCellManager } from './TableCellManager';
 import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import useDataTableContextMenu from './useDataTableContextMenu';
 
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
@@ -52,78 +50,13 @@ function QueryResultTable({
     setSelectedRowsIndex(selectedRows);
   };
 
-  const { handleContextMenu } = useContextMenu(() => {
-    const selectedCell = cellManager.getFocusCell();
-
-    return [
-      {
-        text: 'Insert new row',
-        onClick: () => {
-          collector.createNewRow();
-        },
-        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
-      },
-      {
-        text: 'Remove selected rows',
-        destructive: true,
-        disabled: selectedRowsIndex.length === 0,
-        onClick: () => {
-          for (const selectedRowIndex of selectedRowsIndex) {
-            collector.removeRow(
-              selectedRowIndex - newRowCount < 0
-                ? selectedRowIndex - newRowCount
-                : selectedRowIndex - newRowCount + page * pageSize
-            );
-          }
-        },
-        icon: <FontAwesomeIcon icon={faTimesCircle} />,
-        separator: true,
-      },
-      {
-        text: 'Insert NULL',
-        disabled: !selectedCell,
-        onClick: () => selectedCell?.insert(null),
-        separator: true,
-      },
-      {
-        text: 'Transform',
-        disabled: !selectedCell,
-        children: [{ text: 'Bcrypt Password Hash' }, { text: 'MD5' }],
-      },
-      {
-        text: 'Copy',
-        hotkey: 'Ctrl + C',
-        disabled: !selectedCell,
-        onClick: () => selectedCell?.copy(),
-      },
-      {
-        text: 'Paste',
-        hotkey: 'Ctrl + V',
-        disabled: !selectedCell,
-        onClick: () => selectedCell?.paste(),
-        separator: true,
-      },
-      {
-        text: `Discard All Changes`,
-        destructive: true,
-        disabled: !collector.getChangesCount(),
-        onClick: () => {
-          const rows = collector.getChanges().changes;
-
-          for (const row of rows) {
-            for (const col of row.cols) {
-              const cell = cellManager.get(row.row, col.col);
-              if (cell) {
-                cell.discard();
-              }
-            }
-          }
-
-          collector.clear();
-        },
-      },
-    ];
-  }, [collector, newRowCount, selectedRowsIndex, page, pageSize]);
+  const { handleContextMenu } = useDataTableContextMenu({
+    data: result,
+    cellManager,
+    collector,
+    newRowCount,
+    selectedRowsIndex,
+  });
 
   const data: { data: Record<string, unknown>; rowIndex: number }[] =
     useMemo(() => {

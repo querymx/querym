@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useMemo, useContext } from 'react';
 import { TableEditableCellHandler } from './TableCell/TableEditableCell';
 
-class TableCellManager {
+export class TableCellManager {
   protected focused: [number, number] | null = null;
   protected cells: Record<
     string,

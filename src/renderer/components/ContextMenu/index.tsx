@@ -29,21 +29,22 @@ function renderArrayOfMenu(
       <OptionList minWidth={minWidth}>
         {items.map((value, idx) => {
           const { children, onClick, ...props } = value;
+
+          const overrideOnClick = (e: React.MouseEvent) => {
+            if (onClick) onClick(e);
+            if (onClose) onClose();
+          };
+
           if (children && children.length > 0) {
             return (
-              <OptionListItem
-                key={idx}
-                {...props}
-                onClick={(e) => {
-                  if (onClick) onClick(e);
-                  if (onClose) onClose();
-                }}
-              >
+              <OptionListItem {...props} key={idx} onClick={overrideOnClick}>
                 {renderArrayOfMenu(children, onClose)}
               </OptionListItem>
             );
           }
-          return <OptionListItem key={idx} {...props} />;
+          return (
+            <OptionListItem key={idx} {...props} onClick={overrideOnClick} />
+          );
         })}
       </OptionList>
     </DropContainer>
@@ -69,10 +70,14 @@ export default function ContextMenu({
     };
   }, [onClose]);
 
+  console.log(items);
+
   return open ? (
     <div
       style={{ position: 'fixed', zIndex: 90000, left: x, top: y }}
-      onMouseDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+      }}
     >
       <AvoidOffscreen>
         {renderArrayOfMenu(items, onClose, minWidth)}
