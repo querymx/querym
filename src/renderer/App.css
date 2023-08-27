@@ -16,7 +16,7 @@ body {
 
   --color-text: #000;
   --color-text-link: #1a64f4;
-  --color-text-disabled: #555;
+  --color-text-disabled: #aaa;
 
   /* For Button */
   --color-surface-light: #ecf0f1;

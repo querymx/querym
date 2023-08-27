@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef, useState } from 'react';
+import { ReactElement, useRef, useEffect, useState } from 'react';
 import ContextMenu, { ContextMenuItemProps } from '.';
 
 interface AttachedContextMenuProps {
@@ -39,16 +39,15 @@ export default function AttachedContextMenu({
         {activator({ isOpened: open })}
       </div>
       <ContextMenu
-        status={{ open, x, y }}
         minWidth={minWidth}
+        items={items}
+        open={open}
+        x={x}
+        y={y}
         onClose={() => {
           setOpen(false);
         }}
-      >
-        {items.map((item, idx) => (
-          <ContextMenu.Item {...item} key={idx} />
-        ))}
-      </ContextMenu>
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useCallback } from 'react';
 import styles from './styles.module.scss';
 import { ContextMenuItemProps } from '../ContextMenu';
-import { useContextMenu } from './../../contexts/ContextMenuProvider';
+import AttachedContextMenu from '../ContextMenu/AttachedContextMenu';
 
 interface ToolbarItemProps {
   icon?: ReactNode;
@@ -84,7 +84,7 @@ Toolbar.TextField = function ({
   );
 };
 
-Toolbar.ContextMenu = function ({
+Toolbar.ContextMenu = function ToolbarContextMenu({
   items,
   icon,
   text,
@@ -93,12 +93,14 @@ Toolbar.ContextMenu = function ({
   text: string;
   icon?: ReactNode;
 }) {
-  const { handleClick } = useContextMenu(() => items, [items]);
+  const activator = useCallback(() => {
+    return (
+      <li className={styles.button}>
+        {icon && <span className={styles.icon}>{icon}</span>}
+        <span>{text}</span>
+      </li>
+    );
+  }, []);
 
-  return (
-    <li className={styles.button} onClick={handleClick}>
-      {icon && <span className={styles.icon}>{icon}</span>}
-      <span>{text}</span>
-    </li>
-  );
+  return <AttachedContextMenu items={items} activator={activator} />;
 };
