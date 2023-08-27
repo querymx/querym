@@ -84,7 +84,7 @@ Toolbar.TextField = function ({
   );
 };
 
-Toolbar.ContextMenu = function ({
+Toolbar.ContextMenu = function ToolbarContextMenu({
   items,
   icon,
   text,
