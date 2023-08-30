@@ -1,11 +1,12 @@
 import { memo } from 'react';
-import TableCellString from './TableCellString';
 import TableCellNumber from './TableCellNumber';
 import TableCellJson from './TableCellJson';
 import { QueryResultHeader } from 'types/SqlResult';
 import TableCellDecimal from './TableCellDecimal';
 import TableCellEnum from './TableCellEnum';
 import { TableCellCustomTypeProps } from './createTableCellType';
+import TableCellOther from './TableCellOther';
+import TableCellString from './TableCellString';
 
 interface TableCellProps {
   value: unknown;
@@ -25,13 +26,15 @@ function getComponentFromHeader(
     return TableCellJson;
   } else if (header.type.type === 'decimal') {
     return TableCellDecimal;
+  } else if (['string'].includes(header.type.type)) {
+    return TableCellString;
   } else if (header.columnDefinition) {
     if (header.columnDefinition.dataType === 'enum') {
       return TableCellEnum;
     }
   }
 
-  return TableCellString;
+  return TableCellOther;
 }
 
 export default memo(function TableCell(props: TableCellProps) {

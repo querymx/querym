@@ -1,7 +1,7 @@
 import { TableColumnSchema } from './SqlSchema';
 
 export interface QueryResultHeaderType {
-  type: 'string' | 'number' | 'json' | 'decimal';
+  type: 'string' | 'number' | 'json' | 'decimal' | 'other';
 }
 
 export interface QueryResultHeader {

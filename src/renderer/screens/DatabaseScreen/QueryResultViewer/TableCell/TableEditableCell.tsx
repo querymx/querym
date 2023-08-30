@@ -27,12 +27,13 @@ export interface TableEditableEditorProps {
 }
 
 export interface TableEditableContentProps {
+  header: QueryResultHeader;
   value: unknown;
 }
 
 interface TableEditableCellProps {
   diff: (prev: unknown, current: unknown) => boolean;
-  editor: React.FC<TableEditableEditorProps>;
+  editor?: React.FC<TableEditableEditorProps>;
   detactEditor?: boolean;
   content: React.FC<TableEditableContentProps>;
   row: number;
@@ -75,6 +76,8 @@ const TableEditableCell = forwardRef<
 
   const insertValueHandler = useCallback(
     (newValue: unknown) => {
+      if (readOnly) return;
+
       setAfterValue(newValue);
       if (diff(value, newValue)) {
         setChange(row, col, newValue);
@@ -82,7 +85,7 @@ const TableEditableCell = forwardRef<
         removeChange(row, col);
       }
     },
-    [setAfterValue, setChange, diff]
+    [setAfterValue, setChange, diff, readOnly]
   );
 
   const copyHandler = useCallback(() => {
@@ -108,7 +111,6 @@ const TableEditableCell = forwardRef<
     () => {
       return {
         discard: () => {
-          console.log('discard', value, row, col);
           setAfterValue(value);
           removeChange(row, col);
         },
@@ -127,10 +129,10 @@ const TableEditableCell = forwardRef<
   );
 
   const onEnterEditMode = useCallback(() => {
-    if (!onEditMode) {
+    if (!onEditMode && !readOnly) {
       setOnEditMode(true);
     }
-  }, [onEditMode, setOnEditMode]);
+  }, [onEditMode, setOnEditMode, readOnly]);
 
   const handleFocus = useCallback(() => {
     if (!onFocus) {
@@ -184,7 +186,7 @@ const TableEditableCell = forwardRef<
       onContextMenu={handleFocus}
       onDoubleClick={onEnterEditMode}
     >
-      {onEditMode ? (
+      {Editor && onEditMode ? (
         detactEditor ? (
           <>
             <Editor
@@ -193,7 +195,7 @@ const TableEditableCell = forwardRef<
               onExit={onExitEditMode}
               readOnly={readOnly}
             />
-            <Content value={afterValue} />
+            <Content value={afterValue} header={header} />
           </>
         ) : (
           <Editor
@@ -204,7 +206,7 @@ const TableEditableCell = forwardRef<
           />
         )
       ) : (
-        <Content value={afterValue} />
+        <Content value={afterValue} header={header} />
       )}
     </div>
   );

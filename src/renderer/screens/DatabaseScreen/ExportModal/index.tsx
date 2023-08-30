@@ -7,6 +7,7 @@ import {
   faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getDisplayableFromDatabaseRows } from 'libs/TransformResult';
 import { useCallback, useState } from 'react';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
@@ -192,7 +193,10 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
 
       if (format === 'excel') {
         window.electron
-          .saveExcelFile(fileName, data.rows)
+          .saveExcelFile(
+            fileName,
+            getDisplayableFromDatabaseRows(data.rows, data.headers)
+          )
           .then(() => setStage('SUCCESS'))
           .catch((e) => {
             console.error(e);
@@ -200,7 +204,10 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
           });
       } else if (format === 'csv') {
         window.electron
-          .saveCsvFile(fileName, data.rows)
+          .saveCsvFile(
+            fileName,
+            getDisplayableFromDatabaseRows(data.rows, data.headers)
+          )
           .then(() => setStage('SUCCESS'))
           .catch((e) => {
             console.error(e);

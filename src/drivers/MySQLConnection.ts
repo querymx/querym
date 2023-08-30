@@ -50,6 +50,8 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     type = { type: 'number' };
   } else if ([0, 246].includes(column.type)) {
     type = { type: 'decimal' };
+  } else if ([255, 252, 250, 251, 252].includes(column.type)) {
+    type = { type: 'other' };
   }
 
   const databaseNameLength = column._buf[13];
@@ -185,9 +187,7 @@ export default class MySQLConnection extends SQLLikeConnection {
 
   async close() {
     if (this.pool) {
-      const conn = await this.getConnection();
-      conn.end();
-      conn.destroy();
+      this.pool.end().catch();
     }
 
     if (this.keepAliveTimerId) {

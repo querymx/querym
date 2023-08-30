@@ -8,11 +8,12 @@ import { QueryResultHeader } from 'types/SqlResult';
 
 interface TableCellCustomTypeOptions<T> {
   diff: (prev: T, current: T) => boolean;
-  editor: React.FC<TableEditableEditorProps>;
+  editor?: React.FC<TableEditableEditorProps>;
   content: React.FC<TableEditableContentProps>;
   detachEditor?: boolean;
   onCopy?: (value: T) => string;
   onPaste?: (value: string) => { accept: boolean; value: T };
+  readOnly?: boolean;
 }
 
 export interface TableCellCustomTypeProps<T> {
@@ -52,7 +53,7 @@ export default function createTableCellType<T>(
         col={col}
         editor={options.editor}
         content={options.content}
-        readOnly={readOnly}
+        readOnly={options.readOnly || readOnly}
         detactEditor={options.detachEditor}
         onCopy={options.onCopy}
         onPaste={options.onPaste}
