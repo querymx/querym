@@ -94,7 +94,7 @@
     "sqlstring": "^2.3.3",
     "swr": "^2.2.1",
     "uuid": "^9.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
