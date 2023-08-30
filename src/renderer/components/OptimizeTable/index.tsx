@@ -168,9 +168,11 @@ export default function OptimizeTable({
 
   const handleRowClick = useCallback(
     (e: React.MouseEvent<HTMLTableRowElement>, rowIndex: number) => {
-      const isCtrlKey = e.ctrlKey || e.metaKey;
-      const isShiftKey = e.shiftKey;
-      handleRowSelection(rowIndex, isCtrlKey, isShiftKey);
+      if (e.button === 0) {
+        const isCtrlKey = e.ctrlKey || e.metaKey;
+        const isShiftKey = e.shiftKey;
+        handleRowSelection(rowIndex, isCtrlKey, isShiftKey);
+      }
     },
     [handleRowSelection]
   );
