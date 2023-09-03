@@ -147,7 +147,7 @@ export default function WindowTab({
               className={styles.content}
               key={tab.key}
               style={{
-                visibility: tab.key === selected ? 'visible' : 'hidden',
+                visibility: tab.key === selected ? 'inherit' : 'hidden',
               }}
             >
               {tab.component}

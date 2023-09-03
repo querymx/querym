@@ -18,6 +18,8 @@ export default function WelcomeScreen() {
     );
   }, []);
 
+  console.log(window.env);
+
   return (
     <Stack padding vertical full>
       <img src={imageLogo} alt="" width={150} height={150} />
@@ -40,7 +42,7 @@ export default function WelcomeScreen() {
         </ButtonGroup>
       </div>
 
-      <Contributors />
+      {window.env.env !== 'development' && <Contributors />}
     </Stack>
   );
 }
