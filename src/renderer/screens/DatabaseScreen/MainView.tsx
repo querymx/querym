@@ -1,27 +1,30 @@
 import Splitter from 'renderer/components/Splitter/Splitter';
 import WindowTab, { WindowTabItem } from 'renderer/components/WindowTab';
-import SqlDebugger from './SqlDebugger';
 import { useCallback } from 'react';
-import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
-import DatabaseTableList from 'renderer/components/DatabaseTable/DatabaseTableList';
 import generateIncrementalName from 'renderer/utils/generateIncrementalName';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
+import Layout from 'renderer/components/Layout';
+import MainToolbar from './MainToolbar';
+import RelationalDatabaseSidebar from './RelationalDatabaseSidebar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCode } from '@fortawesome/free-solid-svg-icons';
 
 export default function MainView() {
   const { newWindow, tabs, setTabs, selectedTab, setSelectedTab } =
     useWindowTab();
-  const { enableDebug } = useAppFeature();
 
   const onNewTabClick = useCallback(() => {
     const incrementalTabName = generateIncrementalName(
       tabs.map((tab) => tab.name),
       'Unnamed Query'
     );
-    newWindow(incrementalTabName, (key, name) => (
-      <QueryWindow tabKey={key} name={name} />
-    ));
+    newWindow(
+      incrementalTabName,
+      (key, name) => <QueryWindow tabKey={key} name={name} />,
+      <FontAwesomeIcon icon={faCode} />
+    );
   }, [newWindow, tabs]);
 
   const handleTabDragged = (key: string, newIndex: number) => {
@@ -114,9 +117,12 @@ export default function MainView() {
 
   return (
     <Splitter primaryIndex={1} secondaryInitialSize={200}>
-      <DatabaseTableList />
-      <div>
-        <Splitter vertical primaryIndex={0} secondaryInitialSize={100}>
+      <RelationalDatabaseSidebar />
+      <Layout>
+        <Layout.Fixed>
+          <MainToolbar />
+        </Layout.Fixed>
+        <Layout.Grow>
           <WindowTab
             draggable
             selected={selectedTab}
@@ -129,13 +135,8 @@ export default function MainView() {
             tabs={tabs}
             onTabDragged={handleTabDragged}
           />
-          {enableDebug && (
-            <div>
-              <SqlDebugger />
-            </div>
-          )}
-        </Splitter>
-      </div>
+        </Layout.Grow>
+      </Layout>
     </Splitter>
   );
 }

@@ -12,6 +12,7 @@ import NotImplementCallback from 'libs/NotImplementCallback';
 import StatusBar from './components/StatusBar';
 import SWRProvider from './contexts/SWRProvider';
 import { DeviceProvider } from './contexts/DeviceProvider';
+import Layout from './components/Layout';
 
 const ConnectionContext = createContext<{
   connect: (connectionConfig: ConnectionStoreItem) => void;
@@ -58,13 +59,20 @@ export default function App() {
                         paddingBottom: 26,
                       }}
                     >
-                      {config ? (
-                        <DatabaseScreen config={config} />
-                      ) : (
-                        <HomeScreen />
-                      )}
+                      <Layout>
+                        <Layout.Grow>
+                          {' '}
+                          {config ? (
+                            <DatabaseScreen config={config} />
+                          ) : (
+                            <HomeScreen />
+                          )}
+                        </Layout.Grow>
+                      </Layout>
+                      <Layout.Fixed>
+                        <StatusBar />
+                      </Layout.Fixed>
                     </div>
-                    <StatusBar />
                   </SqlExecuteProvider>
                 </NativeMenuProvider>
               </DialogProvider>

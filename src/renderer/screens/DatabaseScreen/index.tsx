@@ -9,8 +9,6 @@ import {
 import { WindowTabProvider } from 'renderer/contexts/WindowTabProvider';
 import SqlProtectionProvider from 'renderer/contexts/SqlProtectionProvider';
 import { DatabaseSchemas } from 'types/SqlSchema';
-import Layout from 'renderer/components/Layout';
-import MainToolbar from './MainToolbar';
 import MainView from './MainView';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudBolt, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -105,14 +103,7 @@ function DatabaseScreenBody() {
     <SchemaProvider schema={schema} reloadSchema={reloadSchema}>
       <SwitchDatabaseProvider>
         <UpdateConnectionStatus />
-        <Layout>
-          <Layout.Fixed>
-            <MainToolbar />
-          </Layout.Fixed>
-          <Layout.Grow>
-            <MainView />
-          </Layout.Grow>
-        </Layout>
+        <MainView />
       </SwitchDatabaseProvider>
     </SchemaProvider>
   );
