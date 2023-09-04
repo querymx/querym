@@ -18,8 +18,6 @@ export default function WelcomeScreen() {
     );
   }, []);
 
-  console.log(window.env);
-
   return (
     <Stack padding vertical full>
       <img src={imageLogo} alt="" width={150} height={150} />

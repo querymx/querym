@@ -22,7 +22,7 @@ export default function RelationalDatabaseSidebar() {
   }, []);
 
   return (
-    <div style={{ height: '100%' }}>
+    <div style={{ height: '100%', background: 'var(--color-list-surface)' }}>
       <WindowTab
         selected={selectedTabKey}
         onTabChanged={(tab) => {

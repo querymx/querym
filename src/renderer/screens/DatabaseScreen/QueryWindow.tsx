@@ -2,7 +2,7 @@ import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
@@ -20,6 +20,7 @@ import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
 import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
+import { useSavedQueryPubSub } from './SavedQueryProvider';
 
 export type EnumSchema = Array<{
   table: string;
@@ -44,11 +45,17 @@ export default function QueryWindow({
   const [loading, setLoading] = useState(false);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
   const [result, setResult] = useState<SqlStatementResult[]>([]);
+  const { publish } = useSavedQueryPubSub();
 
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const { schema, currentDatabase } = useSchema();
-  const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
+  const { selectedTab, tabs, setTabData, saveWindowTabHistory } =
+    useWindowTab();
+
+  const currentTab = useMemo(() => {
+    return tabs.find((tab) => tab.key === tabKey);
+  }, [tabKey, tabs]);
 
   const [code, setCode] = useState(initialSql || '');
 
@@ -124,6 +131,15 @@ export default function QueryWindow({
     return editorRef.current.view?.state.doc.toString() || '';
   }, []);
 
+  const savedQuery = useCallback(
+    (sql: string) => {
+      if (currentTab) {
+        publish({ id: currentTab.key, name: currentTab.name, sql });
+      }
+    },
+    [currentTab]
+  );
+
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {
       saveWindowTabHistory();
@@ -198,6 +214,11 @@ export default function QueryWindow({
           <Stack spacing="none">
             <QueryWindowNameEditor tabKey={tabKey} />
             <Toolbar>
+              <Toolbar.Item
+                icon={<FontAwesomeIcon icon={faPlay} />}
+                text="Save"
+                onClick={() => savedQuery(getText())}
+              />
               <Toolbar.Item
                 icon={<FontAwesomeIcon icon={faPlay} />}
                 text="Run (F9)"

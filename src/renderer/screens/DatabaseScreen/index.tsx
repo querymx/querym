@@ -19,6 +19,7 @@ import { useConnection } from 'renderer/App';
 import SwitchDatabaseProvider from 'renderer/contexts/SwitchDatabaseProvider';
 import UpdateConnectionStatus from './UpdateConnectionStatus';
 import useWindowTitle from 'renderer/hooks/useWindowTitle';
+import SavedQueryProvider from './SavedQueryProvider';
 
 function DatabaseScreenBody() {
   const { common } = useSqlExecute();
@@ -103,7 +104,9 @@ function DatabaseScreenBody() {
     <SchemaProvider schema={schema} reloadSchema={reloadSchema}>
       <SwitchDatabaseProvider>
         <UpdateConnectionStatus />
-        <MainView />
+        <SavedQueryProvider>
+          <MainView />
+        </SavedQueryProvider>
       </SwitchDatabaseProvider>
     </SchemaProvider>
   );
