@@ -5,6 +5,7 @@ import {
   forwardRef,
   useImperativeHandle,
   useEffect,
+  useRef,
 } from 'react';
 import styles from './styles.module.css';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
@@ -73,6 +74,7 @@ const TableEditableCell = forwardRef<
   );
   const [onEditMode, setOnEditMode] = useState(false);
   const [onFocus, setFocus] = useState(false);
+  const divRef = useRef<HTMLDivElement>(null);
 
   const insertValueHandler = useCallback(
     (newValue: unknown) => {
@@ -157,7 +159,7 @@ const TableEditableCell = forwardRef<
   );
 
   useEffect(() => {
-    if (onFocus) {
+    if (onFocus && divRef.current) {
       const onKeyBinding = (e: KeyboardEvent) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
           copyHandler();
@@ -166,10 +168,11 @@ const TableEditableCell = forwardRef<
         }
       };
 
-      document.addEventListener('keydown', onKeyBinding);
-      return () => document.removeEventListener('keydown', onKeyBinding);
+      divRef.current.addEventListener('keydown', onKeyBinding);
+      return () =>
+        divRef?.current?.removeEventListener('keydown', onKeyBinding);
     }
-  }, [onFocus, pasteHandler, copyHandler]);
+  }, [divRef, onFocus, pasteHandler, copyHandler]);
 
   const className = [
     styles.container,
@@ -181,6 +184,8 @@ const TableEditableCell = forwardRef<
 
   return (
     <div
+      tabIndex={-1}
+      ref={divRef}
       className={className}
       onClick={handleFocus}
       onContextMenu={handleFocus}
