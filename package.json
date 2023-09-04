@@ -90,7 +90,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
     "react-syntax-highlighter": "^15.5.0",
-    "sql-formatter": "^12.2.4",
+    "sql-formatter": "^13.0.0",
     "sqlstring": "^2.3.3",
     "swr": "^2.2.1",
     "uuid": "^9.0.0",
