@@ -18,14 +18,15 @@ export default function SavedQuery() {
       new TreeViewItemStorage<SavedQueryItem>({
         onIconMapper: (node) => {
           if (node.folder) {
-            return <FontAwesomeIcon icon={faFolder} />;
+            return <FontAwesomeIcon icon={faFolder} color="#f39c12" />;
           }
 
-          return <FontAwesomeIcon icon={faCode} />;
+          return <FontAwesomeIcon icon={faCode} color="#27ae60" />;
         },
       }),
     []
   );
+
   const [tree, setTree] = useState<TreeViewItemData<SavedQueryItem>[]>([]);
   const { newWindow, tabs, setSelectedTab } = useWindowTab();
   const [selectedKey, setSelectedKey] = useState<
@@ -35,7 +36,7 @@ export default function SavedQuery() {
   const { subscribe } = useSavedQueryPubSub();
   useEffect(() => {
     const subInstance = subscribe(({ id, name, sql }) => {
-      console.log('subscribe receive', id, name, sql);
+      console.log('subscribe receive 2', id, name, sql);
       treeStorage.updateNode(id, name, { sql });
       console.log(treeStorage.toTreeViewArray());
       setTree(treeStorage.toTreeViewArray());
@@ -66,7 +67,10 @@ export default function SavedQuery() {
               initialSql={value?.data?.sql ?? ''}
             />
           ),
-          { icon: <FontAwesomeIcon icon={faCode} />, overrideKey: value.id }
+          {
+            icon: <FontAwesomeIcon icon={faCode} />,
+            overrideKey: value.id,
+          }
         );
       }
     },
@@ -81,8 +85,13 @@ export default function SavedQuery() {
       },
       {
         text: 'New Folder',
+        icon: <FontAwesomeIcon icon={faFolder} color="#f39c12" />,
         separator: true,
         onClick: newFolderCallback,
+      },
+      {
+        text: 'Rename',
+        separator: true,
       },
       {
         destructive: true,
@@ -94,6 +103,7 @@ export default function SavedQuery() {
   return (
     <div style={{ height: '100%' }}>
       <TreeView
+        draggable
         items={tree}
         selected={selectedKey}
         onDoubleClick={onDoubleClick}
