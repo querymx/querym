@@ -6,6 +6,10 @@
 
 .queryEditor {
   flex-grow: 1;
+  margin: 10px 10px 0px 10px;
+  border: 1px solid var(--color-surface-hover);
+
+
   overflow-y: auto;
   div, cm-editer{
     &::-webkit-scrollbar {
@@ -33,19 +37,19 @@
   gap: 5px;
   align-items: center;
   padding: 0px 10px;
-  border-right: 1px solid var(--color-border);
-  margin: 7px 0;
 
   input {
     color: var(--color-text);
+    font-size: 14px;
     background: var(--color-surface);
-    font-weight: bold;
     outline: none;
-    border: 0;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    border: 2px solid var(--color-surface);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-weight: bold;
+
+    &:focus {
+      border: 2px solid var(--color-surface-hover)
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faICursor, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
@@ -131,14 +131,11 @@ export default function QueryWindow({
     return editorRef.current.view?.state.doc.toString() || '';
   }, []);
 
-  const savedQuery = useCallback(
-    (sql: string) => {
-      if (currentTab) {
-        publish({ id: currentTab.key, name: currentTab.name, sql });
-      }
-    },
-    [currentTab]
-  );
+  const savedQuery = useCallback(() => {
+    if (currentTab) {
+      publish({ id: currentTab.key, name: currentTab.name, sql: getText() });
+    }
+  }, [getText, currentTab]);
 
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {
@@ -210,7 +207,24 @@ export default function QueryWindow({
   return (
     <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>
       <div className={styles.queryContainer}>
-        <QueryHeader tabKey={tabKey} />
+        <QueryHeader tabKey={tabKey} onSave={savedQuery} />
+
+        <div className={styles.queryEditor}>
+          <SqlCodeEditor
+            ref={editorRef}
+            onContextMenu={handleContextMenu}
+            style={{ fontSize: 20, height: '100%' }}
+            value={code}
+            onChange={(newCode) => {
+              setCode(newCode);
+              setTabData(tabKey, { sql: newCode, type: 'query' });
+            }}
+            height="100%"
+            schema={schema}
+            currentDatabase={currentDatabase}
+          />
+        </div>
+
         <div>
           <Toolbar>
             <Toolbar.Item
@@ -231,29 +245,7 @@ export default function QueryWindow({
               text="Run Selection (Ctrl + F9)"
               onClick={() => onRun(getSelection())}
             />
-            <Toolbar.Filler />
-            <Toolbar.Item
-              icon={<FontAwesomeIcon icon={faSave} />}
-              text="Save"
-              onClick={() => savedQuery(getText())}
-            />
           </Toolbar>
-        </div>
-
-        <div className={styles.queryEditor}>
-          <SqlCodeEditor
-            ref={editorRef}
-            onContextMenu={handleContextMenu}
-            style={{ fontSize: 20, height: '100%' }}
-            value={code}
-            onChange={(newCode) => {
-              setCode(newCode);
-              setTabData(tabKey, { sql: newCode, type: 'query' });
-            }}
-            height="100%"
-            schema={schema}
-            currentDatabase={currentDatabase}
-          />
         </div>
       </div>
       <div style={{ height: '100%' }}>

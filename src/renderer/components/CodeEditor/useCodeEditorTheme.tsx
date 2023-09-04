@@ -16,7 +16,7 @@ export default function useCodeEditorTheme() {
           caret: '#FBAC52',
           selection: '#FFD420',
           selectionMatch: '#FFD420',
-          gutterBackground: '#f5f5f5',
+          gutterBackground: '#fff',
           gutterForeground: '#4D4D4C',
           gutterBorder: 'transparent',
           lineHighlight: '#00000012',
