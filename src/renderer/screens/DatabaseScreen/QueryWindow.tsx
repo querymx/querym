@@ -1,6 +1,6 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faICursor, faSave } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
@@ -13,7 +13,6 @@ import QueryMultipleResultViewer from './QueryMultipleResultViewer';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { useDialog } from 'renderer/contexts/DialogProvider';
 import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
-import QueryWindowNameEditor from './QueryWindowNameEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
@@ -21,6 +20,7 @@ import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
+import QueryHeader from './QueryHeader';
 
 export type EnumSchema = Array<{
   table: string;
@@ -210,38 +210,34 @@ export default function QueryWindow({
   return (
     <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>
       <div className={styles.queryContainer}>
+        <QueryHeader tabKey={tabKey} />
         <div>
-          <Stack spacing="none">
-            <QueryWindowNameEditor tabKey={tabKey} />
-            <Toolbar>
-              <Toolbar.Item
-                icon={<FontAwesomeIcon icon={faPlay} />}
-                text="Save"
-                onClick={() => savedQuery(getText())}
-              />
-              <Toolbar.Item
-                icon={<FontAwesomeIcon icon={faPlay} />}
-                text="Run (F9)"
-                onClick={() => onRun(getText())}
-              />
-              <Toolbar.Item
-                icon={
-                  <Stack spacing="none" center>
-                    <FontAwesomeIcon
-                      icon={faPlay}
-                      style={{ paddingRight: 3 }}
-                    />
-                    <FontAwesomeIcon
-                      icon={faICursor}
-                      style={{ height: 11, color: 'black' }}
-                    />
-                  </Stack>
-                }
-                text="Run Selection (Ctrl + F9)"
-                onClick={() => onRun(getSelection())}
-              />
-            </Toolbar>
-          </Stack>
+          <Toolbar>
+            <Toolbar.Item
+              icon={<FontAwesomeIcon icon={faPlay} />}
+              text="Run (F9)"
+              onClick={() => onRun(getText())}
+            />
+            <Toolbar.Item
+              icon={
+                <Stack spacing="none" center>
+                  <FontAwesomeIcon icon={faPlay} style={{ paddingRight: 3 }} />
+                  <FontAwesomeIcon
+                    icon={faICursor}
+                    style={{ height: 11, color: 'black' }}
+                  />
+                </Stack>
+              }
+              text="Run Selection (Ctrl + F9)"
+              onClick={() => onRun(getSelection())}
+            />
+            <Toolbar.Filler />
+            <Toolbar.Item
+              icon={<FontAwesomeIcon icon={faSave} />}
+              text="Save"
+              onClick={() => savedQuery(getText())}
+            />
+          </Toolbar>
         </div>
 
         <div className={styles.queryEditor}>

@@ -9,35 +9,37 @@ export default function MainToolbar() {
   const { protectionLevel, setProductionLevel } = useDatabaseSetting();
 
   return (
-    <Toolbar shadow>
-      <Toolbar.Item
-        text="Disconnect"
-        icon={<FontAwesomeIcon icon={faPlugCircleXmark} />}
-        onClick={() => {
-          disconnect();
-        }}
-      />
-      <Toolbar.ContextMenu
-        text={`Protection: Level ${protectionLevel}`}
-        icon={<FontAwesomeIcon icon={faShield} />}
-        items={[
-          {
-            text: 'Level 0 - Send queries without any warning',
-            tick: protectionLevel === 0,
-            onClick: () => setProductionLevel(0),
-          },
-          {
-            text: 'Level 1 - Warn before send queries except SELECT',
-            tick: protectionLevel === 1,
-            onClick: () => setProductionLevel(1),
-          },
-          {
-            text: 'Level 2 - Warn before send queries',
-            tick: protectionLevel === 2,
-            onClick: () => setProductionLevel(2),
-          },
-        ]}
-      />
-    </Toolbar>
+    <div style={{ paddingBottom: 5 }}>
+      <Toolbar>
+        <Toolbar.Item
+          text="Disconnect"
+          icon={<FontAwesomeIcon icon={faPlugCircleXmark} />}
+          onClick={() => {
+            disconnect();
+          }}
+        />
+        <Toolbar.ContextMenu
+          text={`Protection: Level ${protectionLevel}`}
+          icon={<FontAwesomeIcon icon={faShield} />}
+          items={[
+            {
+              text: 'Level 0 - Send queries without any warning',
+              tick: protectionLevel === 0,
+              onClick: () => setProductionLevel(0),
+            },
+            {
+              text: 'Level 1 - Warn before send queries except SELECT',
+              tick: protectionLevel === 1,
+              onClick: () => setProductionLevel(1),
+            },
+            {
+              text: 'Level 2 - Warn before send queries',
+              tick: protectionLevel === 2,
+              onClick: () => setProductionLevel(2),
+            },
+          ]}
+        />
+      </Toolbar>
+    </div>
   );
 }

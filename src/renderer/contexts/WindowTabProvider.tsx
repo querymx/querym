@@ -32,6 +32,12 @@ export interface WindowTabItemData {
   table?: string;
 }
 
+type NewWindowCallback = (
+  name: string,
+  createComponent: (key: string, name: string) => ReactElement,
+  options: { icon?: ReactElement; overrideKey?: string }
+) => void;
+
 const WindowTabContext = createContext<{
   tabs: WindowTabItemProps[];
   setTabs: React.Dispatch<React.SetStateAction<WindowTabItemProps[]>>;
@@ -39,12 +45,7 @@ const WindowTabContext = createContext<{
   setSelectedTab: React.Dispatch<React.SetStateAction<string | undefined>>;
   saveWindowTabHistory: () => void;
   setTabData: (key: string, data: WindowTabItemData) => void;
-
-  newWindow: (
-    name: string,
-    createComponent: (key: string, name: string) => ReactElement,
-    icon?: ReactElement
-  ) => void;
+  newWindow: NewWindowCallback;
 }>({
   tabs: [],
   setTabs: NotImplementCallback,
@@ -66,18 +67,19 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
     data: {},
   });
 
-  const newWindow = useCallback(
+  const newWindow = useCallback<NewWindowCallback>(
     (
       name: string,
       createComponent: (key: string, name: string) => ReactElement,
-      icon?: ReactElement
+      options
     ) => {
-      const key = uuidv1();
+      const key = options?.overrideKey ?? uuidv1();
+
       setTabs((prev) => {
         return [
           {
             key,
-            icon,
+            icon: options.icon,
             name,
             component: createComponent(key, name),
           },

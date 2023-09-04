@@ -5,6 +5,8 @@ import TreeViewItemStorage from 'libs/TreeViewItemStorage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { useSavedQueryPubSub } from '../SavedQueryProvider';
+import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
+import QueryWindow from '../QueryWindow';
 
 interface SavedQueryItem {
   sql?: string;
@@ -25,6 +27,7 @@ export default function SavedQuery() {
     []
   );
   const [tree, setTree] = useState<TreeViewItemData<SavedQueryItem>[]>([]);
+  const { newWindow, tabs, setSelectedTab } = useWindowTab();
   const [selectedKey, setSelectedKey] = useState<
     TreeViewItemData<SavedQueryItem> | undefined
   >();
@@ -33,8 +36,8 @@ export default function SavedQuery() {
   useEffect(() => {
     const subInstance = subscribe(({ id, name, sql }) => {
       console.log('subscribe receive', id, name, sql);
-      treeStorage.renameNode(id, name);
       treeStorage.updateNode(id, name, { sql });
+      console.log(treeStorage.toTreeViewArray());
       setTree(treeStorage.toTreeViewArray());
     });
     return () => subInstance.destroy();
@@ -49,6 +52,26 @@ export default function SavedQuery() {
     treeStorage.insertNode({ sql: '' }, 'New Query', false);
     setTree(treeStorage.toTreeViewArray());
   }, [setTree, tree]);
+
+  const onDoubleClick = useCallback(
+    (value: TreeViewItemData<SavedQueryItem>) => {
+      if (tabs.find((tab) => tab.key === value.id)) setSelectedTab(value.id);
+      else {
+        newWindow(
+          value.text ?? '',
+          (key, name) => (
+            <QueryWindow
+              name={name}
+              tabKey={key}
+              initialSql={value?.data?.sql ?? ''}
+            />
+          ),
+          { icon: <FontAwesomeIcon icon={faCode} />, overrideKey: value.id }
+        );
+      }
+    },
+    [tabs, setSelectedTab, newWindow]
+  );
 
   const { handleContextMenu } = useContextMenu(() => {
     return [
@@ -73,6 +96,7 @@ export default function SavedQuery() {
       <TreeView
         items={tree}
         selected={selectedKey}
+        onDoubleClick={onDoubleClick}
         onSelectChange={setSelectedKey}
         onContextMenu={handleContextMenu}
       />

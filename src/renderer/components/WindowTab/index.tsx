@@ -136,6 +136,7 @@ export default function WindowTab({
               </li>
             );
           })}
+          <li style={{ flexGrow: 1 }}></li>
         </ul>
       </div>
       <div className={styles.contentContainer}>

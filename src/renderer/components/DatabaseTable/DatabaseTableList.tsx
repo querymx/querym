@@ -56,7 +56,7 @@ export default function DatabaseTableList() {
             name={name}
           />
         ),
-        <FontAwesomeIcon icon={faCode} />
+        { icon: <FontAwesomeIcon icon={faCode} /> }
       );
     }
   }, []);
@@ -92,7 +92,7 @@ export default function DatabaseTableList() {
                   />
                 );
               },
-              <FontAwesomeIcon icon={faTableList} color="#3498db" />
+              { icon: <FontAwesomeIcon icon={faTableList} color="#3498db" /> }
             );
           },
         },

@@ -23,7 +23,7 @@ export default function MainView() {
     newWindow(
       incrementalTabName,
       (key, name) => <QueryWindow tabKey={key} name={name} />,
-      <FontAwesomeIcon icon={faCode} />
+      { icon: <FontAwesomeIcon icon={faCode} /> }
     );
   }, [newWindow, tabs]);
 
