@@ -292,6 +292,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
               table_schema: database,
               table_name: table,
             })
+            .orderBy('ORDINAL_POSITION')
             .toRawSQL(),
         },
       ],

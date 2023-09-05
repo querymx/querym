@@ -24,6 +24,7 @@ interface QueryStates {
   where: QueryWhere[];
   select: string[];
   limit?: number;
+  orderBy?: [string, 'ASC' | 'DESC'];
 }
 
 abstract class QueryDialect {
@@ -95,6 +96,12 @@ export class QueryBuilder {
       }
     }
 
+    return this;
+  }
+
+  orderBy(field: string, by: 'ASC' | 'DESC' = 'ASC') {
+    if (!['ASC', 'DESC'].includes(by)) throw 'Order by must be DESC or ASC';
+    this.states.orderBy = [field, by];
     return this;
   }
 
@@ -195,6 +202,12 @@ export class QueryBuilder {
           'FROM',
           this.dialect.escapeIdentifier(this.states.table),
           whereSql ? 'WHERE ' + whereSql : whereSql,
+          this.states.orderBy
+            ? 'ORDER BY ' +
+              this.dialect.escapeIdentifier(this.states.orderBy[0]) +
+              ' ' +
+              this.states.orderBy[1]
+            : null,
           this.states.limit ? `LIMIT ?` : null,
         ]
           .filter(Boolean)
