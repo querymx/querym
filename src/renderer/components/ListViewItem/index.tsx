@@ -141,7 +141,9 @@ export default function ListViewItem({
         (collapsed ? (
           <div
             className={
-              theme === 'dark' ? `${styles.icon} ${styles.dark}` : styles.icon
+              theme === 'dark'
+                ? `${styles.action} ${styles.dark}`
+                : styles.action
             }
             onClick={onCollapsedClick}
           >
@@ -150,14 +152,16 @@ export default function ListViewItem({
         ) : (
           <div
             className={
-              theme === 'dark' ? `${styles.icon} ${styles.dark}` : styles.icon
+              theme === 'dark'
+                ? `${styles.action} ${styles.dark}`
+                : styles.action
             }
             onClick={onCollapsedClick}
           >
             <Icon.Right />
           </div>
         ))}
-      {!hasCollapsed && <div className={styles.icon}>{icon}</div>}
+      {icon && <div className={styles.icon}>{icon}</div>}
       {renaming ? (
         <div className={styles.text}>
           <input
