@@ -28,9 +28,14 @@ export default class TreeViewItemStorage<T> {
 
   protected onIconMapper?: TreeViewItemStorageIconMapper<T>;
   protected hash: Record<string, TreeViewItemStorageNode<T>> = {};
+  protected onChangeCallback?: (self: TreeViewItemStorage<T>) => void;
 
-  constructor(options?: { onIconMapper?: TreeViewItemStorageIconMapper<T> }) {
+  constructor(options?: {
+    onIconMapper?: TreeViewItemStorageIconMapper<T>;
+    onChange?: (self: TreeViewItemStorage<T>) => void;
+  }) {
     this.onIconMapper = options?.onIconMapper;
+    this.onChangeCallback = options?.onChange;
     this.hash['root'] = this.root;
   }
 
@@ -50,6 +55,8 @@ export default class TreeViewItemStorage<T> {
 
     this.root.children = [...this.root.children, nodeData];
     this.hash[key] = nodeData;
+
+    if (this.onChangeCallback) this.onChangeCallback(this);
   }
 
   protected removeNodeWalker(node: TreeViewItemStorageNode<T>) {
@@ -64,6 +71,7 @@ export default class TreeViewItemStorage<T> {
   removeNode(id: string) {
     const node = this.getById(id);
     if (node) this.removeNodeWalker(node);
+    if (this.onChangeCallback) this.onChangeCallback(this);
   }
 
   renameNode(id: string, name: string) {
@@ -71,6 +79,7 @@ export default class TreeViewItemStorage<T> {
     if (node) {
       node.name = name;
     }
+    if (this.onChangeCallback) this.onChangeCallback(this);
   }
 
   updateNode(id: string, name: string, value: T) {
@@ -79,6 +88,7 @@ export default class TreeViewItemStorage<T> {
     } else {
       this.insertNode(value, name, false, id);
     }
+    if (this.onChangeCallback) this.onChangeCallback(this);
   }
 
   protected getById(id: string | null): TreeViewItemStorageNode<T> | null {
@@ -152,12 +162,6 @@ export default class TreeViewItemStorage<T> {
     if (!nodeFrom) return;
     if (!nodeTo) return;
 
-    console.log(
-      'child?',
-      nodeFrom,
-      nodeTo,
-      this.isParentAndChild(nodeFrom, nodeTo)
-    );
     if (this.isParentAndChild(nodeFrom, nodeTo)) return;
 
     this.detactFromParent(nodeFrom);
@@ -166,10 +170,12 @@ export default class TreeViewItemStorage<T> {
     } else {
       this.attachNode(
         nodeFrom,
-        nodeTo,
+        nodeTo.folder ? this.getById(nodeTo.parent) ?? nodeTo : nodeTo,
         nodeTo.position + (side === 'bottom' ? 1 : -1)
       );
     }
+
+    if (this.onChangeCallback) this.onChangeCallback(this);
   }
 
   protected toTreeViewArrayWalker(
@@ -188,5 +194,35 @@ export default class TreeViewItemStorage<T> {
 
   toTreeViewArray(): TreeViewItemData<T>[] {
     return this.toTreeViewArrayWalker(this.root);
+  }
+
+  serialize() {
+    return this.root;
+  }
+
+  protected rebuildHash(node: TreeViewItemStorageNode<T>) {
+    this.hash[node.id] = node;
+    for (const r of node.children) {
+      this.rebuildHash(r);
+    }
+  }
+
+  deserialize(node: TreeViewItemStorageNode<T>) {
+    try {
+      this.root = node;
+      this.hash = {};
+      this.rebuildHash(this.root);
+    } catch {
+      // Reset in case there is error
+      this.root = {
+        children: [],
+        folder: true,
+        id: 'root',
+        name: 'root',
+        position: 1,
+        parent: null,
+      };
+      this.hash = { root: this.root };
+    }
   }
 }

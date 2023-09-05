@@ -61,7 +61,6 @@ export default function App() {
                     >
                       <Layout>
                         <Layout.Grow>
-                          {' '}
                           {config ? (
                             <DatabaseScreen config={config} />
                           ) : (

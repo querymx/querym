@@ -7,27 +7,49 @@ import { faCode, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { useSavedQueryPubSub } from '../SavedQueryProvider';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from '../QueryWindow';
+import { db } from 'renderer/db';
+import { useDatabaseSetting } from 'renderer/contexts/DatabaseSettingProvider';
 
 interface SavedQueryItem {
   sql?: string;
 }
 
 export default function SavedQuery() {
-  const treeStorage = useMemo(
-    () =>
-      new TreeViewItemStorage<SavedQueryItem>({
-        onIconMapper: (node) => {
-          if (node.folder) {
-            return <FontAwesomeIcon icon={faFolder} color="#f39c12" />;
-          }
-
-          return <FontAwesomeIcon icon={faCode} color="#27ae60" />;
-        },
-      }),
-    []
-  );
-
+  const { setting } = useDatabaseSetting();
   const [tree, setTree] = useState<TreeViewItemData<SavedQueryItem>[]>([]);
+
+  const treeStorage = useMemo(() => {
+    const tmp = new TreeViewItemStorage<SavedQueryItem>({
+      onIconMapper: (node) => {
+        if (node.folder)
+          return <FontAwesomeIcon icon={faFolder} color="#f39c12" />;
+        return <FontAwesomeIcon icon={faCode} color="#27ae60" />;
+      },
+      onChange: (self) => {
+        setTree(self.toTreeViewArray());
+        if (setting?.id) {
+          db.table('saved_query').put({
+            id: setting.id,
+            value: JSON.stringify(self.serialize()),
+          });
+        }
+      },
+    });
+
+    if (setting?.id) {
+      db.table('saved_query')
+        .get(setting.id)
+        .then((data) => {
+          if (data) {
+            tmp.deserialize(JSON.parse(data.value));
+            setTree(tmp.toTreeViewArray());
+          }
+        });
+    }
+
+    return tmp;
+  }, [setTree, setting]);
+
   const [renaming, setRenaming] = useState(false);
   const [collapsed, setCollapsed] = useState<string[] | undefined>([]);
   const { newWindow, tabs, setSelectedTab } = useWindowTab();
@@ -39,20 +61,17 @@ export default function SavedQuery() {
   useEffect(() => {
     const subInstance = subscribe(({ id, name, sql }) => {
       treeStorage.updateNode(id, name, { sql });
-      setTree(treeStorage.toTreeViewArray());
     });
     return () => subInstance.destroy();
   }, [subscribe, treeStorage, setTree]);
 
   const newFolderCallback = useCallback(() => {
     treeStorage.insertNode({}, 'New Folder', true);
-    setTree(treeStorage.toTreeViewArray());
-  }, [treeStorage, setTree]);
+  }, [treeStorage]);
 
   const newQueryCallback = useCallback(() => {
     treeStorage.insertNode({ sql: '' }, 'New Query', false);
-    setTree(treeStorage.toTreeViewArray());
-  }, [setTree, tree]);
+  }, [tree]);
 
   const renameCallback = useCallback(() => {
     setRenaming(true);
@@ -61,9 +80,8 @@ export default function SavedQuery() {
   const removeCallback = useCallback(() => {
     if (selectedKey) {
       treeStorage.removeNode(selectedKey.id);
-      setTree(treeStorage.toTreeViewArray());
     }
-  }, [setTree, selectedKey]);
+  }, [selectedKey]);
 
   const onDoubleClick = useCallback(
     (value: TreeViewItemData<SavedQueryItem>) => {
@@ -130,7 +148,6 @@ export default function SavedQuery() {
           setRenaming(false);
           if (selectedKey && newName) {
             treeStorage.renameNode(selectedKey.id, newName);
-            setTree(treeStorage.toTreeViewArray());
           }
         }}
         items={tree}
@@ -142,7 +159,6 @@ export default function SavedQuery() {
         onContextMenu={handleContextMenu}
         onDragItem={(from, to, side) => {
           treeStorage.moveNode(from.id, to.id, side);
-          setTree(treeStorage.toTreeViewArray());
         }}
       />
     </div>
