@@ -28,6 +28,8 @@ export default function SavedQuery() {
   );
 
   const [tree, setTree] = useState<TreeViewItemData<SavedQueryItem>[]>([]);
+  const [renaming, setRenaming] = useState(false);
+  const [collapsed, setCollapsed] = useState<string[] | undefined>([]);
   const { newWindow, tabs, setSelectedTab } = useWindowTab();
   const [selectedKey, setSelectedKey] = useState<
     TreeViewItemData<SavedQueryItem> | undefined
@@ -36,9 +38,7 @@ export default function SavedQuery() {
   const { subscribe } = useSavedQueryPubSub();
   useEffect(() => {
     const subInstance = subscribe(({ id, name, sql }) => {
-      console.log('subscribe receive 2', id, name, sql);
       treeStorage.updateNode(id, name, { sql });
-      console.log(treeStorage.toTreeViewArray());
       setTree(treeStorage.toTreeViewArray());
     });
     return () => subInstance.destroy();
@@ -53,6 +53,17 @@ export default function SavedQuery() {
     treeStorage.insertNode({ sql: '' }, 'New Query', false);
     setTree(treeStorage.toTreeViewArray());
   }, [setTree, tree]);
+
+  const renameCallback = useCallback(() => {
+    setRenaming(true);
+  }, [setRenaming]);
+
+  const removeCallback = useCallback(() => {
+    if (selectedKey) {
+      treeStorage.removeNode(selectedKey.id);
+      setTree(treeStorage.toTreeViewArray());
+    }
+  }, [setTree, selectedKey]);
 
   const onDoubleClick = useCallback(
     (value: TreeViewItemData<SavedQueryItem>) => {
@@ -91,24 +102,48 @@ export default function SavedQuery() {
       },
       {
         text: 'Rename',
+        onClick: renameCallback,
+        disabled: !selectedKey,
         separator: true,
       },
       {
         destructive: true,
+        onClick: removeCallback,
+        disabled: !selectedKey,
         text: 'Remove',
       },
     ];
-  }, [newFolderCallback, newQueryCallback]);
+  }, [
+    newFolderCallback,
+    newQueryCallback,
+    renameCallback,
+    removeCallback,
+    selectedKey,
+  ]);
 
   return (
     <div style={{ height: '100%' }}>
       <TreeView
         draggable
+        renameSelectedItem={renaming}
+        onRenamedSelectedItem={(newName) => {
+          setRenaming(false);
+          if (selectedKey && newName) {
+            treeStorage.renameNode(selectedKey.id, newName);
+            setTree(treeStorage.toTreeViewArray());
+          }
+        }}
         items={tree}
+        collapsedKeys={collapsed}
+        onCollapsedChange={setCollapsed}
         selected={selectedKey}
         onDoubleClick={onDoubleClick}
         onSelectChange={setSelectedKey}
         onContextMenu={handleContextMenu}
+        onDragItem={(from, to, side) => {
+          treeStorage.moveNode(from.id, to.id, side);
+          setTree(treeStorage.toTreeViewArray());
+        }}
       />
     </div>
   );

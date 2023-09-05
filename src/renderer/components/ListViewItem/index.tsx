@@ -1,4 +1,11 @@
-import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styles from './styles.module.scss';
 import Icon from '../Icon';
 import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
@@ -14,7 +21,10 @@ interface ListViewItemProps {
   onDoubleClick?: () => void;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop?: (
+    e: React.DragEvent<HTMLDivElement>,
+    position: 'top' | 'bottom'
+  ) => void;
   onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
 
   renaming?: boolean;
@@ -58,6 +68,8 @@ export default function ListViewItem({
 }: ListViewItemProps) {
   const { theme } = useAppFeature();
   const [renameDraftValue, setRenameDraftValue] = useState('');
+  const [dropSide, setDropSide] = useState<'none' | 'top' | 'bottom'>('none');
+  const ref = useRef(null);
 
   useEffect(() => {
     setRenameDraftValue(text);
@@ -90,10 +102,13 @@ export default function ListViewItem({
 
   return (
     <div
+      ref={ref}
       className={[
         styles.item,
         selected ? styles.selected : styles.hover,
         changed ? styles.changed : undefined,
+        dropSide === 'bottom' ? styles.dropBottom : undefined,
+        dropSide === 'top' ? styles.dropTop : undefined,
       ]
         .filter(Boolean)
         .join(' ')}
@@ -101,9 +116,20 @@ export default function ListViewItem({
       onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
       draggable={draggable}
-      onDragOver={onDragOver}
+      onDragOver={(e) => {
+        if (onDragOver) onDragOver(e);
+        const side = e.nativeEvent.offsetY > 10 ? 'bottom' : 'top';
+        if (dropSide !== side) setDropSide(side);
+      }}
+      onDragLeave={() => {
+        if (dropSide !== 'none') setDropSide('none');
+      }}
       onDragStart={onDragStart}
-      onDrop={onDrop}
+      onDrop={(e) => {
+        const side = e.nativeEvent.offsetY > 10 ? 'bottom' : 'top';
+        if (onDrop) onDrop(e, side);
+        setDropSide('none');
+      }}
     >
       {!!depth &&
         new Array(depth)

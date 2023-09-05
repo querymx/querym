@@ -1,8 +1,33 @@
 .item {
+  position: relative;
   display: flex;
   cursor: pointer;
   height: 28px;
   padding-left: 10px;
+}
+
+.dropBottom {
+  &::after {
+    content: '';
+    position: absolute;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f00;
+  }
+}
+
+.dropTop {
+  &::after {
+    content: '';
+    position: absolute;
+    height: 2px;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #f00;
+  }
 }
 
 .selected {
