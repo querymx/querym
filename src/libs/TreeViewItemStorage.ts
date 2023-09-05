@@ -142,7 +142,7 @@ export default class TreeViewItemStorage<T> {
 
     // Shift the position of the parent node
     parent.children.forEach((childNode) => {
-      if (childNode.position > position) childNode.position + 1;
+      if (childNode.position > position) childNode.position += 1;
     });
 
     // Insert into parent
