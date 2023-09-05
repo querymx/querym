@@ -131,10 +131,10 @@ const TableEditableCell = forwardRef<
   );
 
   const onEnterEditMode = useCallback(() => {
-    if (!onEditMode && !readOnly) {
+    if (!onEditMode) {
       setOnEditMode(true);
     }
-  }, [onEditMode, setOnEditMode, readOnly]);
+  }, [onEditMode, setOnEditMode]);
 
   const handleFocus = useCallback(() => {
     if (!onFocus) {

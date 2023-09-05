@@ -26,11 +26,13 @@ function getComponentFromHeader(
     return TableCellJson;
   } else if (header.type.type === 'decimal') {
     return TableCellDecimal;
-  } else if (header.columnDefinition) {
-    if (header.columnDefinition.dataType === 'enum') {
-      return TableCellEnum;
-    }
   } else if (['string'].includes(header.type.type)) {
+    if (header.columnDefinition) {
+      if (header.columnDefinition.dataType === 'enum') {
+        return TableCellEnum;
+      }
+    }
+
     return TableCellString;
   }
 
