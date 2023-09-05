@@ -17,13 +17,15 @@
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
+  background: var(--color-surface);
 
   .add {
     padding: 5px 10px;
-    background: var(--color-surface-hover);
+    background: var(--color-surface);
     cursor: pointer;
     display: flex;
     color: #27ae60;
+    border-bottom: 1px solid var(--color-surface-hover);
 
     &:hover {
       background: #27ae60;
@@ -41,7 +43,6 @@
     list-style: none;
     display: flex;
     flex-grow: 1;
-    background: var(--color-surface-hover);
     overflow-x: overlay;
 
     &::-webkit-scrollbar {
@@ -65,8 +66,11 @@
       padding: 5px 10px;
       display: flex;
       cursor: pointer;
-      background: var(--color-surface-light);
       color: var(--color-text);
+      border-top: 2px solid var(--color-surface);
+      border-left: 1px solid var(--color-surface);
+      border-right: 1px solid var(--color-surface);
+      border-bottom: 1px solid var(--color-surface-hover);
       white-space: nowrap;
 
       img {
@@ -94,8 +98,11 @@
       }
 
       &.selected {
-        background: var(--color-surface);
-        color: var(--color-text);
+        position: relative;
+        border-top: 2px solid var(--color-critical);
+        border-left: 1px solid var(--color-surface-hover);
+        border-right: 1px solid var(--color-surface-hover);
+        border-bottom: 1px solid var(--color-surface);
       }
 
       &.drag-hover {

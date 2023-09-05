@@ -14,7 +14,11 @@ export interface TreeViewItemData<T> {
 
 interface TreeViewCommonProps<T> {
   draggable?: boolean;
-  onDragItem?: (from: TreeViewItemData<T>, to: TreeViewItemData<T>) => void;
+  onDragItem?: (
+    from: TreeViewItemData<T>,
+    to: TreeViewItemData<T>,
+    side: 'bottom' | 'top'
+  ) => void;
   onCollapsedChange?: (value?: string[]) => void;
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
   onDoubleClick?: (value: TreeViewItemData<T>) => void;
@@ -86,11 +90,17 @@ function TreeViewItem<T>(props: TreeViewItemProps<T>) {
         onDragStart={() => {
           GLOBAL_TREE_DRAG_ITEM = item;
         }}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={() => {
+        onDragOver={(e) => {
+          e.preventDefault();
+        }}
+        onDrop={(_, side) => {
           if (onDragItem) {
             if (GLOBAL_TREE_DRAG_ITEM) {
-              onDragItem(GLOBAL_TREE_DRAG_ITEM as TreeViewItemData<T>, item);
+              onDragItem(
+                GLOBAL_TREE_DRAG_ITEM as TreeViewItemData<T>,
+                item,
+                side
+              );
             }
           }
         }}

@@ -29,3 +29,10 @@ db.version(2)
       ),
     });
   });
+
+db.version(3).stores({
+  database_config: 'id',
+  database_tabs: 'id',
+  saved_query: 'id',
+  setting: 'name',
+});

@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
 import TreeView, { TreeViewItemData } from '../TreeView';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from 'renderer/screens/DatabaseScreen/QueryWindow';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
@@ -8,6 +8,7 @@ import { QueryBuilder } from 'libs/QueryBuilder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCalendar,
+  faCode,
   faEye,
   faGear,
   faTableList,
@@ -20,23 +21,45 @@ import ListViewEmptyState from '../ListView/ListViewEmptyState';
 import TextField from '../TextField';
 import { useDebounce } from 'hooks/useDebounce';
 
+type SelectedTreeViewItem = TreeViewItemData<{
+  database: string;
+  name: string;
+  type: string;
+}>;
+
 export default function DatabaseTableList() {
   const [search, setSearch] = useState('');
   const searchDebounce = useDebounce(search, 500);
   const { schema, currentDatabase } = useSchema();
-  const [selected, setSelected] = useState<
-    TreeViewItemData<{
-      database: string;
-      name: string;
-      type: string;
-    }>
-  >();
+  const [selected, setSelected] = useState<SelectedTreeViewItem>();
   const { newWindow } = useWindowTab();
   const [collapsed, setCollapsed] = useState<string[] | undefined>([
     'tables',
     'events',
     'triggers',
   ]);
+
+  const select200RowCallback = useCallback((item: SelectedTreeViewItem) => {
+    const tableName = item.data?.name;
+    const type = item.data?.type;
+    if ((type === 'table' || type === 'view') && tableName) {
+      newWindow(
+        `SELECT ${tableName}`,
+        (key, name) => (
+          <QueryWindow
+            initialSql={new QueryBuilder('mysql')
+              .table(tableName)
+              .limit(200)
+              .toRawSQL()}
+            initialRun
+            tabKey={key}
+            name={name}
+          />
+        ),
+        { icon: <FontAwesomeIcon icon={faCode} /> }
+      );
+    }
+  }, []);
 
   const { handleContextMenu } = useContextMenu(() => {
     const tableName = selected?.data?.name;
@@ -50,7 +73,10 @@ export default function DatabaseTableList() {
       databaseName
     ) {
       return [
-        { text: 'Select 200 Rows' },
+        {
+          text: 'Select 200 Rows',
+          onClick: () => select200RowCallback(selected),
+        },
         {
           text: 'Open Structure',
           onClick: () => {
@@ -66,7 +92,7 @@ export default function DatabaseTableList() {
                   />
                 );
               },
-              <FontAwesomeIcon icon={faTableList} color="#3498db" />
+              { icon: <FontAwesomeIcon icon={faTableList} color="#3498db" /> }
             );
           },
         },
@@ -186,23 +212,7 @@ export default function DatabaseTableList() {
               collapsedKeys={collapsed}
               onCollapsedChange={setCollapsed}
               onContextMenu={handleContextMenu}
-              onDoubleClick={(item) => {
-                const tableName = item.data?.name;
-                const type = item.data?.type;
-                if ((type === 'table' || type === 'view') && tableName) {
-                  newWindow(`SELECT ${tableName}`, (key, name) => (
-                    <QueryWindow
-                      initialSql={new QueryBuilder('mysql')
-                        .table(tableName)
-                        .limit(200)
-                        .toRawSQL()}
-                      initialRun
-                      tabKey={key}
-                      name={name}
-                    />
-                  ));
-                }
-              }}
+              onDoubleClick={select200RowCallback}
               items={schemaListItem}
             />
           ) : (
