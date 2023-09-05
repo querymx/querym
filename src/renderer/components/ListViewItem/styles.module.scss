@@ -87,6 +87,12 @@
   }
 }
 
+.action.dark {
+  img {
+    filter: invert(1);
+  }
+}
+
 .icon.dark {
   img {
     filter: invert(1);
