@@ -1,10 +1,10 @@
 import path from 'path';
 import { app, BrowserWindow, shell } from 'electron';
 import { resolveHtmlPath } from './util';
-import attachIPCHandler from './attachIPCHandler';
 import handleAutoUpdate from './autoupdate';
+import CommunicateHandler from './CommunicateHandler';
 
-export default function createWindow() {
+export default function createWindow({ onClose }: { onClose: () => void }) {
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
@@ -25,7 +25,8 @@ export default function createWindow() {
     },
   });
 
-  const cleanupIPCHandler = attachIPCHandler(mainWindow);
+  CommunicateHandler.attachWindow(mainWindow);
+
   handleAutoUpdate(mainWindow);
 
   mainWindow.setMenu(null);
@@ -43,8 +44,8 @@ export default function createWindow() {
   });
 
   mainWindow.on('closed', () => {
-    cleanupIPCHandler();
-    app.quit();
+    CommunicateHandler.executeCleanup();
+    onClose();
   });
 
   // Open urls in the user's browser

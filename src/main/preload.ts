@@ -95,6 +95,13 @@ const electronHandler = {
     return ipcRenderer.on('native-menu-click', callback);
   },
 
+  listenDeeplink: (
+    callback: (event: IpcRendererEvent, url: string) => void
+  ) => {
+    ipcRenderer.removeAllListeners('deeplink');
+    return ipcRenderer.on('deeplink', callback);
+  },
+
   listenCheckingForUpdate: (callback: () => void) => {
     ipcRenderer.removeAllListeners('checking-for-update');
     return ipcRenderer.on('checking-for-update', callback);

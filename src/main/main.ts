@@ -6,7 +6,8 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { BrowserWindow, app, dialog } from 'electron';
+import './ipc';
+import { BrowserWindow, app } from 'electron';
 import path from 'path';
 import electronDebug from 'electron-debug';
 import sourceMapSupport from 'source-map-support';
@@ -35,11 +36,15 @@ if (process.defaultApp) {
   app.setAsDefaultProtocolClient('querymaster');
 }
 
-app.on('window-all-closed', () => {
-  app.quit();
-});
-
 const gotTheLock = app.requestSingleInstanceLock();
+
+function createMainWindow() {
+  mainWindow = createWindow({
+    onClose: () => {
+      mainWindow = null;
+    },
+  });
+}
 
 if (!gotTheLock) {
   app.quit();
@@ -50,21 +55,32 @@ if (!gotTheLock) {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
+      mainWindow.webContents.send('deeplink', commandLine.pop());
     }
-    // the commandLine is array of strings in which last element is deep link url
-    dialog.showErrorBox(
-      'Welcome Back',
-      `You arrived from: ${commandLine.pop()}`
-    );
   });
 
   // Handle the deeplink for Mac OS
   app.on('open-url', (event, url) => {
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`);
+    if (mainWindow) {
+      mainWindow.webContents.send('deeplink', url);
+    }
   });
 
   // Create mainWindow, load the rest of the app, etc...
   app.whenReady().then(() => {
-    mainWindow = createWindow();
+    createMainWindow();
+    app.on('activate', () => {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (mainWindow === null) createMainWindow();
+    });
   });
 }
+
+app.on('window-all-closed', () => {
+  // Respect the OSX convention of having the application in memory even
+  // after all windows have been closed
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
