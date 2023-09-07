@@ -10,6 +10,7 @@ import {
 } from 'electron';
 import saveCsvFile from './../../libs/SaveCSVFile';
 import saveExcelFile from './../../libs/SaveExcelFile';
+import BaseIpcHandler from './base';
 
 function recursiveAttachClick(
   items: MenuItemConstructorOptions[],
@@ -33,9 +34,7 @@ function recursiveAttachClick(
   });
 }
 
-export default class OtherIpcHandler {
-  protected window?: BrowserWindow;
-
+export default class OtherIpcHandler extends BaseIpcHandler {
   register() {
     ipcMain.handle(
       'show-message-box',
@@ -88,7 +87,7 @@ export default class OtherIpcHandler {
     });
   }
 
-  attachWindow(window: BrowserWindow) {
-    this.window = window;
+  cleanup() {
+    return;
   }
 }

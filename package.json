@@ -1,7 +1,7 @@
 {
   "name": "querymaster",
   "description": "just another database graphical client",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "keywords": [
     "database",
     "mysql",
@@ -226,13 +226,16 @@
         }
       ]
     },
+    "appx": {
+      "applicationId": "QueryMaster",
+      "identityName": "12586QueryMaster.QueryMaster",
+      "displayName": "QueryMaster",
+      "publisher": "CN=CE087293-2717-47BA-A1C8-389DD9E965BB",
+      "publisherDisplayName": "QueryMaster"
+    },
     "win": {
-      "signingHashAlgorithms": [
-        "sha256"
-      ],
-      "sign": "./sign.js",
       "target": [
-        "nsis",
+        "appx",
         "portable"
       ]
     },

@@ -3,15 +3,11 @@ import SQLLikeConnection, {
   ConnectionStoreItem,
   DatabaseConnectionConfig,
 } from './../../drivers/SQLLikeConnection';
-import { BrowserWindow, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
+import BaseIpcHandler from './base';
 
-export default class ConnectionIpcHandler {
+export default class ConnectionIpcHandler extends BaseIpcHandler {
   protected connection: SQLLikeConnection | undefined;
-  protected window?: BrowserWindow;
-
-  attachWindow(window: BrowserWindow) {
-    this.window = window;
-  }
 
   register() {
     ipcMain.handle('connect', async (_, [store]: [ConnectionStoreItem]) => {
