@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 import styles from './styles.module.scss';
 
 interface ButtonProps {
@@ -8,6 +8,8 @@ interface ButtonProps {
   destructive?: boolean;
   disabled?: boolean;
   onClick?: () => void;
+  icon?: ReactElement;
+  full?: boolean;
 }
 
 export default function Button({
@@ -17,6 +19,8 @@ export default function Button({
   destructive,
   disabled,
   onClick,
+  icon,
+  full,
 }: ButtonProps) {
   const className = useMemo(() => {
     return [
@@ -25,6 +29,7 @@ export default function Button({
       primary ? styles.primary : undefined,
       destructive ? styles.destructive : undefined,
       disabled ? styles.disabled : undefined,
+      full ? styles.full : undefined,
     ]
       .filter(Boolean)
       .join(' ');
@@ -32,7 +37,8 @@ export default function Button({
 
   return (
     <button className={className} onClick={onClick} disabled={disabled}>
-      {children}
+      {icon && <div className={styles.icon}>{icon}</div>}
+      <span>{children}</span>
     </button>
   );
 }
