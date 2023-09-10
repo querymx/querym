@@ -19,6 +19,8 @@ import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
+import Layout from 'renderer/components/Layout';
+import ConnectedUser from './ConnectedUser';
 
 const WELCOME_SCREEN_ID = '00000000000000000000';
 
@@ -202,27 +204,34 @@ export default function HomeScreen() {
         primaryMinSize={500}
       >
         <div className={styles.connectionList}>
-          <TreeView
-            draggable
-            renameSelectedItem={renameSelectedItem}
-            onRenamedSelectedItem={handleRenameExit}
-            onDragItem={handleDragAndOverItem}
-            items={treeItems}
-            onCollapsedChange={setSaveCollapsedKeys}
-            collapsedKeys={collapsedKeys}
-            onSelectChange={setSelectedItem}
-            onDoubleClick={(item) => {
-              if (item.data?.config) {
-                connect(item.data?.config);
-              }
-            }}
-            selected={selectedItem}
-            onBeforeSelectChange={onBeforeSelectChange}
-            onContextMenu={handleContextMenu}
-            emptyState={
-              <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
-            }
-          />
+          <Layout>
+            <Layout.Grow>
+              <TreeView
+                draggable
+                renameSelectedItem={renameSelectedItem}
+                onRenamedSelectedItem={handleRenameExit}
+                onDragItem={handleDragAndOverItem}
+                items={treeItems}
+                onCollapsedChange={setSaveCollapsedKeys}
+                collapsedKeys={collapsedKeys}
+                onSelectChange={setSelectedItem}
+                onDoubleClick={(item) => {
+                  if (item.data?.config) {
+                    connect(item.data?.config);
+                  }
+                }}
+                selected={selectedItem}
+                onBeforeSelectChange={onBeforeSelectChange}
+                onContextMenu={handleContextMenu}
+                emptyState={
+                  <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
+                }
+              />
+            </Layout.Grow>
+            <Layout.Fixed>
+              <ConnectedUser />
+            </Layout.Fixed>
+          </Layout>
         </div>
 
         <div className={styles.connectionDetail}>

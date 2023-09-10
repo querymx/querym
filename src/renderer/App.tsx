@@ -10,9 +10,9 @@ import AppFeatureContext from './contexts/AppFeatureProvider';
 import NativeMenuProvider from './contexts/NativeMenuProvider';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import StatusBar from './components/StatusBar';
-import SWRProvider from './contexts/SWRProvider';
 import { DeviceProvider } from './contexts/DeviceProvider';
 import Layout from './components/Layout';
+import AuthProvider from './contexts/AuthProvider';
 
 const ConnectionContext = createContext<{
   connect: (connectionConfig: ConnectionStoreItem) => void;
@@ -47,7 +47,7 @@ export default function App() {
         <ConnectionContext.Provider
           value={{ connect: connectCallback, disconnect: disconnectCallback }}
         >
-          <SWRProvider>
+          <AuthProvider>
             <ContextMenuProvider>
               <DialogProvider>
                 <NativeMenuProvider>
@@ -76,7 +76,7 @@ export default function App() {
                 </NativeMenuProvider>
               </DialogProvider>
             </ContextMenuProvider>
-          </SWRProvider>
+          </AuthProvider>
         </ConnectionContext.Provider>
       </AppFeatureContext>
     </DeviceProvider>

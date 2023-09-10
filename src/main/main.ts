@@ -6,32 +6,14 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import './ipc';
+import { BrowserWindow, app } from 'electron';
 import path from 'path';
-import { app, session, BrowserWindow, shell, ipcMain } from 'electron';
-import { resolveHtmlPath } from './util';
-
 import electronDebug from 'electron-debug';
 import sourceMapSupport from 'source-map-support';
-import OtherIpcHandler from './ipc/other';
-import ConnectionIpcHandler from './ipc/handleConnection';
-import handleAutoUpdate from './autoupdate';
-import LinkIPCHandler from './ipc/link';
-
-const otherIpcHandler = new OtherIpcHandler();
-const connectionIpcHandler = new ConnectionIpcHandler();
-const linkIPCHandler = new LinkIPCHandler();
-
-otherIpcHandler.register();
-connectionIpcHandler.register();
-linkIPCHandler.register();
+import createWindow from './createWindow';
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
@@ -44,62 +26,56 @@ if (isDebug) {
   electronDebug();
 }
 
-const createWindow = async () => {
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('querymaster', process.execPath, [
+      path.resolve(process.argv[1]),
+    ]);
+  }
+} else {
+  app.setAsDefaultProtocolClient('querymaster');
+}
 
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
+const gotTheLock = app.requestSingleInstanceLock();
 
-  mainWindow = new BrowserWindow({
-    show: false,
-    width: 1024,
-    height: 728,
-    icon: getAssetPath('icon.png'),
-    webPreferences: {
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+function createMainWindow() {
+  mainWindow = createWindow({
+    onClose: () => {
+      mainWindow = null;
     },
   });
+}
 
-  mainWindow.setMenu(null);
-
-  otherIpcHandler.attachWindow(mainWindow);
-  connectionIpcHandler.attachWindow(mainWindow);
-
-  mainWindow.loadURL(resolveHtmlPath('index.html'));
-
-  mainWindow.on('ready-to-show', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  // Handle the deep link for Windows
+  app.on('second-instance', (_, commandLine) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+      mainWindow.webContents.send('deeplink', commandLine.pop());
     }
   });
 
-  mainWindow.on('closed', () => {
-    connectionIpcHandler.cleanup();
-    mainWindow = null;
+  // Handle the deeplink for Mac OS
+  app.on('open-url', (event, url) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('deeplink', url);
+    }
   });
 
-  // Open urls in the user's browser
-  mainWindow.webContents.setWindowOpenHandler((edata) => {
-    shell.openExternal(edata.url);
-    return { action: 'deny' };
+  // Create mainWindow, load the rest of the app, etc...
+  app.whenReady().then(() => {
+    createMainWindow();
+    app.on('activate', () => {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (mainWindow === null) createMainWindow();
+    });
   });
-
-  handleAutoUpdate(mainWindow);
-};
-
-/**
- * Add event listeners...
- */
+}
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -108,22 +84,3 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
-
-app
-  .whenReady()
-  .then(async () => {
-    // Loading the React DevTool only in development
-    if (process.env.NODE_ENV === 'development') {
-      await session.defaultSession.loadExtension(
-        path.join(__dirname, '../../exts/reactdev')
-      );
-    }
-
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
-  })
-  .catch(console.log);
