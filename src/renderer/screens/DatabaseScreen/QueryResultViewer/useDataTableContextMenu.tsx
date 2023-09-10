@@ -32,6 +32,31 @@ export default function useDataTableContextMenu({
       );
     }
 
+// Define a new function that converts a row from the database to a displayable format
+    function convertRowToDisplayable(row: Record<string, any>): string[] {
+      // Implement your logic here to transform a row into an array of strings
+      // For example, you can map specific columns and format them as needed
+      const displayableData = Object.values(row).map((value) => {
+        // Modify value if needed
+        return String(value);
+      });
+      return displayableData;
+    }
+
+// Update your code to use the new function
+    function onCopyAsMarkdown() {
+      const markdownRows = selectedRowsIndex.map((rowIndex) => {
+        const row = data[rowIndex].data;
+        const displayableRow = convertRowToDisplayable(row);
+        return displayableRow.join(' | ');
+      });
+      const headersString = Object.keys(data[0].data).join(' | ');
+      const separator = new Array(Object.keys(data[0].data).length).fill('---').join(' | ');
+      const markdownTable = [headersString, separator, ...markdownRows].join('\n');
+      window.navigator.clipboard.writeText(markdownTable);
+    }
+
+
     return [
       {
         text: 'Insert new row',
@@ -71,6 +96,7 @@ export default function useDataTableContextMenu({
           { text: 'As Excel', disabled: true },
           { text: 'As CSV', disabled: true },
           { text: 'As JSON', onClick: onCopyAsJson },
+          { text: 'As Markdown', onClick: onCopyAsMarkdown },
           { text: 'As SQL', disabled: true },
         ],
       },
