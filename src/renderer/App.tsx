@@ -2,7 +2,7 @@ import './App.css';
 import { createContext, useCallback, useState, useContext } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import DatabaseScreen from './screens/DatabaseScreen';
-import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
+import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import { SqlExecuteProvider } from './contexts/SqlExecuteProvider';
 import { ContextMenuProvider } from './contexts/ContextMenuProvider';
 import { DialogProvider } from './contexts/DialogProvider';

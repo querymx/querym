@@ -1,9 +1,9 @@
 import CommunicateHandler from './../CommunicateHandler';
-import MySQLConnection from '../../drivers/MySQLConnection';
+import MySQLConnection from '../../drivers/mysql/MySQLConnection';
 import SQLLikeConnection, {
   ConnectionStoreItem,
   DatabaseConnectionConfig,
-} from '../../drivers/SQLLikeConnection';
+} from '../../drivers/base/SQLLikeConnection';
 
 let connection: SQLLikeConnection | undefined;
 

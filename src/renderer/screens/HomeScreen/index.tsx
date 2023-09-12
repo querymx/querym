@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   ConnectionConfigTree,
   ConnectionStoreItem,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 import styles from './styles.module.scss';
 import DatabaseConfigEditor from './DatabaseConfigEditor';
 import ButtonGroup from 'renderer/components/ButtonGroup';

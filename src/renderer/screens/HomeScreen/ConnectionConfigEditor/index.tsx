@@ -1,7 +1,7 @@
 import {
   ConnectionStoreConfig,
   MySqlConnectionConfig,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 import MySQLConnectionEditor from './MySQLConnectionEditor';
 
 export default function ConnectionConfigEditor({

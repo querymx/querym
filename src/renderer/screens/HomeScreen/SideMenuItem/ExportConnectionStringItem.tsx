@@ -1,4 +1,4 @@
-import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
+import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import ConnectionString from 'libs/ConnectionString';
 import { useCallback, useState } from 'react';
 import Button from 'renderer/components/Button';

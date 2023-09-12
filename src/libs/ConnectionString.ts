@@ -1,7 +1,7 @@
 import {
   ConnectionStoreConfig,
   ConnectionStoreItem,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 
 export default class ConnectionString {
   static decode(connectionString: string): ConnectionStoreConfig {

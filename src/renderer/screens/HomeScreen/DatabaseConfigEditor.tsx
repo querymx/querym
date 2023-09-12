@@ -1,7 +1,7 @@
 import {
   ConnectionStoreConfig,
   ConnectionStoreItem,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 import { useCallback, useState } from 'react';
 import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';

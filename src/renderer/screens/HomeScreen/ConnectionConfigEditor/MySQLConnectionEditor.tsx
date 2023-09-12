@@ -1,7 +1,7 @@
 import {
   ConnectionStoreConfig,
   MySqlConnectionConfig,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';
 import PasswordField from 'renderer/components/PasswordField';

@@ -1,4 +1,4 @@
-import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
+import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import {
   PropsWithChildren,
   createContext,

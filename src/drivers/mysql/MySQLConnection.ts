@@ -5,7 +5,7 @@ import {
 } from 'types/SqlResult';
 import SQLLikeConnection, {
   DatabaseConnectionConfig,
-} from './SQLLikeConnection';
+} from '../base/SQLLikeConnection';
 import {
   PoolConnection,
   createPool,
@@ -53,8 +53,6 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
   } else if ([255, 250, 251].includes(column.type)) {
     type = { type: 'other' };
   }
-
-  console.log(column.name, column.type, type);
 
   const databaseNameLength = column._buf[13];
   const databaseName =

@@ -1,4 +1,4 @@
-import { SqlQueryCallback } from 'drivers/SQLLikeConnection';
+import { SqlQueryCallback } from 'drivers/base/SQLLikeConnection';
 import { QueryResult } from 'types/SqlResult';
 import { SqlStatement } from 'types/SqlStatement';
 import { Parser, AST } from 'node-sql-parser';

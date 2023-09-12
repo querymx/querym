@@ -1,4 +1,4 @@
-import { ConnectionStoreItem } from 'drivers/SQLLikeConnection';
+import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import { useState, useEffect, useCallback } from 'react';
 import { SchemaProvider } from 'renderer/contexts/SchemaProvider';
 import { DatabaseSettingProvider } from 'renderer/contexts/DatabaseSettingProvider';

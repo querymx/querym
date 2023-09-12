@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { ConnectionConfigTree } from 'drivers/SQLLikeConnection';
+import { ConnectionConfigTree } from 'drivers/base/SQLLikeConnection';
 
 export const db = new Dexie('query-master');
 

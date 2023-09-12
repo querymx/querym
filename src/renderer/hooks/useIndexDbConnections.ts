@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { db } from 'renderer/db';
-import { ConnectionConfigTree } from 'drivers/SQLLikeConnection';
+import { ConnectionConfigTree } from 'drivers/base/SQLLikeConnection';
 import ConnectionSettingTree from 'libs/ConnectionSettingTree';
 
 export function useIndexDbConnection() {
@@ -10,7 +10,6 @@ export function useIndexDbConnection() {
   const connectionTree = useMemo(() => {
     return new ConnectionSettingTree(connections ?? []);
   }, [connections]);
-
 
   const initialCollapsed = useMemo<string[]>(() => {
     try {

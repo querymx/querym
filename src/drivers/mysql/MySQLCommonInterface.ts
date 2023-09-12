@@ -4,7 +4,7 @@ import {
   TableDefinitionSchema,
   TableColumnSchema,
 } from 'types/SqlSchema';
-import SQLCommonInterface from './SQLCommonInterface';
+import SQLCommonInterface from '../base/SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
 import { QueryResult } from 'types/SqlResult';

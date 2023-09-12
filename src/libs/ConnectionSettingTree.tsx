@@ -1,6 +1,6 @@
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ConnectionConfigTree } from 'drivers/SQLLikeConnection';
+import { ConnectionConfigTree } from 'drivers/base/SQLLikeConnection';
 import Icon from 'renderer/components/Icon';
 import { TreeViewItemData } from 'renderer/components/TreeView';
 

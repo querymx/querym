@@ -6,7 +6,7 @@ import generateIncrementalName from 'renderer/utils/generateIncrementalName';
 import {
   ConnectionConfigTree,
   ConnectionStoreConfig,
-} from 'drivers/SQLLikeConnection';
+} from 'drivers/base/SQLLikeConnection';
 import { TreeViewItemData } from 'renderer/components/TreeView';
 import ConnectionSettingTree from 'libs/ConnectionSettingTree';
 

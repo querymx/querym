@@ -1,7 +1,7 @@
-import { MySqlConnectionConfig } from 'drivers/SQLLikeConnection';
-import MySQLCommonInterface from 'drivers/common/MySQLCommonInterface';
-import NotImplementCommonInterface from 'drivers/common/NotImplementCommonInterface';
-import SQLCommonInterface from 'drivers/common/SQLCommonInterface';
+import { MySqlConnectionConfig } from 'drivers/base/SQLLikeConnection';
+import MySQLCommonInterface from 'drivers/mysql/MySQLCommonInterface';
+import NotImplementCommonInterface from 'drivers/base/NotImplementCommonInterface';
+import SQLCommonInterface from 'drivers/base/SQLCommonInterface';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
