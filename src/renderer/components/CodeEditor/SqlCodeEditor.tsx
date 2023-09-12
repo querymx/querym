@@ -60,7 +60,9 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
 
   return (
     <CodeMirror
+      tabIndex={0}
       ref={ref}
+      autoFocus
       theme={theme}
       indentWithTab={false}
       basicSetup={{

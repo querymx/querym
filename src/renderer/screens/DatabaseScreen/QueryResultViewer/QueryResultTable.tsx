@@ -115,6 +115,11 @@ function QueryResultTable({
       icon: header?.schema?.primaryKey ? (
         <Icon.GreenKey size="sm" />
       ) : undefined,
+      tooltip: header.columnDefinition?.comment,
+      menu: [
+        { text: 'Order by ASC', disabled: true },
+        { text: 'Order by DESC', disabled: true },
+      ],
       initialSize: Math.max(
         header.name.length * 10,
         getInitialSizeByHeaderType(idx, header)

@@ -45,18 +45,16 @@ function QueryResultViewer({
   );
 
   const resultWithIndex = useMemo(() => {
-    let slicedRows = result.rows
-      .slice(page * pageSize, (page + 1) * pageSize)
-      .map((value, rowIndex) => {
-        return {
-          rowIndex: rowIndex + page * pageSize,
-          data: value,
-        };
-      });
+    let rows = result.rows.map((value, rowIndex) => {
+      return {
+        rowIndex: rowIndex + page * pageSize,
+        data: value,
+      };
+    });
 
     if (search) {
       const searchValue = search.toLowerCase();
-      slicedRows = slicedRows.filter((row) => {
+      rows = rows.filter((row) => {
         const values = Object.values(row.data);
         for (const value of values) {
           if (typeof value === 'string' || typeof value === 'number') {
@@ -68,8 +66,12 @@ function QueryResultViewer({
       });
     }
 
-    return slicedRows;
+    return rows;
   }, [page, result, search]);
+
+  const slicedResult = useMemo(() => {
+    return resultWithIndex.slice(page * pageSize, (page + 1) * pageSize);
+  }, [resultWithIndex]);
 
   return (
     <QueryResultChangeProvider key={runningIndex.toString()}>
@@ -77,7 +79,7 @@ function QueryResultViewer({
         <TableCellManagerProvider>
           <QueryResultTable
             headers={result.headers}
-            result={resultWithIndex}
+            result={slicedResult}
             page={page}
             pageSize={pageSize}
           />

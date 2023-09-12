@@ -70,6 +70,15 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
           { label: 'Copy', role: 'copy' },
           { label: 'Cut', role: 'cut' },
           { label: 'Paste', role: 'paste' },
+          {
+            type: 'separator',
+          },
+          { label: 'Undo', role: 'undo' },
+          { label: 'Redo', role: 'redo' },
+          {
+            type: 'separator',
+          },
+          { label: 'Select All', role: 'selectAll' },
         ],
       },
     ],

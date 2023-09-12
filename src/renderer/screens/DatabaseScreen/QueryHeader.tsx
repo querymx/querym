@@ -11,10 +11,10 @@ export default function QueryHeader({
 }) {
   return (
     <div className={styles.queryHeader}>
+      <QueryWindowNameEditor tabKey={tabKey} />
       <Button primary onClick={onSave}>
         Save
       </Button>
-      <QueryWindowNameEditor tabKey={tabKey} />
     </div>
   );
 }

@@ -33,7 +33,6 @@ export default function QueryWindowNameEditor({
     <div className={styles.queryNameEditor}>
       <input
         ref={inputRef}
-        autoFocus
         type="text"
         value={name}
         onKeyDown={(e) => {

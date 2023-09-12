@@ -7,16 +7,21 @@ import React, {
   useMemo,
 } from 'react';
 import styles from './styles.module.css';
-import TableHeaderResizeHandler from './TableHeaderResizeHandler';
+import { ContextMenuItemProps } from '../ContextMenu';
+import TableHeader from './TableHeader';
+
+export interface OptimizeTableHeaderProps {
+  name: string;
+  initialSize: number;
+  resizable?: boolean;
+  icon?: ReactElement;
+  tooltip?: string;
+  menu?: ContextMenuItemProps[];
+}
 
 interface OptimizeTableProps {
   data: unknown[];
-  headers: {
-    name: string;
-    initialSize: number;
-    resizable?: boolean;
-    icon?: ReactElement;
-  }[];
+  headers: OptimizeTableHeaderProps[];
   renderCell: (y: number, x: number) => ReactElement;
   rowHeight: number;
   renderAhead: number;
@@ -279,22 +284,15 @@ export default function OptimizeTable({
             {/* This is table header */}
             <thead>
               <tr>
-                {headers.map((header, idx) => (
-                  <th key={header.name}>
-                    {header.icon && (
-                      <div className={styles.tableHeaderIcon}>
-                        {header.icon}
-                      </div>
-                    )}
-                    <div className={styles.tableCellContent}>{header.name}</div>
-                    {header.resizable && (
-                      <TableHeaderResizeHandler
-                        idx={idx}
-                        onResize={onHeaderResize}
-                      />
-                    )}
-                  </th>
-                ))}
+                {headers.map((header, idx) => {
+                  return (
+                    <TableHeader
+                      header={header}
+                      idx={idx}
+                      onHeaderResize={onHeaderResize}
+                    />
+                  );
+                })}
               </tr>
             </thead>
 
