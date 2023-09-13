@@ -187,6 +187,12 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
+    "protocols": {
+      "name": "QueryMaster",
+      "schemes": [
+        "querymaster"
+      ]
+    },
     "productName": "QueryMaster",
     "appId": "com.invisal.querymaster",
     "asar": true,

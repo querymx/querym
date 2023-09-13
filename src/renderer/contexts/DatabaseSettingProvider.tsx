@@ -1,4 +1,5 @@
 import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
+import NotImplementCallback from 'libs/NotImplementCallback';
 import {
   PropsWithChildren,
   createContext,
@@ -14,9 +15,7 @@ const DatabaseSettingContext = createContext<{
   setProductionLevel: (level: number) => void;
 }>({
   protectionLevel: 1,
-  setProductionLevel: () => {
-    throw 'Not implemented';
-  },
+  setProductionLevel: NotImplementCallback,
 });
 
 export function useDatabaseSetting() {

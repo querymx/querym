@@ -5,14 +5,13 @@ import SQLCommonInterface from 'drivers/base/SQLCommonInterface';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
+import NotImplementCallback from 'libs/NotImplementCallback';
 
 const SqlExecuteContext = createContext<{
   runner: SqlRunnerManager;
   common: SQLCommonInterface;
 }>({
-  runner: new SqlRunnerManager(() => {
-    throw 'Not implemented';
-  }),
+  runner: new SqlRunnerManager(NotImplementCallback),
   common: new NotImplementCommonInterface(),
 });
 

@@ -1,3 +1,4 @@
+import NotImplementCallback from 'libs/NotImplementCallback';
 import {
   createContext,
   useContext,
@@ -10,9 +11,7 @@ import Modal from 'renderer/components/Modal';
 const DialogContext = createContext<{
   showErrorDialog: (message: string) => void;
 }>({
-  showErrorDialog: () => {
-    throw 'Not implemented';
-  },
+  showErrorDialog: NotImplementCallback,
 });
 
 export function useDialog() {

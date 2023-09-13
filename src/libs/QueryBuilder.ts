@@ -251,7 +251,7 @@ export class QueryBuilder {
       }
     }
 
-    throw 'not implemented';
+    throw new Error('Not implemented');
   }
 
   toRawSQL() {

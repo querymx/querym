@@ -1,3 +1,4 @@
+import NotImplementCallback from 'libs/NotImplementCallback';
 import {
   PropsWithChildren,
   createContext,
@@ -19,12 +20,8 @@ const AppFeatureContext = createContext<{
   theme: 'light',
   enableDebug: false,
 
-  setTheme: () => {
-    throw 'Not implemented';
-  },
-  setEnableDebug: () => {
-    throw 'Not implemented';
-  },
+  setTheme: NotImplementCallback
+  setEnableDebug: NotImplementCallback,
 });
 
 export function useAppFeature() {

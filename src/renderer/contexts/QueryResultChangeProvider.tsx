@@ -1,3 +1,4 @@
+import NotImplementCallback from 'libs/NotImplementCallback';
 import ResultChangeCollector from 'libs/ResultChangeCollector';
 import {
   createContext,
@@ -14,15 +15,9 @@ const QueryResultChangeContext = createContext<{
   clearChange: () => void;
 }>({
   collector: new ResultChangeCollector(),
-  setChange: () => {
-    throw 'Not implemented';
-  },
-  removeChange: () => {
-    throw 'Not implemented';
-  },
-  clearChange: () => {
-    throw 'Not implemented';
-  },
+  setChange: NotImplementCallback,
+  removeChange: NotImplementCallback,
+  clearChange: NotImplementCallback,
 });
 
 export function useQueryResultChange() {
