@@ -20,7 +20,7 @@ const AppFeatureContext = createContext<{
   theme: 'light',
   enableDebug: false,
 
-  setTheme: NotImplementCallback
+  setTheme: NotImplementCallback,
   setEnableDebug: NotImplementCallback,
 });
 
