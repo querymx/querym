@@ -21,7 +21,7 @@ export default function Layout({ children }: PropsWithChildren) {
   );
 }
 
-Layout.Grow = function ({ children }: PropsWithChildren) {
+Layout.Grow = function LayoutGrow({ children }: PropsWithChildren) {
   return (
     <div style={{ flexGrow: 1, position: 'relative', overflow: 'hidden' }}>
       {children}
@@ -29,7 +29,7 @@ Layout.Grow = function ({ children }: PropsWithChildren) {
   );
 };
 
-Layout.Fixed = function ({
+Layout.Fixed = function LayoutFixed({
   children,
   shadowBottom,
   shadowTop,

@@ -82,10 +82,6 @@ function QueryResultTable({
     return {};
   }, [result, schema, currentDatabase]);
 
-  if (!headers || !result) {
-    return <div>No result</div>;
-  }
-
   const headerMemo = useMemo(() => {
     function getInitialSizeByHeaderType(_: number, header: QueryResultHeader) {
       if (header.type.type === 'number') {
@@ -151,6 +147,10 @@ function QueryResultTable({
       return data.findIndex(({ rowIndex }) => rowIndex === removeIndex) ?? 0;
     });
   }, [removeRowsIndex, data]);
+
+  if (!headers || !result) {
+    return <div>No result</div>;
+  }
 
   return (
     <div className={styles.container} onContextMenu={handleContextMenu}>

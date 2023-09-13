@@ -14,7 +14,7 @@ export interface OptionListItemProps {
   tick?: boolean;
   destructive?: boolean;
   separator?: boolean;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent) => Promise<void> | void;
 }
 
 export default function OptionListItem({
