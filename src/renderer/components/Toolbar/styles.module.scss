@@ -2,6 +2,10 @@
   border-bottom: 2px solid var(--color-surface-hover);
 }
 
+.shadowTop {
+  box-shadow: var(--color-shadow) 0 1.95px 5px;
+}
+
 .filler {
   flex-grow: 1;
 }

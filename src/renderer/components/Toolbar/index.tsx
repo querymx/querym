@@ -14,11 +14,18 @@ interface ToolbarItemProps {
 export default function Toolbar({
   children,
   shadow,
-}: PropsWithChildren<{ shadow?: boolean }>) {
+  shadowTop,
+}: PropsWithChildren<{ shadow?: boolean; shadowTop?: boolean }>) {
+  const className = [
+    styles.toolbar,
+    shadow ? styles.shadow : undefined,
+    shadowTop ? styles.shadowTop : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div
-      className={shadow ? `${styles.toolbar} ${styles.shadow}` : styles.toolbar}
-    >
+    <div className={className}>
       <ul>{children}</ul>
     </div>
   );

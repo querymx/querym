@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
-import { QueryResultHeader } from 'types/SqlResult';
+import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
@@ -12,17 +12,10 @@ import useDataTableContextMenu from './useDataTableContextMenu';
 
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
-  result: { data: Record<string, unknown>; rowIndex: number }[];
-  page: number;
-  pageSize: number;
+  result: QueryResultWithIndex[];
 }
 
-function QueryResultTable({
-  headers,
-  result,
-  page,
-  pageSize,
-}: QueryResultTableProps) {
+function QueryResultTable({ headers, result }: QueryResultTableProps) {
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
@@ -50,14 +43,6 @@ function QueryResultTable({
     setSelectedRowsIndex(selectedRows);
   };
 
-  const { handleContextMenu } = useDataTableContextMenu({
-    data: result,
-    cellManager,
-    collector,
-    newRowCount,
-    selectedRowsIndex,
-  });
-
   const data: { data: Record<string, unknown>; rowIndex: number }[] =
     useMemo(() => {
       const newRows = new Array(newRowCount)
@@ -74,6 +59,14 @@ function QueryResultTable({
 
       return [...newRows, ...result];
     }, [result, newRowCount]);
+
+  const { handleContextMenu } = useDataTableContextMenu({
+    data,
+    cellManager,
+    collector,
+    newRowCount,
+    selectedRowsIndex,
+  });
 
   const updatableTables = useMemo(() => {
     if (headers && currentDatabase && schema) {
@@ -139,7 +132,7 @@ function QueryResultTable({
       }
       return <></>;
     },
-    [data, result, updatableTables, page, pageSize, newRowCount]
+    [data, result, updatableTables, newRowCount]
   );
 
   const relativeRemoveRowsIndex = useMemo(() => {

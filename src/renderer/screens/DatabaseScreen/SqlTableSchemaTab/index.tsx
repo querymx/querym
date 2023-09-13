@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import ResizableTable from 'renderer/components/ResizableTable';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import { TableDefinitionSchema } from 'types/SqlSchema';
 
 interface SqlTableSchemaProps {
@@ -13,11 +12,9 @@ interface SqlTableSchemaProps {
 }
 
 export default function SqlTableSchemaTab({
-  tabKey,
   database,
   table,
 }: SqlTableSchemaProps) {
-  const { setTabData } = useWindowTab();
   const { common } = useSqlExecute();
   const [definition, setDefinition] = useState<TableDefinitionSchema | null>(
     null
@@ -26,10 +23,6 @@ export default function SqlTableSchemaTab({
   useEffect(() => {
     common.getTableSchema(database, table).then(setDefinition).catch();
   }, [database, common]);
-
-  useEffect(() => {
-    setTabData(tabKey, { type: 'table-schema', database, table });
-  }, [tabKey, setTabData, database, table]);
 
   return (
     <div>

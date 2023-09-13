@@ -77,12 +77,7 @@ function QueryResultViewer({
     <QueryResultChangeProvider key={runningIndex.toString()}>
       <div className={styles.result}>
         <TableCellManagerProvider>
-          <QueryResultTable
-            headers={result.headers}
-            result={slicedResult}
-            page={page}
-            pageSize={pageSize}
-          />
+          <QueryResultTable headers={result.headers} result={slicedResult} />
           <QueryResultAction
             page={page}
             pageSize={pageSize}

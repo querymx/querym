@@ -16,6 +16,11 @@ export interface QueryResultHeader {
   };
 }
 
+export interface QueryResultWithIndex {
+  data: Record<string, unknown>;
+  rowIndex: number;
+}
+
 export type QueryResultPrimary = Record<string, Record<string, unknown>>;
 
 interface QueryResultCommon {

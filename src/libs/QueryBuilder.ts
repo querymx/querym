@@ -3,7 +3,7 @@ import SqlString from 'sqlstring';
 interface QueryRaw {
   __typename: 'query_raw';
   raw: string;
-  binding: unknown[];
+  binding?: unknown[];
 }
 
 interface QueryWhere {
@@ -22,8 +22,9 @@ interface QueryStates {
   insert?: Record<string, unknown>;
   update?: Record<string, unknown>;
   where: QueryWhere[];
-  select: string[];
+  select: (string | QueryRaw)[];
   limit?: number;
+  offset?: number;
 }
 
 abstract class QueryDialect {
@@ -53,6 +54,21 @@ export class QueryBuilder {
     if (dialect === 'mysql') {
       this.dialect = new MySqlDialect();
     }
+  }
+
+  protected escapeIdentifier(id: string | QueryRaw) {
+    if (typeof id === 'string') {
+      return this.dialect.escapeIdentifier(id);
+    }
+
+    return id.raw;
+  }
+
+  raw(str: string): QueryRaw {
+    return {
+      __typename: 'query_raw',
+      raw: str,
+    };
   }
 
   escapeId(name: string) {
@@ -98,13 +114,18 @@ export class QueryBuilder {
     return this;
   }
 
-  select(...columns: string[]) {
+  select(...columns: (string | QueryRaw)[]) {
     this.states.select = this.states.select.concat(columns);
     return this;
   }
 
   limit(n: number) {
     this.states.limit = n;
+    return this;
+  }
+
+  offset(n: number) {
+    this.states.offset = n;
     return this;
   }
 
@@ -176,7 +197,7 @@ export class QueryBuilder {
         this.states.select.length === 0
           ? '*'
           : this.states.select
-              .map((field) => this.dialect.escapeIdentifier(field))
+              .map((field) => this.escapeIdentifier(field))
               .join(',');
 
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
@@ -184,8 +205,18 @@ export class QueryBuilder {
       );
 
       binding = binding.concat(...whereBinding);
+
+      let limitPart: string | undefined = undefined;
+
       if (this.states.limit) {
-        binding.push(this.states.limit);
+        if (this.states.offset) {
+          binding.push(this.states.offset);
+          binding.push(this.states.limit);
+          limitPart = 'LIMIT ?,?';
+        } else {
+          binding.push(this.states.limit);
+          limitPart = 'LIMIT ?';
+        }
       }
 
       const sql =
@@ -195,7 +226,7 @@ export class QueryBuilder {
           'FROM',
           this.dialect.escapeIdentifier(this.states.table),
           whereSql ? 'WHERE ' + whereSql : whereSql,
-          this.states.limit ? `LIMIT ?` : null,
+          limitPart,
         ]
           .filter(Boolean)
           .join(' ') + ';';
