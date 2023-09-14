@@ -205,7 +205,7 @@ export default function QueryWindow({
   }, [tabKey, setTabData, initialSql]);
 
   return (
-    <Splitter vertical primaryIndex={1} secondaryInitialSize={200}>
+    <Splitter vertical primaryIndex={1} secondaryInitialSize={500}>
       <div className={styles.queryContainer}>
         <QueryHeader tabKey={tabKey} onSave={savedQuery} />
 

@@ -7,20 +7,6 @@
   color: var(--color-text);
 }
 
-.footer {
-  box-shadow: var(--color-shadow) 0 1.95px 5px;
-}
-
-.footerPage {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.footerAction {
-  flex-grow: 1;
-}
-
 .container {
   flex-grow:  1;
   white-space: nowrap;

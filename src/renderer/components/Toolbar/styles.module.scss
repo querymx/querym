@@ -60,6 +60,10 @@
   }
 }
 
+.button.destructive {
+  color: var(--color-critical);
+}
+
 .toolbar {
   ul {
     list-style-type: none;

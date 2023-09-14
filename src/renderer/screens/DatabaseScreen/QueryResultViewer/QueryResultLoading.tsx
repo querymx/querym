@@ -2,8 +2,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './styles.module.scss';
 import { useEffect, useState, useCallback } from 'react';
-import Button from 'renderer/components/Button';
-import Stack from 'renderer/components/Stack';
+import Toolbar from 'renderer/components/Toolbar';
 
 export default function QueryResultLoading() {
   const [initialTime] = useState(Date.now());
@@ -25,12 +24,11 @@ export default function QueryResultLoading() {
   return (
     <div className={styles.result}>
       <div className={styles.container}></div>
-      <div className={styles.footer} style={{ padding: '5px 10px' }}>
-        <Stack>
+      <Toolbar shadowTop>
+        <Toolbar.Text>
           <div
             style={{
               width: 125,
-              borderRight: '1px solid var(--color-surface-hover)',
               alignItems: 'center',
               display: 'flex',
             }}
@@ -39,11 +37,14 @@ export default function QueryResultLoading() {
             <FontAwesomeIcon icon={faSpinner} spin /> &nbsp;{' '}
             {Math.round((currentTime - initialTime) / 1000)}s
           </div>
-          <Button destructive onClick={onTerminateQueryClicked}>
-            Terminate
-          </Button>
-        </Stack>
-      </div>
+        </Toolbar.Text>
+        <Toolbar.Separator />
+        <Toolbar.Item
+          onClick={onTerminateQueryClicked}
+          text="Terminate"
+          destructive
+        />
+      </Toolbar>
     </div>
   );
 }

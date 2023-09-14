@@ -9,6 +9,8 @@ interface ToolbarItemProps {
   badge?: number;
   disabled?: boolean;
   onClick?: () => void;
+  primary?: boolean;
+  destructive?: boolean;
 }
 
 export default function Toolbar({
@@ -37,10 +39,20 @@ Toolbar.Item = function ({
   onClick,
   badge,
   disabled,
+  destructive,
+  primary,
 }: ToolbarItemProps) {
+  const className = [
+    styles.button,
+    destructive ? styles.destructive : undefined,
+    primary ? styles.primary : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <li
-      className={styles.button}
+      className={className}
       onClick={disabled ? undefined : onClick}
       style={{ opacity: disabled ? 0.5 : 1 }}
     >
