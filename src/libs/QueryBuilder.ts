@@ -25,6 +25,7 @@ interface QueryStates {
   select: (string | QueryRaw)[];
   limit?: number;
   offset?: number;
+  orderBy: { name: string; order: 'ASC' | 'DESC' }[];
 }
 
 abstract class QueryDialect {
@@ -48,6 +49,7 @@ export class QueryBuilder {
     type: 'select',
     where: [],
     select: [],
+    orderBy: [],
   };
 
   constructor(dialect: 'mysql') {
@@ -127,6 +129,10 @@ export class QueryBuilder {
   offset(n: number) {
     this.states.offset = n;
     return this;
+  }
+
+  orderBy(name: string, order: 'ASC' | 'DESC' = 'ASC') {
+    this.states.orderBy.push({ name, order });
   }
 
   protected buildWhere(where: QueryWhere[]): {
@@ -226,6 +232,14 @@ export class QueryBuilder {
           'FROM',
           this.dialect.escapeIdentifier(this.states.table),
           whereSql ? 'WHERE ' + whereSql : whereSql,
+          this.states.orderBy.length > 0
+            ? 'ORDER BY ' +
+              this.states.orderBy
+                .map(
+                  ({ name, order }) => `${this.escapeIdentifier(name)} ${order}`
+                )
+                .join(',')
+            : undefined,
           limitPart,
         ]
           .filter(Boolean)

@@ -15,6 +15,7 @@ export interface OptimizeTableHeaderProps {
   initialSize: number;
   resizable?: boolean;
   icon?: ReactElement;
+  rightIcon?: ReactElement;
   tooltip?: string;
   menu?: ContextMenuItemProps[];
 }

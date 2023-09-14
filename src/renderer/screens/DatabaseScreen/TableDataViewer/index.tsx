@@ -30,8 +30,16 @@ export default function TableDataViewer({
   const [loading, setLoading] = useState(true);
   const [totalRows, setTotalRows] = useState(0);
   const [data, setData] = useState<QueryResultWithIndex[]>([]);
-  const [headers, setHeaders] = useState<QueryResultHeader[]>([]);
 
+  const [sortedHeader, setSortedHeader] = useState<
+    | {
+        by: 'ASC' | 'DESC';
+        header: QueryResultHeader;
+      }
+    | undefined
+  >();
+
+  const [headers, setHeaders] = useState<QueryResultHeader[]>([]);
   const [rowRange, setRowRange] = useState<{ start: number; end: number }>({
     start: 0,
     end: 0,
@@ -52,12 +60,17 @@ export default function TableDataViewer({
   }, [databaseName, tableName, setTotalRows]);
 
   useEffect(() => {
-    const selectSql = qb()
+    const builder = qb()
       .table(`${databaseName}.${tableName}`)
       .select()
       .offset(PAGE_SIZE * page)
-      .limit(PAGE_SIZE)
-      .toRawSQL();
+      .limit(PAGE_SIZE);
+
+    if (sortedHeader) {
+      builder.orderBy(sortedHeader.header.name, sortedHeader.by);
+    }
+
+    const selectSql = builder.toRawSQL();
 
     setLoading(true);
     runner
@@ -80,7 +93,15 @@ export default function TableDataViewer({
         });
       })
       .catch();
-  }, [runner, page, setHeaders, setData, setTotalRows, setLoading]);
+  }, [
+    runner,
+    page,
+    sortedHeader,
+    setHeaders,
+    setData,
+    setTotalRows,
+    setLoading,
+  ]);
 
   const onNextPage = useCallback(() => {
     setPage((prev) => prev + 1);
@@ -97,7 +118,13 @@ export default function TableDataViewer({
           {!loading && (
             <QueryResultChangeProvider>
               <TableCellManagerProvider>
-                <QueryResultTable headers={headers} result={data} />
+                <QueryResultTable
+                  headers={headers}
+                  result={data}
+                  onSortHeader={(header, by) => setSortedHeader({ by, header })}
+                  onSortReset={() => setSortedHeader(undefined)}
+                  sortedHeader={sortedHeader}
+                />
               </TableCellManagerProvider>
             </QueryResultChangeProvider>
           )}

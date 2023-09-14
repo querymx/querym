@@ -16,7 +16,9 @@ function StoryPage() {
       <ContextMenuProvider>
         <div
           style={{ width: '700px', height: 400, overflow: 'auto' }}
-          onContextMenu={(e) => e.preventDefault()}
+          onContextMenu={(e) => {
+            e.preventDefault();
+          }}
         >
           <OptimizeTable
             headers={[
@@ -26,6 +28,7 @@ function StoryPage() {
                 initialSize: 250,
                 tooltip: 'Hello Tooltip with resize',
                 resizable: true,
+                rightIcon: <FontAwesomeIcon icon={faArrowDown} />,
                 menu: [
                   {
                     text: 'Clear Order',

@@ -9,13 +9,29 @@ import { useTableCellManager } from './TableCellManager';
 import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
 import useDataTableContextMenu from './useDataTableContextMenu';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowDown,
+  faArrowUp,
+  faChevronDown,
+  faChevronUp,
+} from '@fortawesome/free-solid-svg-icons';
 
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
   result: QueryResultWithIndex[];
+  onSortHeader?: (header: QueryResultHeader, by: 'ASC' | 'DESC') => void;
+  onSortReset?: () => void;
+  sortedHeader?: { header: QueryResultHeader; by: 'ASC' | 'DESC' };
 }
 
-function QueryResultTable({ headers, result }: QueryResultTableProps) {
+function QueryResultTable({
+  headers,
+  result,
+  onSortHeader,
+  onSortReset,
+  sortedHeader,
+}: QueryResultTableProps) {
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector } = useQueryResultChange();
   const { cellManager } = useTableCellManager();
@@ -104,17 +120,53 @@ function QueryResultTable({ headers, result }: QueryResultTableProps) {
       icon: header?.schema?.primaryKey ? (
         <Icon.GreenKey size="sm" />
       ) : undefined,
+      rightIcon:
+        sortedHeader && sortedHeader.header.name === header.name ? (
+          sortedHeader.by === 'ASC' ? (
+            <FontAwesomeIcon icon={faChevronDown} />
+          ) : (
+            <FontAwesomeIcon icon={faChevronUp} />
+          )
+        ) : undefined,
       tooltip: header.columnDefinition?.comment,
       menu: [
-        { text: 'Order by ASC', disabled: true },
-        { text: 'Order by DESC', disabled: true },
+        {
+          text: 'Reset Order',
+          separator: true,
+          disabled: !onSortHeader,
+          onClick: () => {
+            if (onSortReset) {
+              onSortReset();
+            }
+          },
+        },
+        {
+          text: 'Order by ASC',
+          icon: <FontAwesomeIcon icon={faArrowDown} />,
+          disabled: !onSortHeader,
+          onClick: () => {
+            if (onSortHeader) {
+              onSortHeader(header, 'ASC');
+            }
+          },
+        },
+        {
+          text: 'Order by DESC',
+          icon: <FontAwesomeIcon icon={faArrowUp} />,
+          disabled: !onSortHeader,
+          onClick: () => {
+            if (onSortHeader) {
+              onSortHeader(header, 'DESC');
+            }
+          },
+        },
       ],
       initialSize: Math.max(
         header.name.length * 10,
         getInitialSizeByHeaderType(idx, header)
       ),
     }));
-  }, [result]);
+  }, [result, onSortHeader, sortedHeader]);
 
   const renderCell = useCallback(
     (y: number, x: number) => {

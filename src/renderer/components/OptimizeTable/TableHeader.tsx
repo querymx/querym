@@ -30,6 +30,10 @@ export default function TableHeader({
 
       <div className={styles.tableCellContent}>{header.name}</div>
 
+      {header.rightIcon && (
+        <div className={styles.tableHeaderIcon}>{header.rightIcon}</div>
+      )}
+
       {header.resizable && (
         <TableHeaderResizeHandler idx={idx} onResize={onHeaderResize} />
       )}
