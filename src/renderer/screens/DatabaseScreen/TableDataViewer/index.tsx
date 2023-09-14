@@ -11,6 +11,8 @@ import {
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
+import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
+import { useDialog } from 'renderer/contexts/DialogProvider';
 
 interface TableDataViewerProps {
   databaseName: string;
@@ -29,6 +31,7 @@ export default function TableDataViewer({
   const [loading, setLoading] = useState(true);
   const [totalRows, setTotalRows] = useState(0);
   const [data, setData] = useState<QueryResultWithIndex[]>([]);
+  const { showErrorDialog } = useDialog();
 
   const [sortedHeader, setSortedHeader] = useState<
     | {
@@ -55,7 +58,11 @@ export default function TableDataViewer({
       .then((result) => {
         setTotalRows(Number(result[0].result.rows[0]['total'] ?? 0));
       })
-      .catch();
+      .catch((e) => {
+        if (e.message) {
+          showErrorDialog(e.message);
+        }
+      });
   }, [databaseName, tableName, setTotalRows]);
 
   useEffect(() => {
@@ -91,7 +98,11 @@ export default function TableDataViewer({
           end: page * PAGE_SIZE + result[0].result.rows.length,
         });
       })
-      .catch();
+      .catch((e) => {
+        if (e.message) {
+          showErrorDialog(e.message);
+        }
+      });
   }, [
     runner,
     page,
@@ -110,6 +121,26 @@ export default function TableDataViewer({
     setPage((prev) => prev - 1);
   }, [setPage]);
 
+  const footer = (
+    <Toolbar shadowTop>
+      <Toolbar.Filler />
+      <Toolbar.Item
+        icon={<FontAwesomeIcon icon={faChevronLeft} />}
+        disabled={page === 0}
+        onClick={onPrevPage}
+      />
+      <Toolbar.Text>
+        {rowRange.start}-{rowRange.end}/
+        {totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+      </Toolbar.Text>
+      <Toolbar.Item
+        disabled={PAGE_SIZE * (page + 1) >= totalRows}
+        icon={<FontAwesomeIcon icon={faChevronRight} />}
+        onClick={onNextPage}
+      />
+    </Toolbar>
+  );
+
   return (
     <Layout>
       <Layout.Grow>
@@ -127,25 +158,7 @@ export default function TableDataViewer({
           )}
         </div>
       </Layout.Grow>
-      <Layout.Fixed>
-        <Toolbar shadowTop>
-          <Toolbar.Filler />
-          <Toolbar.Item
-            icon={<FontAwesomeIcon icon={faChevronLeft} />}
-            disabled={page === 0}
-            onClick={onPrevPage}
-          />
-          <Toolbar.Text>
-            {rowRange.start}-{rowRange.end}/
-            {totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </Toolbar.Text>
-          <Toolbar.Item
-            disabled={PAGE_SIZE * (page + 1) >= totalRows}
-            icon={<FontAwesomeIcon icon={faChevronRight} />}
-            onClick={onNextPage}
-          />
-        </Toolbar>
-      </Layout.Fixed>
+      <Layout.Fixed>{loading ? <QueryResultLoading /> : footer}</Layout.Fixed>
     </Layout>
   );
 }
