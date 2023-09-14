@@ -2,7 +2,6 @@ import { useCallback, useState, useEffect } from 'react';
 import applyQueryResultChanges from 'libs/ApplyQueryResultChanges';
 import generateSqlFromChanges from 'libs/GenerateSqlFromChanges';
 import generateSqlFromPlan from 'libs/GenerateSqlFromPlan';
-import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { QueryResult } from 'types/SqlResult';
@@ -16,6 +15,7 @@ import {
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { useDebounceEffect } from 'hooks/useDebounce';
+import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 
 interface QueryResultActionProps {
   result: QueryResult;
@@ -43,7 +43,7 @@ export default function QueryResultAction({
   const { showErrorDialog } = useDialog();
   const [changeCount, setChangeCount] = useState(0);
   const [showExportModal, setShowExportModal] = useState(false);
-  const { clearChange, collector } = useQueryResultChange();
+  const { clearChange, collector } = useEditableResult();
   const { schema, currentDatabase } = useSchema();
   const [search, setSearch] = useState('');
   const { runner } = useSqlExecute();

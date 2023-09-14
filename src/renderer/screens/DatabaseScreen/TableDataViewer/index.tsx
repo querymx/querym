@@ -1,10 +1,8 @@
 import { qb } from 'libs/QueryBuilder';
 import { useEffect, useState, useCallback } from 'react';
-import { QueryResultChangeProvider } from 'renderer/contexts/QueryResultChangeProvider';
 import QueryResultTable from '../QueryResultViewer/QueryResultTable';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
-import { TableCellManagerProvider } from '../QueryResultViewer/TableCellManager';
 import Layout from 'renderer/components/Layout';
 import Toolbar from 'renderer/components/Toolbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +10,7 @@ import {
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
+import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
 
 interface TableDataViewerProps {
   databaseName: string;
@@ -116,17 +115,15 @@ export default function TableDataViewer({
       <Layout.Grow>
         <div style={{ width: '100%', height: '100%', display: 'flex' }}>
           {!loading && (
-            <QueryResultChangeProvider>
-              <TableCellManagerProvider>
-                <QueryResultTable
-                  headers={headers}
-                  result={data}
-                  onSortHeader={(header, by) => setSortedHeader({ by, header })}
-                  onSortReset={() => setSortedHeader(undefined)}
-                  sortedHeader={sortedHeader}
-                />
-              </TableCellManagerProvider>
-            </QueryResultChangeProvider>
+            <EditableQueryResultProvider>
+              <QueryResultTable
+                headers={headers}
+                result={data}
+                onSortHeader={(header, by) => setSortedHeader({ by, header })}
+                onSortReset={() => setSortedHeader(undefined)}
+                sortedHeader={sortedHeader}
+              />
+            </EditableQueryResultProvider>
           )}
         </div>
       </Layout.Grow>

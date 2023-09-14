@@ -2,7 +2,7 @@ import { faPlusCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ResultChangeCollector from 'libs/ResultChangeCollector';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
-import { TableCellManager } from './TableCellManager';
+import { TableCellManager } from 'renderer/contexts/EditableQueryResultProvider';
 
 interface DataTableContextMenuDeps {
   collector: ResultChangeCollector;

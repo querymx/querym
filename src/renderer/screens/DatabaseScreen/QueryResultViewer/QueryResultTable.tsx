@@ -4,8 +4,6 @@ import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCe
 import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
 import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
-import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
-import { useTableCellManager } from './TableCellManager';
 import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
 import useDataTableContextMenu from './useDataTableContextMenu';
@@ -16,6 +14,7 @@ import {
   faChevronDown,
   faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
+import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
@@ -33,8 +32,7 @@ function QueryResultTable({
   sortedHeader,
 }: QueryResultTableProps) {
   const [newRowCount, setNewRowCount] = useState(0);
-  const { collector } = useQueryResultChange();
-  const { cellManager } = useTableCellManager();
+  const { collector, cellManager } = useEditableResult();
   const { schema, currentDatabase } = useSchema();
 
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);

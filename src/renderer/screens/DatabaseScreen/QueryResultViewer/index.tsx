@@ -1,13 +1,12 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { QueryResultChangeProvider } from 'renderer/contexts/QueryResultChangeProvider';
 import QueryResultTable from './QueryResultTable';
 import styles from './styles.module.scss';
-import { TableCellManagerProvider } from './TableCellManager';
 import QueryResultAction from './QueryResultAction';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
+import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
 
 function QueryResultViewer({
   statementResult,
@@ -74,24 +73,22 @@ function QueryResultViewer({
   }, [resultWithIndex]);
 
   return (
-    <QueryResultChangeProvider key={runningIndex.toString()}>
+    <EditableQueryResultProvider key={runningIndex.toString()}>
       <div className={styles.result}>
-        <TableCellManagerProvider>
-          <QueryResultTable headers={result.headers} result={slicedResult} />
-          <QueryResultAction
-            page={page}
-            pageSize={pageSize}
-            onSearchChange={onSearchChange}
-            onPageChange={setPage}
-            result={cacheResult}
-            resultAfterFilter={resultWithIndex}
-            onResultChange={setCacheResult}
-            onRequestRefetch={onRequestRefetch}
-            time={statementResult.time}
-          />
-        </TableCellManagerProvider>
+        <QueryResultTable headers={result.headers} result={slicedResult} />
+        <QueryResultAction
+          page={page}
+          pageSize={pageSize}
+          onSearchChange={onSearchChange}
+          onPageChange={setPage}
+          result={cacheResult}
+          resultAfterFilter={resultWithIndex}
+          onResultChange={setCacheResult}
+          onRequestRefetch={onRequestRefetch}
+          time={statementResult.time}
+        />
       </div>
-    </QueryResultChangeProvider>
+    </EditableQueryResultProvider>
   );
 }
 

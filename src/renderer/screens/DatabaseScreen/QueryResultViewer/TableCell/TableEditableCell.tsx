@@ -8,9 +8,8 @@ import {
   useRef,
 } from 'react';
 import styles from './styles.module.css';
-import { useQueryResultChange } from 'renderer/contexts/QueryResultChangeProvider';
-import { useTableCellManager } from '../TableCellManager';
 import { QueryResultHeader } from 'types/SqlResult';
+import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 
 export interface TableEditableCellHandler {
   discard: () => void;
@@ -67,8 +66,8 @@ const TableEditableCell = forwardRef<
   },
   ref
 ) {
-  const { cellManager } = useTableCellManager();
-  const { setChange, removeChange, collector } = useQueryResultChange();
+  const { cellManager, setChange, removeChange, collector } =
+    useEditableResult();
   const [afterValue, setAfterValue] = useState(
     collector.getChange(row, col, value)
   );

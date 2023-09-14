@@ -3,8 +3,8 @@ import TableEditableCell, {
   TableEditableEditorProps,
   TableEditableContentProps,
 } from './TableEditableCell';
-import { useTableCellManager } from '../TableCellManager';
 import { QueryResultHeader } from 'types/SqlResult';
+import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 
 interface TableCellCustomTypeOptions<T> {
   diff: (prev: T, current: T) => boolean;
@@ -35,7 +35,7 @@ export default function createTableCellType<T>(
     header,
   }: TableCellCustomTypeProps<T>) {
     const ref = useRef(null);
-    const { cellManager } = useTableCellManager();
+    const { cellManager } = useEditableResult();
 
     useEffect(() => {
       cellManager.set(row, col, ref?.current || null);
