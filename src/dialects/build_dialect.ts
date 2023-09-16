@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { TooltipDirectionary } from 'renderer/components/CodeEditor/exampleTooltip';
+import { TooltipDirectionary } from 'renderer/components/CodeEditor/functionTooltips';
 import showdown from 'showdown';
 
 function readKeywordsFromFile(file: string): string[] {

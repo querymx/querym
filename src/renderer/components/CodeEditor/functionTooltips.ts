@@ -15,8 +15,6 @@ function getCursorTooltips(
   const pos = state.selection.main.head;
   const node = tree.resolveInner(state.selection.main.head, -1);
 
-  console.log(node);
-
   const parent = node.parent;
   if (!parent) return [];
   if (parent.type.name !== 'Parens') return [];
@@ -55,7 +53,7 @@ function getCursorTooltips(
   return [];
 }
 
-const cursorTooltipField = (dict: TooltipDirectionary) => {
+const functionTooltipField = (dict: TooltipDirectionary) => {
   return StateField.define<readonly Tooltip[]>({
     create(state) {
       return getCursorTooltips(state, dict);
@@ -70,7 +68,7 @@ const cursorTooltipField = (dict: TooltipDirectionary) => {
   });
 };
 
-const cursorTooltipBaseTheme = EditorView.baseTheme({
+const functionTooltipBaseTheme = EditorView.baseTheme({
   '.cm-tooltip.cm-tooltip-cursor': {
     backgroundColor: '#66b',
     color: 'white',
@@ -86,6 +84,6 @@ const cursorTooltipBaseTheme = EditorView.baseTheme({
   },
 });
 
-export function cursorTooltip(dict: TooltipDirectionary) {
-  return [cursorTooltipField(dict), cursorTooltipBaseTheme];
+export function functionTooltip(dict: TooltipDirectionary) {
+  return [functionTooltipField(dict), functionTooltipBaseTheme];
 }

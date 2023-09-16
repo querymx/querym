@@ -25,7 +25,7 @@ import {
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { DatabaseSchemas } from 'types/SqlSchema';
 import createSQLTableNameHighlightPlugin from './SQLTableNameHightlight';
-import { cursorTooltip } from './exampleTooltip';
+import { functionTooltip } from './functionTooltips';
 import { MySQLDialect, MySQLTooltips } from 'dialects/MySQLDialect';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
@@ -38,7 +38,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   const { schema, currentDatabase, ...codeMirrorProps } = props;
   const theme = useCodeEditorTheme();
 
-  const enumCompletion = useCallback(
+  const customAutoComplete = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
       return handleCustomSqlAutoComplete(
         context,
@@ -98,13 +98,13 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         }),
         autocompletion({
           override: [
-            genericCompletion(enumCompletion),
+            genericCompletion(customAutoComplete),
             keywordCompletionSource(MySQLDialect, true),
           ],
         }),
         indentUnit.of('  '),
         tableNameHighlightPlugin,
-        cursorTooltip(MySQLTooltips),
+        functionTooltip(MySQLTooltips),
       ]}
       {...codeMirrorProps}
     />

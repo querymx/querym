@@ -165,6 +165,8 @@ export default function handleCustomSqlAutoComplete(
 ): CompletionResult | null {
   if (!schema) return null;
 
+  console.log(tree);
+
   if (tree.type.name === 'Script') {
     tree = tree.resolveInner(
       context.state.doc.sliceString(0, context.pos).trimEnd().length,
