@@ -1,0 +1,10 @@
+{
+  "dayofyear": {
+    "syntax": "DAYOFYEAR(date)",
+    "description": "<p>Returns the day of the year for date, in the range 1 to 366. Returns NULL if date is NULL.</p>\n<hr />\n<p><strong>Examples</strong></p>\n<pre><code>SELECT DAYOFYEAR('2007-02-03');\n</code></pre>"
+  },
+  "extract": {
+    "syntax": "EXTRACT(unit FROM date)",
+    "description": "<p>The EXTRACT() function uses the same kinds of unit specifiers as DATE<em>ADD() or DATE</em>SUB(), but extracts parts from the date rather than performing date arithmetic. For information on the unit argument, see Temporal Intervals. Returns NULL if date is NULL.</p>\n<p><strong>Examples</strong></p>\n<pre><code>SELECT EXTRACT(YEAR FROM '2019-07-02');\nSELECT EXTRACT(YEAR_MONTH FROM '2019-07-02 01:02:03');\nSELECT EXTRACT(DAY_MINUTE FROM '2019-07-02 01:02:03');\n</code></pre>"
+  }
+}

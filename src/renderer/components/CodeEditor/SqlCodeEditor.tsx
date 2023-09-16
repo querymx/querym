@@ -18,7 +18,6 @@ import useCodeEditorTheme from './useCodeEditorTheme';
 import { SyntaxNode } from '@lezer/common';
 import {
   sql,
-  MySQL,
   genericCompletion,
   keywordCompletionSource,
 } from '../../../language/dist/';
@@ -26,6 +25,8 @@ import {
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { DatabaseSchemas } from 'types/SqlSchema';
 import createSQLTableNameHighlightPlugin from './SQLTableNameHightlight';
+import { cursorTooltip } from './exampleTooltip';
+import { MySQLDialect, MySQLTooltips } from 'dialects/MySQLDialect';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
@@ -93,16 +94,17 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
           ...defaultKeymap,
         ]),
         sql({
-          dialect: MySQL,
+          dialect: MySQLDialect,
         }),
         autocompletion({
           override: [
-            keywordCompletionSource(MySQL, true),
             genericCompletion(enumCompletion),
+            keywordCompletionSource(MySQLDialect, true),
           ],
         }),
         indentUnit.of('  '),
         tableNameHighlightPlugin,
+        cursorTooltip(MySQLTooltips),
       ]}
       {...codeMirrorProps}
     />

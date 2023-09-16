@@ -31,10 +31,13 @@ function getIdentifierParentPath(
   let prev = node;
 
   while (prev) {
-    if (prev.type.name !== '.') break;
-
-    prev = prev.prevSibling;
-    if (!prev) break;
+    if (prev.type.name !== '.') {
+      const currentStr = getNodeString(context, prev);
+      if (currentStr[currentStr.length - 1] !== '.') break;
+    } else {
+      prev = prev.prevSibling;
+      if (!prev) break;
+    }
 
     if (
       !['Identifier', 'QuotedIdentifier', 'CompositeIdentifier'].includes(
@@ -42,6 +45,7 @@ function getIdentifierParentPath(
       )
     )
       break;
+
     result.push(getNodeString(context, prev).replaceAll('.', ''));
     prev = prev.prevSibling;
   }

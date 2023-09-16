@@ -1,0 +1,17 @@
+charset
+clear
+edit
+ego
+help
+nopager
+notee
+nowarning
+pager
+print
+prompt
+quit
+rehash
+source
+status
+system
+tee

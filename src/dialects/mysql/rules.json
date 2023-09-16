@@ -1,0 +1,10 @@
+{
+  "operatorChars": "*+-%<>!=&|^",
+  "charSetCasts": true,
+  "doubleQuotedStrings": true,
+  "unquotedBitLiterals": true,
+  "hashComments": true,
+  "spaceAfterDashes": true,
+  "specialVar": "@?",
+  "identifierQuotes": "`"
+}

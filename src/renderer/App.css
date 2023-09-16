@@ -221,3 +221,14 @@ hr {
 .cm-table-name > span {
   color: inherit !important;
 }
+
+.code-tooltip {
+  font-size: 0.8em;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.code-tooltip hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
