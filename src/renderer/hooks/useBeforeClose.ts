@@ -8,7 +8,11 @@ export default function useBeforeClose(
 
   useEffect(() => {
     if (allowedClose) {
-      window.close();
+      if (window.isClosing) {
+        window.close();
+      } else {
+        window.location.reload();
+      }
     } else {
       const beforeUnload = (e: BeforeUnloadEvent) => {
         e.preventDefault();

@@ -1,5 +1,5 @@
 import { autoUpdater } from 'electron-updater';
-import CommunicateHandler from 'main/CommunicateHandler';
+import CommunicateHandler from './../CommunicateHandler';
 
 let globalCheckForUpdate = false;
 

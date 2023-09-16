@@ -187,7 +187,7 @@ export default class MySQLConnection extends SQLLikeConnection {
 
   async close() {
     if (this.pool) {
-      this.pool.end().catch();
+      this.pool.end().catch(console.error);
     }
 
     if (this.keepAliveTimerId) {

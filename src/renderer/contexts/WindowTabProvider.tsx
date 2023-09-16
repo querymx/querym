@@ -122,7 +122,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
             });
 
             if (tabs.length > 0) {
-              emptyTab = true;
+              emptyTab = false;
               setTabs(tabs);
               setSelectedTab(
                 tabs.find((tab) => tab.key === result.selectedTabKey)

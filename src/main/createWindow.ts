@@ -43,6 +43,10 @@ export default function createWindow({ onClose }: { onClose: () => void }) {
     }
   });
 
+  mainWindow.on('close', () => {
+    mainWindow.webContents.send('closing');
+  });
+
   mainWindow.on('closed', () => {
     CommunicateHandler.executeCleanup();
     onClose();

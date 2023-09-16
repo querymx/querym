@@ -135,6 +135,13 @@ const electronHandler = {
     return ipcRenderer.on('update-downloaded', callback);
   },
 
+  listen: function listen<T = unknown[]>(
+    name: string,
+    callback: (event: IpcRendererEvent, ...args: T[]) => void
+  ) {
+    return ipcRenderer.on(name, callback);
+  },
+
   openExternal: (url: string) => ipcRenderer.invoke('open-external', [url]),
 };
 

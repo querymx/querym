@@ -1,5 +1,11 @@
 import './App.css';
-import { createContext, useCallback, useState, useContext } from 'react';
+import {
+  createContext,
+  useCallback,
+  useState,
+  useContext,
+  useEffect,
+} from 'react';
 import HomeScreen from './screens/HomeScreen';
 import DatabaseScreen from './screens/DatabaseScreen';
 import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
@@ -40,6 +46,12 @@ export default function App() {
     setConfig(undefined);
     window.electron.close();
   }, [setConfig]);
+
+  useEffect(() => {
+    window.electron.listen('closing', function () {
+      window.isClosing = true;
+    });
+  });
 
   return (
     <DeviceProvider>
