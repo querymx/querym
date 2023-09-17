@@ -19,7 +19,7 @@ function build_dialect(folderName: string) {
   );
   const functions: TooltipDirectionary = {};
 
-  const mdConverter = new showdown.Converter();
+  const mdConverter = new showdown.Converter({ tables: true });
   for (const functionFile of functionFiles) {
     const mdContent = fs
       .readFileSync(path.join(__dirname, folderName, 'functions', functionFile))

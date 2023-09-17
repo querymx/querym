@@ -7,6 +7,14 @@
     "syntax": "ACOS(X)",
     "description": "<p>Returns the arc cosine of X, that is, the value whose cosine is X. Returns NULL if X is not in the range -1 to 1, or if X is NULL.</p>\n<hr />\n<p><strong>Example:</strong></p>\n<pre><code>SELECT ACOS(1);\n-&gt; 0\n\nSELECT ACOS(1.0001);\n-&gt; NULL\n</code></pre>"
   },
+  "adddate": {
+    "syntax": "ADDDATE(date,INTERVAL expr unit), ADDDATE(date,days)",
+    "description": "<p>When invoked with the INTERVAL form of the second argument, ADDDATE() is a synonym for DATE<em>ADD(). The related function SUBDATE() is a synonym for DATE</em>SUB(). For information on the INTERVAL unit argument, see Temporal Intervals.</p>\n<pre><code>SELECT ADDDATE('2008-01-02', INTERVAL 31 DAY);\n-&gt; '2008-02-02'\n</code></pre>"
+  },
+  "addtime": {
+    "syntax": "ADDTIME(expr1,expr2)",
+    "description": "<p>ADDTIME() adds expr2 to expr1 and returns the result. expr1 is a time or datetime expression, and expr2 is a time expression. Returns NULL if expr1or expr2 is NULL.</p>\n<pre><code>SELECT ADDTIME('01:00:00.999999', '02:00:00.999998');\n-&gt; '03:00:01.999997'\n</code></pre>"
+  },
   "asin": {
     "syntax": "ASIN(X)",
     "description": "<p>Returns the arc sine of X, that is, the value whose sine is X. Returns NULL if X is not in the range -1 to 1, or if X is NULL.</p>"
@@ -31,6 +39,10 @@
     "syntax": "CONV(N,from_base,to_base)",
     "description": "<p>Converts numbers between different number bases. Returns a string representation of the number N, converted from base from<em>base to base to</em>base. Returns NULL if any argument is NULL.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CONV('a',16,2);\n-&gt; '1010'\n\nSELECT CONV('6E',18,8);\n-&gt; '172'\n</code></pre>"
   },
+  "convert_tz": {
+    "syntax": "CONVERT_TZ(dt,from_tz,to_tz)",
+    "description": "<p>CONVERT<em>TZ() converts a datetime value dt from the time zone given by from</em>tz to the time zone given by to_tz and returns the resulting value. </p>\n<pre><code>SELECT CONVERT_TZ('2004-01-01 12:00:00','GMT','MET');\n-&gt; '2004-01-01 13:00:00'\nSELECT CONVERT_TZ('2004-01-01 12:00:00','+00:00','+10:00');\n-&gt; '2004-01-01 22:00:00'\n</code></pre>"
+  },
   "cos": {
     "syntax": "COS(X)",
     "description": "<p>Returns the cosine of X, where X is given in radians. Returns NULL if X is NULL.</p>"
@@ -42,6 +54,54 @@
   "crc32": {
     "syntax": "CRC32(expr)",
     "description": "<p>Computes a cyclic redundancy check value and returns a 32-bit unsigned value. The result is NULL if the argument is NULL. The argument is expected to be a string and (if possible) is treated as one if it is not.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CRC32('MySQL');\n-&gt; 3259397556\n</code></pre>"
+  },
+  "curdate": {
+    "syntax": "CURDATE()",
+    "description": "<p>Returns the current date as a value in 'YYYY-MM-DD' or YYYYMMDD format, depending on whether the function is used in string or numeric context.</p>\n<pre><code>SELECT CURDATE();\n-&gt; '2008-06-13'\n\nSELECT CURDATE() + 0;\n-&gt; 20080613\n</code></pre>"
+  },
+  "current_date": {
+    "syntax": "CURRENT_DATE()",
+    "description": "<p>Returns the current date as a value in 'YYYY-MM-DD' or YYYYMMDD format, depending on whether the function is used in string or numeric context.</p>\n<pre><code>SELECT CURRENT_DATE();\n-&gt; '2008-06-13'\n\nSELECT CURRENT_DATE() + 0;\n-&gt; 20080613\n</code></pre>"
+  },
+  "current_time": {
+    "syntax": "CURRENT_TIME([fsp])",
+    "description": "<p>Returns the current time as a value in 'hh:mm:ss' or hhmmss format, depending on whether the function is used in string or numeric context. The value is expressed in the session time zone.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<pre><code>SELECT CURRENT_TIME();\n-&gt; 19:25:37\n\nSELECT CURRENT_TIME(3);\n-&gt; 19:25:37.840\n</code></pre>"
+  },
+  "curtime": {
+    "syntax": "CURTIME([fsp])",
+    "description": "<p>Returns the current time as a value in 'hh:mm:ss' or hhmmss format, depending on whether the function is used in string or numeric context. The value is expressed in the session time zone.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<pre><code>SELECT CURTIME();\n-&gt; 19:25:37\n\nSELECT CURTIME(3);\n-&gt; 19:25:37.840\n</code></pre>"
+  },
+  "date": {
+    "syntax": "DATE(expr)",
+    "description": "<p>Extracts the date part of the date or datetime expression expr. Returns NULL if expr is NULL.</p>\n<pre><code>SELECT DATE('2003-12-31 01:02:03');\n-&gt; '2003-12-31'\n</code></pre>"
+  },
+  "datediff": {
+    "syntax": "DATEDIFF(expr1,expr2)",
+    "description": "<p>DATEDIFF() returns expr1 − expr2 expressed as a value in days from one date to the other. expr1 and expr2 are date or date-and-time expressions. Only the date parts of the values are used in the calculation.</p>\n<pre><code>SELECT DATEDIFF('2007-12-31 23:59:59','2007-12-30');\n-&gt; 1\n\nSELECT DATEDIFF('2010-11-30 23:59:59','2010-12-31');\n-&gt; -31\n</code></pre>\n<p>This function returns NULL if expr1 or expr2 is NULL.</p>"
+  },
+  "date_add": {
+    "syntax": "DATE_ADD(date,INTERVAL expr unit)",
+    "description": "<p>These functions perform date arithmetic. The date argument specifies the starting date or datetime value. expr is an expression specifying the interval value to be added or subtracted from the starting date. expr is evaluated as a string; it may start with a - for negative intervals. unit is a keyword indicating the units in which the expression should be interpreted.</p>\n<pre><code>SELECT DATE_ADD('2018-05-01',INTERVAL 1 DAY);\n-&gt; '2018-05-02'\n</code></pre>"
+  },
+  "date_format": {
+    "syntax": "DATE_FORMAT(date,format)",
+    "description": "<p>Formats the date value according to the format string. If either argument is NULL, the function returns NULL.</p>\n<pre><code>SELECT DATE_FORMAT('2009-10-04 22:23:00', '%W %M %Y');\n-&gt; 'Sunday October 2009'\n\nSELECT DATE_FORMAT('2007-10-04 22:23:00', '%H:%i:%s');\n-&gt; '22:23:00'\n</code></pre>\n<table>\n<thead>\n<tr>\n<th>Specifier</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>%a</td>\n<td>Abbreviated weekday name (Sun..Sat)</td>\n</tr>\n<tr>\n<td>%b</td>\n<td>Abbreviated month name (Jan..Dec)</td>\n</tr>\n<tr>\n<td>%c</td>\n<td>Month, numeric (0..12)</td>\n</tr>\n<tr>\n<td>%D</td>\n<td>Day of the month with English suffix (0th, 1st, 2nd, 3rd, …)</td>\n</tr>\n<tr>\n<td>%d</td>\n<td>Day of the month, numeric (00..31)</td>\n</tr>\n<tr>\n<td>%e</td>\n<td>Day of the month, numeric (0..31)</td>\n</tr>\n<tr>\n<td>%f</td>\n<td>Microseconds (000000..999999)</td>\n</tr>\n<tr>\n<td>%H</td>\n<td>Hour (00..23)</td>\n</tr>\n<tr>\n<td>%h</td>\n<td>Hour (01..12)</td>\n</tr>\n<tr>\n<td>%I</td>\n<td>Hour (01..12)</td>\n</tr>\n<tr>\n<td>%i</td>\n<td>Minutes, numeric (00..59)</td>\n</tr>\n<tr>\n<td>%j</td>\n<td>Day of year (001..366)</td>\n</tr>\n<tr>\n<td>%k</td>\n<td>Hour (0..23)</td>\n</tr>\n<tr>\n<td>%l</td>\n<td>Hour (1..12)</td>\n</tr>\n<tr>\n<td>%M</td>\n<td>Month name (January..December)</td>\n</tr>\n<tr>\n<td>%m</td>\n<td>Month, numeric (00..12)</td>\n</tr>\n<tr>\n<td>%p</td>\n<td>AM or PM</td>\n</tr>\n<tr>\n<td>%r</td>\n<td>Time, 12-hour (hh:mm:ss followed by AM or PM)</td>\n</tr>\n<tr>\n<td>%S</td>\n<td>Seconds (00..59)</td>\n</tr>\n<tr>\n<td>%s</td>\n<td>Seconds (00..59)</td>\n</tr>\n<tr>\n<td>%T</td>\n<td>Time, 24-hour (hh:mm:ss)</td>\n</tr>\n<tr>\n<td>%U</td>\n<td>Week (00..53), where Sunday is the first day of the week; WEEK() mode 0</td>\n</tr>\n<tr>\n<td>%u</td>\n<td>Week (00..53), where Monday is the first day of the week; WEEK() mode 1</td>\n</tr>\n<tr>\n<td>%V</td>\n<td>Week (01..53), where Sunday is the first day of the week; WEEK() mode 2; used with %X</td>\n</tr>\n<tr>\n<td>%v</td>\n<td>Week (01..53), where Monday is the first day of the week; WEEK() mode 3; used with %x</td>\n</tr>\n<tr>\n<td>%W</td>\n<td>Weekday name (Sunday..Saturday)</td>\n</tr>\n<tr>\n<td>%w</td>\n<td>Day of the week (0=Sunday..6=Saturday)</td>\n</tr>\n<tr>\n<td>%X</td>\n<td>Year for the week where Sunday is the first day of the week, numeric, four digits; used with %V</td>\n</tr>\n<tr>\n<td>%x</td>\n<td>Year for the week, where Monday is the first day of the week, numeric, four digits; used with %v</td>\n</tr>\n<tr>\n<td>%Y</td>\n<td>Year, numeric, four digits</td>\n</tr>\n<tr>\n<td>%y</td>\n<td>Year, numeric (two digits)</td>\n</tr>\n<tr>\n<td>%%</td>\n<td>A literal % character</td>\n</tr>\n<tr>\n<td>%x</td>\n<td>x, for any “x” not listed above</td>\n</tr>\n</tbody>\n</table>"
+  },
+  "date_sub": {
+    "syntax": "DATE_SUB(date,INTERVAL expr unit)",
+    "description": "<p>These functions perform date arithmetic. The date argument specifies the starting date or datetime value. expr is an expression specifying the interval value to be added or subtracted from the starting date. expr is evaluated as a string; it may start with a - for negative intervals. unit is a keyword indicating the units in which the expression should be interpreted.</p>\n<pre><code>SELECT DATE_SUB('2018-05-01',INTERVAL 1 YEAR);\n-&gt; '2017-05-01'\n</code></pre>"
+  },
+  "day": {
+    "syntax": "DAY(date)",
+    "description": "<p>Returns the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part. Returns NULL if date is NULL.</p>\n<pre><code>SELECT DAY('2007-02-03');\n-&gt; 3\n</code></pre>"
+  },
+  "dayofmonth": {
+    "syntax": "DAYOFMONTH(date)",
+    "description": "<p>Returns the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part. Returns NULL if date is NULL.</p>\n<pre><code>SELECT DAYOFMONTH('2007-02-03');\n-&gt; 3\n</code></pre>"
+  },
+  "dayofweek": {
+    "syntax": "DAYOFWEEK(date)",
+    "description": "<p>Returns the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday). These index values correspond to the ODBC standard. Returns NULL if date is NULL.</p>\n<pre><code>SELECT DAYOFWEEK('2007-02-03');\n-&gt; 7\n</code></pre>"
   },
   "dayofyear": {
     "syntax": "DAYOFYEAR(date)",
@@ -67,9 +127,29 @@
     "syntax": "FORMAT(X,D[,locale])",
     "description": "<p>Formats the number X to a format like '#,###,###.##', rounded to D decimal places, and returns the result as a string.</p>\n<p>If D is 0, the result has no decimal point or fractional part. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT FORMAT(12332.123456, 4);\n-&gt; '12,332.1235'\n\nSELECT FORMAT(12332.1,4);\n-&gt; '12,332.1000'\n\nSELECT FORMAT(12332.2,0);\n-&gt; '12,332'\n\nSELECT FORMAT(12332.2,2,'de_DE');\n-&gt; '12.332,20'\n</code></pre>"
   },
+  "from_days": {
+    "syntax": "FROM_DAYS(N)",
+    "description": "<p>Given a day number N, returns a DATE value. Returns NULL if N is NULL.</p>\n<pre><code>SELECT FROM_DAYS(730669);\n-&gt; '2000-07-03'\n</code></pre>"
+  },
+  "from_unixtime": {
+    "syntax": "FROM_UNIXTIME(unix_timestamp[,format])",
+    "description": "<p>Returns a representation of unix_timestamp as a datetime or character string value. The value returned is expressed using the session time zone.</p>\n<p>If format is omitted, this function returns a DATETIME value.</p>\n<pre><code>SELECT FROM_UNIXTIME(1447430881);\n-&gt; '2015-11-13 10:08:01'\n\nSELECT FROM_UNIXTIME(1447430881,'%Y %D %M %h:%i:%s %x');\n-&gt; '2015 13th November 10:08:01 2015'\n</code></pre>"
+  },
+  "get_format": {
+    "syntax": "GET_FORMAT({DATE|TIME|DATETIME}, {'EUR'|'USA'|'JIS'|'ISO'|'INTERNAL'})",
+    "description": "<p>Returns a format string. This function is useful in combination with the DATE<em>FORMAT() and the STR</em>TO_DATE() functions.</p>\n<p>If format is NULL, this function returns NULL.</p>\n<pre><code>SELECT DATE_FORMAT('2003-10-03',GET_FORMAT(DATE,'EUR'));\n-&gt; '03.10.2003'\n\nSELECT STR_TO_DATE('10.31.2003',GET_FORMAT(DATE,'USA'));\n-&gt; '2003-10-31'\n</code></pre>"
+  },
   "hex": {
     "syntax": "HEX(str), HEX(N)",
     "description": "<p>For a string argument str, HEX() returns a hexadecimal string representation of str where each byte of each character in str is converted to two hexadecimal digits.</p>\n<p>For a numeric argument N, HEX() returns a hexadecimal string representation of the value of N treated as a longlong (BIGINT) number.</p>\n<pre><code>SELECT X'616263', HEX('abc'), UNHEX(HEX('abc'));\n-&gt; 'abc', 616263, 'abc'\n\nSELECT HEX(255), CONV(HEX(255),16,10);\n-&gt; 'FF', 255\n</code></pre>"
+  },
+  "hour": {
+    "syntax": "HOUR(time)",
+    "description": "<p>Returns the hour for time. The range of the return value is 0 to 23 for time-of-day values. However, the range of TIME values actually is much larger, so HOUR can return values greater than 23. Returns NULL if time is NULL.</p>\n<pre><code>SELECT HOUR('10:05:03');\n-&gt; 10\n\nSELECT HOUR('272:59:59');\n-&gt; 272\n</code></pre>"
+  },
+  "last_day": {
+    "syntax": "LAST_DAY(date)",
+    "description": "<p>Takes a date or datetime value and returns the corresponding value for the last day of the month. Returns NULL if the argument is invalid or NULL.</p>\n<pre><code>SELECT LAST_DAY('2003-02-05');\n-&gt; '2003-02-28'\n\nSELECT LAST_DAY('2004-02-05');\n-&gt; '2004-02-29'\n\nSELECT LAST_DAY('2004-01-01 01:01:01');\n-&gt; '2004-01-31'\n\nSELECT LAST_DAY('2003-03-32');\n-&gt; NULL\n</code></pre>"
   },
   "ln": {
     "syntax": "LN(X)",
@@ -87,9 +167,45 @@
     "syntax": "LOG2(X)",
     "description": "<p>Returns the base-2 logarithm of X. If X is less than or equal to 0.0E0, the function returns NULL and a warning “Invalid argument for logarithm” is reported. Returns NULL if X is NULL.</p>\n<pre><code>SELECT LOG2(65536);\n-&gt; 16\n</code></pre>"
   },
+  "makedate": {
+    "syntax": "MAKEDATE(year,dayofyear)",
+    "description": "<p>Returns a date, given year and day-of-year values. dayofyear must be greater than 0 or the result is NULL. The result is also NULL if either argument is NULL.</p>\n<pre><code>SELECT MAKEDATE(2011,31), MAKEDATE(2011,32);\n-&gt; '2011-01-31', '2011-02-01'\n\nSELECT MAKEDATE(2011,365), MAKEDATE(2014,365);\n-&gt; '2011-12-31', '2014-12-31'\n\nSELECT MAKEDATE(2011,0);\n-&gt; NULL\n</code></pre>"
+  },
+  "maketime": {
+    "syntax": "MAKETIME(hour,minute,second)",
+    "description": "<p>Returns a time value calculated from the hour, minute, and second arguments. Returns NULL if any of its arguments are NULL.</p>\n<p>The second argument can have a fractional part.</p>\n<pre><code>SELECT MAKETIME(12,15,30);\n-&gt; '12:15:30'\n</code></pre>"
+  },
+  "microsecond": {
+    "syntax": "MICROSECOND(expr)",
+    "description": "<p>Returns the microseconds from the time or datetime expression expr as a number in the range from 0 to 999999. Returns NULL if expr is NULL.</p>\n<pre><code>SELECT MICROSECOND('12:00:00.123456');\n-&gt; 123456\n\nSELECT MICROSECOND('2019-12-31 23:59:59.000010');\n-&gt; 10\n</code></pre>"
+  },
+  "minute": {
+    "syntax": "MINUTE(time)",
+    "description": "<p>Returns the minute for time, in the range 0 to 59, or NULL if time is NULL.</p>\n<pre><code>SELECT MINUTE('2008-02-03 10:05:03');\n-&gt; 5\n</code></pre>"
+  },
   "mod": {
     "syntax": "MOD(N,M)",
     "description": "<p>Modulo operation. Returns the remainder of N divided by M. Returns NULL if M or N is NULL.</p>\n<pre><code>SELECT MOD(234, 10);\n-&gt; 4\n</code></pre>\n<p>This function is safe to use with BIGINT values.</p>\n<p>MOD() also works on values that have a fractional part and returns the exact remainder after division:</p>\n<pre><code>SELECT MOD(34.5,3);\n-&gt; 1.5\n</code></pre>"
+  },
+  "month": {
+    "syntax": "MONTH(date)",
+    "description": "<p>Returns the month for date, in the range 1 to 12 for January to December, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero month part. Returns NULL if date is NULL.</p>\n<pre><code>SELECT MONTH('2008-02-03');\n-&gt; 2\n</code></pre>"
+  },
+  "monthname": {
+    "syntax": "MONTHNAME(date)",
+    "description": "<p>Returns the full name of the month for date. The language used for the name is controlled by the value of the lc<em>time</em>names system variable (Section 10.16, “MySQL Server Locale Support”). Returns NULL if date is NULL.</p>\n<pre><code>SELECT MONTHNAME('2008-02-03');\n-&gt; 'February'\n</code></pre>"
+  },
+  "now": {
+    "syntax": "NOW([fsp])",
+    "description": "<p>Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss' or YYYYMMDDhhmmss format, depending on whether the function is used in string or numeric context. The value is expressed in the session time zone.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<pre><code>SELECT NOW();\n-&gt; '2007-12-15 23:50:26'\n\nSELECT NOW() + 0;\n-&gt; 20071215235026.000000\n</code></pre>"
+  },
+  "period_add": {
+    "syntax": "PERIOD_ADD(P,N)",
+    "description": "<p>Adds N months to period P (in the format YYMM or YYYYMM). Returns a value in the format YYYYMM.</p>\n<p>This function returns NULL if P or N is NULL.</p>\n<pre><code>SELECT PERIOD_ADD(200801,2);\n-&gt; 200803\n</code></pre>"
+  },
+  "period_diff": {
+    "syntax": "PERIOD_DIFF(P1,P2)",
+    "description": "<p>Returns the number of months between periods P1 and P2. P1 and P2 should be in the format YYMM or YYYYMM. Note that the period arguments P1 and P2 are not date values.</p>\n<p>This function returns NULL if P1 or P2 is NULL.</p>\n<pre><code>SELECT PERIOD_DIFF(200802,200703);\n-&gt; 11\n</code></pre>"
   },
   "pi": {
     "syntax": "PI()",
@@ -103,6 +219,10 @@
     "syntax": "POWER(X,Y)",
     "description": "<p>Returns the value of X raised to the power of Y. Returns NULL if X or Y is NULL.</p>\n<pre><code>SELECT POWER(2,2);\n-&gt; 4\n\nSELECT POWER(2,-2);\n-&gt; 0.25\n</code></pre>"
   },
+  "quarter": {
+    "syntax": "QUARTER(date)",
+    "description": "<p>Returns the quarter of the year for date, in the range 1 to 4, or NULL if date is NULL.</p>\n<pre><code>SELECT QUARTER('2008-04-01');\n-&gt; 2\n</code></pre>"
+  },
   "rand": {
     "syntax": "RAND([N])",
     "description": "<p>Returns a random floating-point value v in the range <code>0 &lt;= v &lt; 1.0</code>. To obtain a random integer R in the range i &lt;= R &lt; j, use the expression <code>FLOOR(i + RAND() * (j − i))</code>. For example, to obtain a random integer in the range the range <code>7 &lt;= R &lt; 12</code>, use the following statement:</p>\n<pre><code>SELECT FLOOR(7 + (RAND() * 5));\n</code></pre>\n<p>If an integer argument <code>N</code> is specified, it is used as the seed value:</p>"
@@ -114,6 +234,14 @@
   "round": {
     "syntax": "ROUND(X), ROUND(X,D)",
     "description": "<p>Rounds the argument X to D decimal places. The rounding algorithm depends on the data type of X. D defaults to 0 if not specified. D can be negative to cause D digits left of the decimal point of the value X to become zero. The maximum absolute value for D is 30; any digits in excess of 30 (or -30) are truncated. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT ROUND(-1.23), ROUND(-1.58), ROUND(1.58);\n-&gt; -1, -2, 2\n\nSELECT ROUND(1.298, 1), ROUND(1.298, 0), ROUND(23.298, -1);\n-&gt; 1.3, 1, 20\n</code></pre>"
+  },
+  "second": {
+    "syntax": "SECOND(time)",
+    "description": "<p>Returns the second for time, in the range 0 to 59, or NULL if time is NULL.</p>\n<pre><code>SELECT SECOND('10:05:03');\n-&gt; 3\n</code></pre>"
+  },
+  "sec_to_time": {
+    "syntax": "SEC_TO_TIME(seconds)",
+    "description": "<p>Returns the seconds argument, converted to hours, minutes, and seconds, as a TIME value. The range of the result is constrained to that of the TIME data type. A warning occurs if the argument corresponds to a value outside that range.</p>\n<p>The function returns NULL if seconds is NULL.</p>\n<pre><code>SELECT SEC_TO_TIME(2378);\n-&gt; '00:39:38'\n\nSELECT SEC_TO_TIME(2378) + 0;\n-&gt; 3938\n</code></pre>"
   },
   "sign": {
     "syntax": "SIGN(X)",
@@ -127,12 +255,100 @@
     "syntax": "SQRT(X)",
     "description": "<p>Returns the square root of a nonnegative number X. If X is NULL, the function returns NULL.</p>\n<pre><code>SELECT SQRT(20);\n-&gt; 4.4721359549996\n</code></pre>"
   },
+  "str_to_date": {
+    "syntax": "STR_TO_DATE(str,format)",
+    "description": "<p>This is the inverse of the DATE<em>FORMAT() function. It takes a string str and a format string format. STR</em>TO<em>DATE() returns a DATETIME value if the format string contains both date and time parts, or a DATE or TIME value if the string contains only date or time parts. If str or format is NULL, the function returns NULL. If the date, time, or datetime value extracted from str cannot be parsed according to the rules followed by the server, STR</em>TO_DATE() returns NULL and produces a warning.</p>\n<p>The server scans str attempting to match format to it. The format string can contain literal characters and format specifiers beginning with %. Literal characters in format must match literally in str. Format specifiers in format must match a date or time part in str. For the specifiers that can be used in format, see the DATE_FORMAT() function description.</p>\n<pre><code>SELECT STR_TO_DATE('01,5,2013','%d,%m,%Y');\n-&gt; '2013-05-01'\n\nSELECT STR_TO_DATE('May 1, 2013','%M %d,%Y');\n-&gt; '2013-05-01'\n</code></pre>"
+  },
+  "subdate": {
+    "syntax": "SUBDATE(date,INTERVAL expr unit), SUBDATE(expr,days)",
+    "description": "<p>When invoked with the INTERVAL form of the second argument, SUBDATE() is a synonym for DATE<em>SUB(). For information on the INTERVAL unit argument, see the discussion for DATE</em>ADD().</p>\n<pre><code>SELECT DATE_SUB('2008-01-02', INTERVAL 31 DAY);\n-&gt; '2007-12-02'\n\nSELECT SUBDATE('2008-01-02', INTERVAL 31 DAY);\n-&gt; '2007-12-02'\n</code></pre>\n<p>The second form enables the use of an integer value for days. In such cases, it is interpreted as the number of days to be subtracted from the date or datetime expression expr.</p>\n<pre><code>SELECT SUBDATE('2008-01-02 12:00:00', 31);\n -&gt; '2007-12-02 12:00:00'\n</code></pre>\n<p>This function returns NULL if any of its arguments are NULL.</p>"
+  },
+  "subtime": {
+    "syntax": "SUBTIME(expr1,expr2)",
+    "description": "<p>SUBTIME() returns expr1 − expr2 expressed as a value in the same format as expr1. expr1 is a time or datetime expression, and expr2 is a time expression.</p>\n<p>Resolution of this function's return type is performed as it is for the ADDTIME() function; see the description of that function for more information.</p>\n<pre><code>SELECT SUBTIME('2007-12-31 23:59:59.999999','1 1:1:1.000002');\n-&gt; '2007-12-30 22:58:58.999997'\n\nSELECT SUBTIME('01:00:00.999999', '02:00:00.999998');\n-&gt; '-00:59:59.999999'\n</code></pre>\n<p>This function returns NULL if expr1 or expr2 is NULL.</p>"
+  },
+  "sysdate": {
+    "syntax": "SYSDATE([fsp])",
+    "description": "<p>Returns the current date and time as a value in 'YYYY-MM-DD hh:mm:ss' or YYYYMMDDhhmmss format, depending on whether the function is used in string or numeric context.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<p>SYSDATE() returns the time at which it executes. This differs from the behavior for NOW(), which returns a constant time that indicates the time at which the statement began to execute. (Within a stored function or trigger, NOW() returns the time at which the function or triggering statement began to execute.)</p>"
+  },
   "tan": {
     "syntax": "TAN(X)",
     "description": "<p>Returns the tangent of X, where X is given in radians. Returns NULL if X is NULL.</p>\n<pre><code>SELECT TAN(PI()+1);\n-&gt; 1.5574077246549\n</code></pre>"
   },
+  "time": {
+    "syntax": "TIME(expr)",
+    "description": "<p>Extracts the time part of the time or datetime expression expr and returns it as a string. Returns NULL if expr is NULL.</p>\n<pre><code>SELECT TIME('2003-12-31 01:02:03');\n-&gt; '01:02:03'\n\nSELECT TIME('2003-12-31 01:02:03.000123');\n-&gt; '01:02:03.000123\n</code></pre>"
+  },
+  "timediff": {
+    "syntax": "TIMEDIFF(expr1,expr2)",
+    "description": "<p>TIMEDIFF() returns expr1 − expr2 expressed as a time value. expr1 and expr2 are strings which are converted to TIME or DATETIME expressions; these must be of the same type following conversion. Returns NULL if expr1 or expr2 is NULL.</p>\n<p>The result returned by TIMEDIFF() is limited to the range allowed for TIME values. Alternatively, you can use either of the functions TIMESTAMPDIFF() and UNIX_TIMESTAMP(), both of which return integers.</p>\n<pre><code>SELECT TIMEDIFF('2000-01-01 00:00:00', '2000-01-01 00:00:00.000001');\n-&gt; '-00:00:00.000001'\n\nSELECT TIMEDIFF('2008-12-31 23:59:59.000001', '2008-12-30 01:01:01.000002');\n-&gt; '46:58:57.999999'\n</code></pre>"
+  },
+  "timestamp": {
+    "syntax": "TIMESTAMP(expr), TIMESTAMP(expr1,expr2)",
+    "description": "<p>With a single argument, this function returns the date or datetime expression expr as a datetime value. With two arguments, it adds the time expression expr2 to the date or datetime expression expr1 and returns the result as a datetime value. Returns NULL if expr, expr1, or expr2 is NULL.</p>\n<pre><code>SELECT TIMESTAMP('2003-12-31');\n-&gt; '2003-12-31 00:00:00'\n\nSELECT TIMESTAMP('2003-12-31 12:00:00','12:00:00');\n-&gt; '2004-01-01 00:00:00'\n</code></pre>"
+  },
+  "timestampadd": {
+    "syntax": "TIMESTAMPADD(unit,interval,datetime_expr)",
+    "description": "<p>Adds the integer expression interval to the date or datetime expression datetime_expr. The unit for interval is given by the unit argument, which should be one of the following values: MICROSECOND (microseconds), SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR.</p>\n<p>The unit value may be specified using one of keywords as shown, or with a prefix of SQL<em>TSI</em>. For example, DAY and SQL<em>TSI</em>DAY both are legal.</p>\n<p>This function returns NULL if interval or datetime_expr is NULL.</p>\n<pre><code>SELECT TIMESTAMPADD(MINUTE, 1, '2003-01-02');\n-&gt; '2003-01-02 00:01:00'\n\nSELECT TIMESTAMPADD(WEEK,1,'2003-01-02');\n-&gt; '2003-01-09'\n</code></pre>"
+  },
+  "timestampdiff": {
+    "syntax": "TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)",
+    "description": "<p>Returns datetime<em>expr2 − datetime</em>expr1, where datetime<em>expr1 and datetime</em>expr2 are date or datetime expressions. One expression may be a date and the other a datetime; a date value is treated as a datetime having the time part '00:00:00' where necessary. The unit for the result (an integer) is given by the unit argument. The legal values for unit are the same as those listed in the description of the TIMESTAMPADD() function.</p>\n<pre><code>SELECT TIMESTAMPDIFF(MONTH,'2003-02-01','2003-05-01');\n-&gt; 3\n\nSELECT TIMESTAMPDIFF(YEAR,'2002-05-01','2001-01-01');\n-&gt; -1\n\nSELECT TIMESTAMPDIFF(MINUTE,'2003-02-01','2003-05-01 12:05:55');\n-&gt; 128885\n</code></pre>"
+  },
+  "time_format": {
+    "syntax": "TIME_FORMAT(time,format)",
+    "description": "<p>This is used like the DATE<em>FORMAT() function, but the format string may contain format specifiers only for hours, minutes, seconds, and microseconds. Other specifiers produce a NULL or 0. TIME</em>FORMAT() returns NULL if time or format is NULL.</p>\n<p>If the time value contains an hour part that is greater than 23, the %H and %k hour format specifiers produce a value larger than the usual range of 0..23. The other hour format specifiers produce the hour value modulo 12.</p>\n<pre><code>SELECT TIME_FORMAT('100:00:00', '%H %k %h %I %l');\n -&gt; '100 100 04 04 4'\n</code></pre>"
+  },
+  "time_to_sec": {
+    "syntax": "TIME_TO_SEC(time)",
+    "description": "<p>Returns the time argument, converted to seconds. Returns NULL if time is NULL.</p>\n<pre><code>SELECT TIME_TO_SEC('22:23:00');\n-&gt; 80580\n\nSELECT TIME_TO_SEC('00:39:38');\n-&gt; 2378\n</code></pre>"
+  },
+  "to_days": {
+    "syntax": "TO_DAYS(date)",
+    "description": "<p>Given a date date, returns a day number (the number of days since year 0). Returns NULL if date is NULL.</p>\n<pre><code>SELECT TO_DAYS(950501);\n-&gt; 728779\n\nSELECT TO_DAYS('2007-10-07');\n-&gt; 733321\n</code></pre>"
+  },
+  "to_seconds": {
+    "syntax": "TO_SECONDS(expr)",
+    "description": "<p>Given a date or datetime expr, returns the number of seconds since the year 0. If expr is not a valid date or datetime value (including NULL), it returns NULL.</p>\n<pre><code>SELECT TO_SECONDS(950501);\n-&gt; 62966505600\n\nSELECT TO_SECONDS('2009-11-29');\n-&gt; 63426672000\n\nSELECT TO_SECONDS('2009-11-29 13:43:32');\n-&gt; 63426721412\n\nSELECT TO_SECONDS( NOW() );\n-&gt; 63426721458\n</code></pre>"
+  },
   "truncate": {
     "syntax": "TRUNCATE(X,D)",
     "description": "<p>Returns the number X, truncated to D decimal places. If D is 0, the result has no decimal point or fractional part. D can be negative to cause D digits left of the decimal point of the value X to become zero. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT TRUNCATE(1.223,1);\n-&gt; 1.2\n\nSELECT TRUNCATE(1.999,1);\n-&gt; 1.9\n\nSELECT TRUNCATE(1.999,0);\n-&gt; 1\n\nSELECT TRUNCATE(-1.999,1);\n-&gt; -1.9\n\nSELECT TRUNCATE(122,-2);\n-&gt; 100\n\nSELECT TRUNCATE(10.28*100,0);\n-&gt; 1028\n</code></pre>"
+  },
+  "unix_timestamp": {
+    "syntax": "UNIX_TIMESTAMP([date])",
+    "description": "<p>If UNIX_TIMESTAMP() is called with no date argument, it returns a Unix timestamp representing seconds since '1970-01-01 00:00:00' UTC.</p>\n<p>If UNIX_TIMESTAMP() is called with a date argument, it returns the value of the argument as seconds since '1970-01-01 00:00:00' UTC. The server interprets date as a value in the session time zone and converts it to an internal Unix timestamp value in UTC. </p>\n<pre><code>SELECT UNIX_TIMESTAMP();\n-&gt; 1447431666\n\nSELECT UNIX_TIMESTAMP('2015-11-13 10:20:19');\n-&gt; 1447431619\n\nSELECT UNIX_TIMESTAMP('2015-11-13 10:20:19.012');\n-&gt; 1447431619.012\n</code></pre>"
+  },
+  "utc_date": {
+    "syntax": "UTC_DATE()",
+    "description": "<p>Returns the current UTC date as a value in 'YYYY-MM-DD' or YYYYMMDD format, depending on whether the function is used in string or numeric context.</p>\n<pre><code>SELECT UTC_DATE(), UTC_DATE() + 0;\n-&gt; '2003-08-14', 20030814\n</code></pre>"
+  },
+  "utc_time": {
+    "syntax": "UTC_TIME([fsp])",
+    "description": "<p>Returns the current UTC time as a value in 'hh:mm:ss' or hhmmss format, depending on whether the function is used in string or numeric context.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<pre><code>SELECT UTC_TIME(), UTC_TIME() + 0;\n-&gt; '18:07:53', 180753.000000\n</code></pre>"
+  },
+  "utc_timestamp": {
+    "syntax": "UTC_TIMESTAMP([fsp])",
+    "description": "<p>Returns the current UTC date and time as a value in 'YYYY-MM-DD hh:mm:ss' or YYYYMMDDhhmmss format, depending on whether the function is used in string or numeric context.</p>\n<p>If the fsp argument is given to specify a fractional seconds precision from 0 to 6, the return value includes a fractional seconds part of that many digits.</p>\n<pre><code>SELECT UTC_TIMESTAMP(), UTC_TIMESTAMP() + 0;\n-&gt; '2003-08-14 18:08:04', 20030814180804.0000\n</code></pre>"
+  },
+  "week": {
+    "syntax": "WEEK(date[,mode])",
+    "description": "<p>This function returns the week number for date. The two-argument form of WEEK() enables you to specify whether the week starts on Sunday or Monday and whether the return value should be in the range from 0 to 53 or from 1 to 53.</p>\n<pre><code>SELECT WEEK('2008-02-20');\n-&gt; 7\n\nSELECT WEEK('2008-02-20',0);\n-&gt; 7\n\nSELECT WEEK('2008-02-20',1);\n-&gt; 8\n\nSELECT WEEK('2008-12-31',1);\n-&gt; 53\n</code></pre>"
+  },
+  "weekday": {
+    "syntax": "WEEKDAY(date)",
+    "description": "<p>Returns the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday). Returns NULL if date is NULL.</p>\n<pre><code>SELECT WEEKDAY('2008-02-03 22:23:00');\n-&gt; 6\n\nSELECT WEEKDAY('2007-11-06');\n-&gt; 1\n</code></pre>"
+  },
+  "weekofyear": {
+    "syntax": "WEEKOFYEAR(date)",
+    "description": "<p>Returns the calendar week of the date as a number in the range from 1 to 53. Returns NULL if date is NULL.</p>\n<p>WEEKOFYEAR() is a compatibility function that is equivalent to WEEK(date,3).</p>\n<pre><code>SELECT WEEKOFYEAR('2008-02-20');\n-&gt; 8\n</code></pre>"
+  },
+  "year": {
+    "syntax": "YEAR(date)",
+    "description": "<p>Returns the year for date, in the range 1000 to 9999, or 0 for the “zero” date. Returns NULL if date is NULL.</p>\n<pre><code>SELECT YEAR('1987-01-01');\n-&gt; 1987\n</code></pre>"
+  },
+  "yearweek": {
+    "syntax": "YEARWEEK(date), YEARWEEK(date,mode)",
+    "description": "<p>Returns year and week for a date. The year in the result may be different from the year in the date argument for the first and the last week of the year. Returns NULL if date is NULL.</p>\n<p>The mode argument works exactly like the mode argument to WEEK(). For the single-argument syntax, a mode value of 0 is used. Unlike WEEK(), the value of default<em>week</em>format does not influence YEARWEEK().</p>\n<pre><code>SELECT YEARWEEK('1987-01-01');\n-&gt; 198652\n</code></pre>\n<p>The week number is different from what the WEEK() function would return (0) for optional arguments 0 or 1, as WEEK() then returns the week in the context of the given year.</p>"
   }
 }

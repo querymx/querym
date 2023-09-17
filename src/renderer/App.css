@@ -242,3 +242,20 @@ hr {
   background: #333;
   border-radius: 5px;
 }
+
+.code-tooltip table {
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.code-tooltip td,
+.code-tooltip th {
+  padding: 5px;
+  text-align: left;
+  border: 2px solid #ccc;
+}
+
+.cm-tooltip-cursor {
+  overflow-y: auto;
+  max-height: 600px;
+}
