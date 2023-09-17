@@ -40,7 +40,7 @@ function getCursorTooltips(
           dom.className = 'cm-tooltip-cursor';
           dom.innerHTML = `
             <div style="max-width:700px;">
-              <p><i>${dictItem.syntax}</i></p>
+              <p><strong>${dictItem.syntax}</strong></p>
               <div class="code-tooltip">${dictItem.description}</div>
             </div>
             `;

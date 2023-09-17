@@ -1,10 +1,138 @@
 {
+  "abs": {
+    "syntax": "ABS(X)",
+    "description": "<p>Returns the absolute value of X, or NULL if X is NULL.</p>"
+  },
+  "acos": {
+    "syntax": "ACOS(X)",
+    "description": "<p>Returns the arc cosine of X, that is, the value whose cosine is X. Returns NULL if X is not in the range -1 to 1, or if X is NULL.</p>\n<hr />\n<p><strong>Example:</strong></p>\n<pre><code>SELECT ACOS(1);\n-&gt; 0\n\nSELECT ACOS(1.0001);\n-&gt; NULL\n</code></pre>"
+  },
+  "asin": {
+    "syntax": "ASIN(X)",
+    "description": "<p>Returns the arc sine of X, that is, the value whose sine is X. Returns NULL if X is not in the range -1 to 1, or if X is NULL.</p>"
+  },
+  "atan": {
+    "syntax": "ATAN(X)",
+    "description": "<p>Returns the arc tangent of X, that is, the value whose tangent is X. Returns NULL if X is NULL</p>"
+  },
+  "atan2": {
+    "syntax": "ATAN2(Y,X)",
+    "description": "<p>Returns the arc tangent of the two variables X and Y. It is similar to calculating the arc tangent of Y / X, except that the signs of both arguments are used to determine the quadrant of the result. Returns NULL if X or Y is NULL.</p>\n<hr />\n<p><strong>Example:</strong></p>\n<pre><code>SELECT ATAN2(PI(),0);\n-&gt; 1.5707963267949\n</code></pre>"
+  },
+  "ceil": {
+    "syntax": "CEIL(X)",
+    "description": "<p>Returns the smallest integer value not less than X. Returns NULL if X is NULL.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CEIL(1.23);\n-&gt; 2\n\nSELECT CEIL(-1.23);\n-1\n</code></pre>"
+  },
+  "ceiling": {
+    "syntax": "CEILING(X)",
+    "description": "<p>Returns the smallest integer value not less than X. Returns NULL if X is NULL.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CEILING(1.23);\n-&gt; 2\n\nSELECT CEILING(-1.23);\n-1\n</code></pre>"
+  },
+  "conv": {
+    "syntax": "CONV(N,from_base,to_base)",
+    "description": "<p>Converts numbers between different number bases. Returns a string representation of the number N, converted from base from<em>base to base to</em>base. Returns NULL if any argument is NULL.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CONV('a',16,2);\n-&gt; '1010'\n\nSELECT CONV('6E',18,8);\n-&gt; '172'\n</code></pre>"
+  },
+  "cos": {
+    "syntax": "COS(X)",
+    "description": "<p>Returns the cosine of X, where X is given in radians. Returns NULL if X is NULL.</p>"
+  },
+  "cot": {
+    "syntax": "COT(X)",
+    "description": "<p>Returns the cotangent of X. Returns NULL if X is NULL.</p>"
+  },
+  "crc32": {
+    "syntax": "CRC32(expr)",
+    "description": "<p>Computes a cyclic redundancy check value and returns a 32-bit unsigned value. The result is NULL if the argument is NULL. The argument is expected to be a string and (if possible) is treated as one if it is not.</p>\n<hr />\n<p><strong>Examples:</strong></p>\n<pre><code>SELECT CRC32('MySQL');\n-&gt; 3259397556\n</code></pre>"
+  },
   "dayofyear": {
     "syntax": "DAYOFYEAR(date)",
     "description": "<p>Returns the day of the year for date, in the range 1 to 366. Returns NULL if date is NULL.</p>\n<hr />\n<p><strong>Examples</strong></p>\n<pre><code>SELECT DAYOFYEAR('2007-02-03');\n</code></pre>"
   },
+  "degrees": {
+    "syntax": "DEGREES(X)",
+    "description": "<p>Returns the argument X, converted from radians to degrees. Returns NULL if X is NULL.</p>\n<pre><code>SELECT DEGREES(PI());\n-&gt; 180\n\nSELECT DEGREES(PI() / 2);\n-&gt; 90\n</code></pre>"
+  },
+  "exp": {
+    "syntax": "EXP(X)",
+    "description": "<p>Returns the value of e (the base of natural logarithms) raised to the power of X. If X is NULL, this function returns NULL.</p>\n<pre><code>SELECT EXP(2);\n-&gt; 7.3890560989307\n</code></pre>"
+  },
   "extract": {
     "syntax": "EXTRACT(unit FROM date)",
     "description": "<p>The EXTRACT() function uses the same kinds of unit specifiers as DATE<em>ADD() or DATE</em>SUB(), but extracts parts from the date rather than performing date arithmetic. For information on the unit argument, see Temporal Intervals. Returns NULL if date is NULL.</p>\n<p><strong>Examples</strong></p>\n<pre><code>SELECT EXTRACT(YEAR FROM '2019-07-02');\nSELECT EXTRACT(YEAR_MONTH FROM '2019-07-02 01:02:03');\nSELECT EXTRACT(DAY_MINUTE FROM '2019-07-02 01:02:03');\n</code></pre>"
+  },
+  "floor": {
+    "syntax": "FLOOR(X)",
+    "description": "<p>Returns the largest integer value not greater than X. Returns NULL if X is NULL.</p>\n<pre><code>SELECT FLOOR(1.23), FLOOR(-1.23);\n-&gt; 1, -2\n</code></pre>"
+  },
+  "format": {
+    "syntax": "FORMAT(X,D[,locale])",
+    "description": "<p>Formats the number X to a format like '#,###,###.##', rounded to D decimal places, and returns the result as a string.</p>\n<p>If D is 0, the result has no decimal point or fractional part. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT FORMAT(12332.123456, 4);\n-&gt; '12,332.1235'\n\nSELECT FORMAT(12332.1,4);\n-&gt; '12,332.1000'\n\nSELECT FORMAT(12332.2,0);\n-&gt; '12,332'\n\nSELECT FORMAT(12332.2,2,'de_DE');\n-&gt; '12.332,20'\n</code></pre>"
+  },
+  "hex": {
+    "syntax": "HEX(str), HEX(N)",
+    "description": "<p>For a string argument str, HEX() returns a hexadecimal string representation of str where each byte of each character in str is converted to two hexadecimal digits.</p>\n<p>For a numeric argument N, HEX() returns a hexadecimal string representation of the value of N treated as a longlong (BIGINT) number.</p>\n<pre><code>SELECT X'616263', HEX('abc'), UNHEX(HEX('abc'));\n-&gt; 'abc', 616263, 'abc'\n\nSELECT HEX(255), CONV(HEX(255),16,10);\n-&gt; 'FF', 255\n</code></pre>"
+  },
+  "ln": {
+    "syntax": "LN(X)",
+    "description": "<p>Returns the natural logarithm of X; that is, the base-e logarithm of X. If X is less than or equal to 0.0E0, the function returns NULL and a warning “Invalid argument for logarithm” is reported. Returns NULL if X is NULL</p>\n<pre><code>SELECT LN(2);\n-&gt; 0.69314718055995\n\nSELECT LN(-2);\n-&gt; NULL\n</code></pre>"
+  },
+  "log": {
+    "syntax": "LOG(X), LOG(B,X)",
+    "description": "<p>If called with one parameter, this function returns the natural logarithm of X. If X is less than or equal to 0.0E0, the function returns NULL and a warning “Invalid argument for logarithm” is reported. Returns NULL if X or B is NULL.</p>\n<pre><code>SELECT LOG(2);\n-&gt; 0.69314718055995\n\nSELECT LOG(-2);\n-&gt; NULL\n</code></pre>\n<p>If called with two parameters, this function returns the logarithm of X to the base B. If X is less than or equal to 0, or if B is less than or equal to 1, then NULL is returned.</p>\n<pre><code>SELECT LOG(2, 65536);\n-&gt; 16\n</code></pre>"
+  },
+  "log10": {
+    "syntax": "LOG10(X)",
+    "description": "<p>Returns the base-10 logarithm of X. If X is less than or equal to 0.0E0, the function returns NULL and a warning “Invalid argument for logarithm” is reported. Returns NULL if X is NULL.</p>\n<p>SELECT LOG10(2);\n-&gt; 0.30102999566398</p>"
+  },
+  "log2": {
+    "syntax": "LOG2(X)",
+    "description": "<p>Returns the base-2 logarithm of X. If X is less than or equal to 0.0E0, the function returns NULL and a warning “Invalid argument for logarithm” is reported. Returns NULL if X is NULL.</p>\n<pre><code>SELECT LOG2(65536);\n-&gt; 16\n</code></pre>"
+  },
+  "mod": {
+    "syntax": "MOD(N,M)",
+    "description": "<p>Modulo operation. Returns the remainder of N divided by M. Returns NULL if M or N is NULL.</p>\n<pre><code>SELECT MOD(234, 10);\n-&gt; 4\n</code></pre>\n<p>This function is safe to use with BIGINT values.</p>\n<p>MOD() also works on values that have a fractional part and returns the exact remainder after division:</p>\n<pre><code>SELECT MOD(34.5,3);\n-&gt; 1.5\n</code></pre>"
+  },
+  "pi": {
+    "syntax": "PI()",
+    "description": "<p>Returns the value of π (pi). The default number of decimal places displayed is seven, but MySQL uses the full double-precision value internally.</p>\n<pre><code>SELECT PI();\n-&gt; 3.141593\n</code></pre>"
+  },
+  "pow": {
+    "syntax": "POW(X,Y)",
+    "description": "<p>Returns the value of X raised to the power of Y. Returns NULL if X or Y is NULL.</p>\n<pre><code>SELECT POW(2,2);\n-&gt; 4\n\nSELECT POW(2,-2);\n-&gt; 0.25\n</code></pre>"
+  },
+  "power": {
+    "syntax": "POWER(X,Y)",
+    "description": "<p>Returns the value of X raised to the power of Y. Returns NULL if X or Y is NULL.</p>\n<pre><code>SELECT POWER(2,2);\n-&gt; 4\n\nSELECT POWER(2,-2);\n-&gt; 0.25\n</code></pre>"
+  },
+  "rand": {
+    "syntax": "RAND([N])",
+    "description": "<p>Returns a random floating-point value v in the range <code>0 &lt;= v &lt; 1.0</code>. To obtain a random integer R in the range i &lt;= R &lt; j, use the expression <code>FLOOR(i + RAND() * (j − i))</code>. For example, to obtain a random integer in the range the range <code>7 &lt;= R &lt; 12</code>, use the following statement:</p>\n<pre><code>SELECT FLOOR(7 + (RAND() * 5));\n</code></pre>\n<p>If an integer argument <code>N</code> is specified, it is used as the seed value:</p>"
+  },
+  "randians": {
+    "syntax": "RADIANS(X)",
+    "description": "<p>Returns the argument X, converted from degrees to radians. (Note that π radians equals 180 degrees.) Returns NULL if X is NULL.</p>\n<pre><code>SELECT RADIANS(90);\n-&gt; 1.5707963267949\n</code></pre>"
+  },
+  "round": {
+    "syntax": "ROUND(X), ROUND(X,D)",
+    "description": "<p>Rounds the argument X to D decimal places. The rounding algorithm depends on the data type of X. D defaults to 0 if not specified. D can be negative to cause D digits left of the decimal point of the value X to become zero. The maximum absolute value for D is 30; any digits in excess of 30 (or -30) are truncated. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT ROUND(-1.23), ROUND(-1.58), ROUND(1.58);\n-&gt; -1, -2, 2\n\nSELECT ROUND(1.298, 1), ROUND(1.298, 0), ROUND(23.298, -1);\n-&gt; 1.3, 1, 20\n</code></pre>"
+  },
+  "sign": {
+    "syntax": "SIGN(X)",
+    "description": "<p>Returns the sign of the argument as -1, 0, or 1, depending on whether X is negative, zero, or positive. Returns NULL if X is NULL.</p>\n<pre><code>SELECT SIGN(-32);\n-&gt; -1\n\nSELECT SIGN(0);\n-&gt; 0\n\nSELECT SIGN(234);\n-&gt; 1\n</code></pre>"
+  },
+  "sin": {
+    "syntax": "SIN(X)",
+    "description": "<p>Returns the sine of X, where X is given in radians. Returns NULL if X is NULL.</p>\n<pre><code>SELECT SIN(PI());\n-&gt; 1.2246063538224e-16\n</code></pre>"
+  },
+  "sqrt": {
+    "syntax": "SQRT(X)",
+    "description": "<p>Returns the square root of a nonnegative number X. If X is NULL, the function returns NULL.</p>\n<pre><code>SELECT SQRT(20);\n-&gt; 4.4721359549996\n</code></pre>"
+  },
+  "tan": {
+    "syntax": "TAN(X)",
+    "description": "<p>Returns the tangent of X, where X is given in radians. Returns NULL if X is NULL.</p>\n<pre><code>SELECT TAN(PI()+1);\n-&gt; 1.5574077246549\n</code></pre>"
+  },
+  "truncate": {
+    "syntax": "TRUNCATE(X,D)",
+    "description": "<p>Returns the number X, truncated to D decimal places. If D is 0, the result has no decimal point or fractional part. D can be negative to cause D digits left of the decimal point of the value X to become zero. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT TRUNCATE(1.223,1);\n-&gt; 1.2\n\nSELECT TRUNCATE(1.999,1);\n-&gt; 1.9\n\nSELECT TRUNCATE(1.999,0);\n-&gt; 1\n\nSELECT TRUNCATE(-1.999,1);\n-&gt; -1.9\n\nSELECT TRUNCATE(122,-2);\n-&gt; 100\n\nSELECT TRUNCATE(10.28*100,0);\n-&gt; 1028\n</code></pre>"
   }
 }
