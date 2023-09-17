@@ -1,8 +1,19 @@
 import { qb } from 'libs/QueryBuilder';
-import { useEffect, useState, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  SetStateAction,
+  Dispatch,
+} from 'react';
 import QueryResultTable from '../QueryResultViewer/QueryResultTable';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
+import {
+  QueryResult,
+  QueryResultHeader,
+  QueryResultWithIndex,
+} from 'types/SqlResult';
 import Layout from 'renderer/components/Layout';
 import Toolbar from 'renderer/components/Toolbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,6 +24,7 @@ import {
 import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
 import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
 import { useDialog } from 'renderer/contexts/DialogProvider';
+import CommitChangeToolbarItem from '../QueryResultViewer/CommitChangeToolbarItem';
 
 interface TableDataViewerProps {
   databaseName: string;
@@ -21,31 +33,115 @@ interface TableDataViewerProps {
   name: string;
 }
 
+type SortedHeader =
+  | {
+      by: 'ASC' | 'DESC';
+      header: QueryResultHeader;
+    }
+  | undefined;
+
 const PAGE_SIZE = 200;
+
+function TableDataViewerBody({
+  result,
+  setResult,
+  totalRows,
+  page,
+  refresh,
+  sortedHeader,
+  setSortedHeader,
+  setPage,
+}: {
+  result: QueryResult<Record<string, unknown>>;
+  setResult: Dispatch<SetStateAction<QueryResult<Record<string, unknown>>>>;
+  totalRows: number;
+  page: number;
+  refresh: () => void;
+  sortedHeader: SortedHeader;
+  setSortedHeader: React.Dispatch<React.SetStateAction<SortedHeader>>;
+  setPage: Dispatch<SetStateAction<number>>;
+}) {
+  const data = useMemo<QueryResultWithIndex[]>(
+    () =>
+      result.rows.map((row, idx) => ({
+        rowIndex: idx,
+        data: row,
+      })),
+    [result]
+  );
+
+  const headers = result.headers;
+  const rowRange = {
+    start: page * PAGE_SIZE,
+    end: page * PAGE_SIZE + result.rows.length,
+  };
+
+  const onNextPage = useCallback(() => {
+    setPage((prev) => prev + 1);
+  }, [setPage]);
+
+  const onPrevPage = useCallback(() => {
+    setPage((prev) => prev - 1);
+  }, [setPage]);
+
+  const footer = (
+    <Toolbar shadowTop>
+      {result && (
+        <CommitChangeToolbarItem
+          result={result}
+          onResultChange={setResult}
+          onRequestRefetch={refresh}
+        />
+      )}
+      <Toolbar.Filler />
+      <Toolbar.Item
+        icon={<FontAwesomeIcon icon={faChevronLeft} />}
+        disabled={page === 0}
+        onClick={onPrevPage}
+      />
+      <Toolbar.Text>
+        {rowRange.start}-{rowRange.end}/
+        {totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+      </Toolbar.Text>
+      <Toolbar.Item
+        disabled={PAGE_SIZE * (page + 1) >= totalRows}
+        icon={<FontAwesomeIcon icon={faChevronRight} />}
+        onClick={onNextPage}
+      />
+    </Toolbar>
+  );
+
+  return (
+    <EditableQueryResultProvider>
+      <Layout>
+        <Layout.Grow>
+          <div style={{ width: '100%', height: '100%', display: 'flex' }}>
+            <QueryResultTable
+              headers={headers}
+              result={data}
+              onSortHeader={(header, by) => setSortedHeader({ by, header })}
+              onSortReset={() => setSortedHeader(undefined)}
+              sortedHeader={sortedHeader}
+            />
+          </div>
+        </Layout.Grow>
+        <Layout.Fixed>{footer}</Layout.Fixed>
+      </Layout>
+    </EditableQueryResultProvider>
+  );
+}
 
 export default function TableDataViewer({
   databaseName,
   tableName,
 }: TableDataViewerProps) {
   const { runner } = useSqlExecute();
-  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState<QueryResult<Record<string, unknown>>>();
+  const [refreshCounter, setRefreshCounter] = useState(0);
   const [totalRows, setTotalRows] = useState(0);
-  const [data, setData] = useState<QueryResultWithIndex[]>([]);
   const { showErrorDialog } = useDialog();
-
-  const [sortedHeader, setSortedHeader] = useState<
-    | {
-        by: 'ASC' | 'DESC';
-        header: QueryResultHeader;
-      }
-    | undefined
-  >();
-
-  const [headers, setHeaders] = useState<QueryResultHeader[]>([]);
-  const [rowRange, setRowRange] = useState<{ start: number; end: number }>({
-    start: 0,
-    end: 0,
-  });
+  const [loading, setLoading] = useState(true);
+  const [sortedHeader, setSortedHeader] = useState<SortedHeader>();
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -84,19 +180,8 @@ export default function TableDataViewer({
         skipProtection: true,
       })
       .then((result) => {
-        setHeaders(result[0].result.headers);
-        setData(
-          result[0].result.rows.map((row, idx) => ({
-            rowIndex: idx,
-            data: row,
-          }))
-        );
-
+        setResult(result[0].result);
         setLoading(false);
-        setRowRange({
-          start: page * PAGE_SIZE,
-          end: page * PAGE_SIZE + result[0].result.rows.length,
-        });
       })
       .catch((e) => {
         if (e.message) {
@@ -107,58 +192,39 @@ export default function TableDataViewer({
     runner,
     page,
     sortedHeader,
-    setHeaders,
-    setData,
     setTotalRows,
     setLoading,
+    setResult,
+    refreshCounter,
   ]);
 
-  const onNextPage = useCallback(() => {
-    setPage((prev) => prev + 1);
-  }, [setPage]);
-
-  const onPrevPage = useCallback(() => {
-    setPage((prev) => prev - 1);
-  }, [setPage]);
-
-  const footer = (
-    <Toolbar shadowTop>
-      <Toolbar.Filler />
-      <Toolbar.Item
-        icon={<FontAwesomeIcon icon={faChevronLeft} />}
-        disabled={page === 0}
-        onClick={onPrevPage}
-      />
-      <Toolbar.Text>
-        {rowRange.start}-{rowRange.end}/
-        {totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-      </Toolbar.Text>
-      <Toolbar.Item
-        disabled={PAGE_SIZE * (page + 1) >= totalRows}
-        icon={<FontAwesomeIcon icon={faChevronRight} />}
-        onClick={onNextPage}
-      />
-    </Toolbar>
-  );
+  if (loading || !result) {
+    return (
+      <Layout>
+        <Layout.Grow></Layout.Grow>
+        <Layout.Fixed>
+          <QueryResultLoading />
+        </Layout.Fixed>
+      </Layout>
+    );
+  }
 
   return (
-    <Layout>
-      <Layout.Grow>
-        <div style={{ width: '100%', height: '100%', display: 'flex' }}>
-          {!loading && (
-            <EditableQueryResultProvider>
-              <QueryResultTable
-                headers={headers}
-                result={data}
-                onSortHeader={(header, by) => setSortedHeader({ by, header })}
-                onSortReset={() => setSortedHeader(undefined)}
-                sortedHeader={sortedHeader}
-              />
-            </EditableQueryResultProvider>
-          )}
-        </div>
-      </Layout.Grow>
-      <Layout.Fixed>{loading ? <QueryResultLoading /> : footer}</Layout.Fixed>
-    </Layout>
+    <TableDataViewerBody
+      result={result}
+      setResult={
+        setResult as Dispatch<
+          SetStateAction<QueryResult<Record<string, unknown>>>
+        >
+      }
+      totalRows={totalRows}
+      page={page}
+      setPage={setPage}
+      // This will cause the code to refresh the result
+      refresh={() => setRefreshCounter((prev) => prev + 1)}
+      // Handle sorting
+      sortedHeader={sortedHeader}
+      setSortedHeader={setSortedHeader}
+    />
   );
 }

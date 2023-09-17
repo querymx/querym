@@ -44,7 +44,7 @@ function QueryResultViewer({
   );
 
   const resultWithIndex = useMemo(() => {
-    let rows = result.rows.map((value, rowIndex) => {
+    let rows = cacheResult.rows.map((value, rowIndex) => {
       return {
         rowIndex: rowIndex + page * pageSize,
         data: value,
@@ -66,7 +66,7 @@ function QueryResultViewer({
     }
 
     return rows;
-  }, [page, result, search]);
+  }, [page, cacheResult, search]);
 
   const slicedResult = useMemo(() => {
     return resultWithIndex.slice(page * pageSize, (page + 1) * pageSize);

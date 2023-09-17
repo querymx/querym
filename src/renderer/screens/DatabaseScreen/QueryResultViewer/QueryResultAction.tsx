@@ -1,13 +1,7 @@
-import { useCallback, useState, useEffect } from 'react';
-import applyQueryResultChanges from 'libs/ApplyQueryResultChanges';
-import generateSqlFromChanges from 'libs/GenerateSqlFromChanges';
-import generateSqlFromPlan from 'libs/GenerateSqlFromPlan';
-import { useSchema } from 'renderer/contexts/SchemaProvider';
-import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
+import { useState } from 'react';
 import { QueryResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
 import ExportModal from '../ExportModal';
-import { useDialog } from 'renderer/contexts/DialogProvider';
 import Toolbar from 'renderer/components/Toolbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -15,7 +9,7 @@ import {
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { useDebounceEffect } from 'hooks/useDebounce';
-import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
+import CommitChangeToolbarItem from './CommitChangeToolbarItem';
 
 interface QueryResultActionProps {
   result: QueryResult;
@@ -40,13 +34,8 @@ export default function QueryResultAction({
   onSearchChange,
   time,
 }: QueryResultActionProps) {
-  const { showErrorDialog } = useDialog();
-  const [changeCount, setChangeCount] = useState(0);
   const [showExportModal, setShowExportModal] = useState(false);
-  const { clearChange, collector } = useEditableResult();
-  const { schema, currentDatabase } = useSchema();
   const [search, setSearch] = useState('');
-  const { runner } = useSqlExecute();
 
   const rowStart = page * pageSize;
   const rowEnd = Math.min(resultAfterFilter.length, rowStart + pageSize);
@@ -59,71 +48,18 @@ export default function QueryResultAction({
     1000
   );
 
-  useEffect(() => {
-    const cb = (count: number) => {
-      setChangeCount(count);
-    };
-
-    collector.registerChange(cb);
-    return () => collector.unregisterChange(cb);
-  }, [collector, setChangeCount]);
-
-  const onCommit = useCallback(() => {
-    if (schema) {
-      const currentDatabaseSchema = schema[currentDatabase || ''];
-
-      if (currentDatabaseSchema && result) {
-        const plans = generateSqlFromChanges(
-          currentDatabaseSchema,
-          result,
-          collector.getChanges()
-        );
-
-        const rawSql = plans.map((plan) => ({
-          sql: generateSqlFromPlan(plan),
-        }));
-
-        runner
-          .execute(rawSql, { insideTransaction: true })
-          .then(() => {
-            const changes = collector.getChanges();
-
-            if (changes.new.length === 0 && changes.remove.length === 0) {
-              onResultChange((prev) => {
-                clearChange();
-                return applyQueryResultChanges(prev, changes.changes);
-              });
-            } else {
-              onRequestRefetch();
-            }
-          })
-          .catch((e) => {
-            if (e.message) {
-              showErrorDialog(e.message);
-            }
-          });
-      }
-    }
-  }, [
-    collector,
-    schema,
-    currentDatabase,
-    clearChange,
-    onResultChange,
-    onRequestRefetch,
-  ]);
-
   return (
     <div className={styles.footer}>
       <Toolbar>
         <Toolbar.Text>Took {Math.round(time / 1000)}s</Toolbar.Text>
         <Toolbar.Separator />
-        <Toolbar.Item
-          text="Commit"
-          badge={changeCount}
-          onClick={onCommit}
-          disabled={!changeCount}
+
+        <CommitChangeToolbarItem
+          onRequestRefetch={onRequestRefetch}
+          onResultChange={onResultChange}
+          result={result}
         />
+
         <Toolbar.Item text="Export" onClick={() => setShowExportModal(true)} />
 
         <Toolbar.Separator />
