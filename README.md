@@ -5,6 +5,9 @@
 
 Query Master is a free, open-source, and cross-platform GUI tool for databases. Although this project is relatively young, we are ambitious in our goal to create one of the best tools available. Currently, it only supports MySQL, but we plan to add support for other relational databases by 2024.
 
+[Download Windows Version](https://apps.microsoft.com/store/detail/querymaster/9PBF90B3T7Z2?hl=en-us&gl=us) | [Download Mac Version](https://github.com/invisal/query-master/releases)
+
+<div style="height: 10px"></div>
 
 ![QueryMaster](https://i.ibb.co/6ybwWYy/animated2.gif)
 
@@ -21,7 +24,7 @@ QueryMaster aims to provide the best experience for writing SQL, which includes 
     - ✅ Detects ENUM columns and provides auto-completion.
     - ❌ Auto-completes aliased tables.
     - ❌ Analyzes sub-queries and provides auto-completion for their columns.
-    - ❌ Provides hints and function usage.
+    - ✅ Provides hints and function usage.
 - Code formatter
     - ✅ Beautifies your SQL code.
     - ❌ Allows customization of the beautify style.
@@ -37,7 +40,7 @@ QueryMaster aims to provide the best experience for writing SQL, which includes 
 - Multiple queries result
     - ✅ Run multiple queries and see all of their results in separate tabs.
 - Saved Queries
-    - ❌ Save your queries with a name to use later.
+    - ✅ Save your queries with a name to use later.
 - Query History
     - ❌ Record the browser queries that you used to run.
 
@@ -67,7 +70,7 @@ QueryMaster aims to provide the best experience for writing SQL, which includes 
 ### Connection Management
 
 - ✅ Manage your connections in nested folders.
-- ❌ MySQL Support
+- ✅ MySQL Support
 - ❌ SQLite Support
 - ❌ PostgreSQL Support
 - ❌ Oracle Support
