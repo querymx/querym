@@ -8,6 +8,7 @@ import {
   faCalendar,
   faEye,
   faGear,
+  faRefresh,
   faTableCells,
   faTableList,
 } from '@fortawesome/free-solid-svg-icons';
@@ -28,6 +29,7 @@ type SelectedTreeViewItem = TreeViewItemData<{
 
 export default function DatabaseTableList() {
   const [search, setSearch] = useState('');
+  const { reloadSchema } = useSchema();
   const searchDebounce = useDebounce(search, 500);
   const { schema, currentDatabase } = useSchema();
   const [selected, setSelected] = useState<SelectedTreeViewItem>();
@@ -79,6 +81,7 @@ export default function DatabaseTableList() {
         },
         {
           text: 'Open Structure',
+          separator: true,
           onClick: () => {
             newWindow(
               tableName,
@@ -95,6 +98,11 @@ export default function DatabaseTableList() {
               { icon: <FontAwesomeIcon icon={faTableList} color="#3498db" /> }
             );
           },
+        },
+        {
+          text: 'Refresh',
+          icon: <FontAwesomeIcon icon={faRefresh} />,
+          onClick: () => reloadSchema(),
         },
       ];
     }
