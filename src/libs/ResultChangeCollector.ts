@@ -3,7 +3,10 @@ export interface ResultChangeCollectorItem {
   cols: { col: number; value: unknown }[];
 }
 
-export type ResultChangeEventHandler = (count: number) => void;
+export type ResultChangeEventHandler = (
+  count: number,
+  revision: number
+) => void;
 
 export interface ResultChanges {
   new: ResultChangeCollectorItem[];
@@ -19,6 +22,7 @@ export default class ResultChangeCollector {
   protected removedRowIndex = new Set<number>();
   protected changes: Record<string, Record<string, unknown>> = {};
   protected onChangeListeners: ResultChangeEventHandler[] = [];
+  protected revision = 0;
 
   registerChange(cb: ResultChangeEventHandler) {
     this.onChangeListeners.push(cb);
@@ -30,14 +34,22 @@ export default class ResultChangeCollector {
 
   protected triggerOnChange() {
     const count = this.getChangesCount();
+    this.revision++;
     for (const cb of this.onChangeListeners) {
-      cb(count);
+      cb(count, this.revision);
     }
   }
 
   removeRow(rowNumber: number) {
     if (rowNumber < 0) {
-      // Remove the new created row.
+      if (rowNumber < -this.newRowCount) return;
+
+      // Shifting the new row changed
+      for (let i = rowNumber; i >= -this.newRowCount; i--) {
+        this.changes[i] = this.changes[i - 1];
+      }
+      delete this.changes[-this.newRowCount];
+      this.newRowCount--;
     } else {
       // Remove the existing row. We just mark it as removed
       this.removedRowIndex.add(rowNumber);
@@ -61,9 +73,18 @@ export default class ResultChangeCollector {
     this.triggerOnChange();
   }
 
-  createNewRow() {
-    this.newRowCount++;
+  createNewRow(initialData?: unknown[]) {
+    const newId = -++this.newRowCount;
+    if (initialData) {
+      this.changes[newId] = {};
+
+      for (let i = 0; i < initialData.length; i++) {
+        this.changes[newId][i] = initialData[i];
+      }
+    }
     this.triggerOnChange();
+
+    return newId;
   }
 
   addChange(rowNumber: number, cellNumber: number, value: unknown) {

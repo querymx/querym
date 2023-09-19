@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import TableCell from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableCell';
 import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
-import { getUpdatableTable } from 'libs/GenerateSqlFromChanges';
+import {
+  TableEditableRule,
+  getEditableRule,
+} from 'libs/GenerateSqlFromChanges';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import OptimizeTable from 'renderer/components/OptimizeTable';
 import Icon from 'renderer/components/Icon';
@@ -37,6 +40,7 @@ function QueryResultTable({
 
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
   const [removeRowsIndex, setRemoveRowsIndex] = useState<number[]>([]);
+  const [revision, setRevision] = useState<number>(0);
 
   const newRowsIndex = useMemo(
     () => new Array(newRowCount).fill(0).map((_, idx) => idx),
@@ -44,9 +48,10 @@ function QueryResultTable({
   );
 
   useEffect(() => {
-    const onChangeUpdate = () => {
+    const onChangeUpdate = (_: number, revision: number) => {
       setNewRowCount(collector.getNewRowCount());
       setRemoveRowsIndex(collector.getRemovedRowsIndex());
+      setRevision(revision);
     };
 
     collector.registerChange(onChangeUpdate);
@@ -74,20 +79,30 @@ function QueryResultTable({
       return [...newRows, ...result];
     }, [result, newRowCount]);
 
+  const rules = useMemo<TableEditableRule>(() => {
+    if (headers && currentDatabase && schema) {
+      return getEditableRule(headers, schema[currentDatabase]);
+    }
+
+    return {
+      updatableTables: {},
+      insertable: false,
+      removable: false,
+    };
+  }, [result, schema, currentDatabase]);
+
+  const { updatableTables } = rules;
+
   const { handleContextMenu } = useDataTableContextMenu({
     data,
     cellManager,
     collector,
     newRowCount,
     selectedRowsIndex,
+    headers,
+    rules,
+    setSelectedRowsIndex,
   });
-
-  const updatableTables = useMemo(() => {
-    if (headers && currentDatabase && schema) {
-      return getUpdatableTable(headers, schema[currentDatabase]);
-    }
-    return {};
-  }, [result, schema, currentDatabase]);
 
   const headerMemo = useMemo(() => {
     function getInitialSizeByHeaderType(_: number, header: QueryResultHeader) {
@@ -171,7 +186,7 @@ function QueryResultTable({
       if (data[y]) {
         return (
           <TableCell
-            key={data[y].rowIndex}
+            key={data[y].rowIndex + '_' + revision}
             value={data[y].data[headers[x].name]}
             header={headers[x]}
             col={x}
@@ -182,7 +197,7 @@ function QueryResultTable({
       }
       return <></>;
     },
-    [data, result, updatableTables, newRowCount]
+    [data, result, updatableTables, newRowCount, revision]
   );
 
   const relativeRemoveRowsIndex = useMemo(() => {

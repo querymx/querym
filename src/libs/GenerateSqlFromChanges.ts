@@ -6,23 +6,24 @@ import {
 } from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
 
-type UpdatableTableDict = Record<
-  string,
-  { columnNames: string; columnNumber: number }[]
->;
+interface TablePk {
+  columnNames: string;
+  columnNumber: number;
+}
 
-/**
- * Based on the query headers and schema, we decide which
- * table has enough information to make it updatable.
- *
- * @param headers
- * @param schema
- * @returns
- */
-export function getUpdatableTable(
+type UpdatableTableDict = Record<string, TablePk[]>;
+
+export interface TableEditableRule {
+  insertable: boolean;
+  removable: boolean;
+  updatableTables: UpdatableTableDict;
+  insertablePk?: TablePk[];
+}
+
+export function getEditableRule(
   headers: QueryResultHeader[],
   schema: DatabaseSchema
-): UpdatableTableDict {
+): TableEditableRule {
   const result: UpdatableTableDict = {};
 
   // Get unique tables
@@ -64,7 +65,15 @@ export function getUpdatableTable(
     }
   }
 
-  return result;
+  const isSingleTable = uniqueTableNames.size === 1;
+  const insertable = isSingleTable && Object.keys(result).length === 1;
+
+  return {
+    updatableTables: result,
+    insertable,
+    removable: insertable,
+    insertablePk: insertable ? Object.values(result)[0] : [],
+  };
 }
 
 function buildWhere(
@@ -164,7 +173,7 @@ export default function generateSqlFromChanges(
   currentData: QueryResult,
   changes: ResultChanges
 ): SqlStatementPlan[] {
-  const updatableTables = getUpdatableTable(currentData.headers, schema);
+  const { updatableTables } = getEditableRule(currentData.headers, schema);
 
   // Prepare the statement plans
   let plans: SqlStatementPlan[] = [];
