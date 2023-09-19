@@ -1,15 +1,38 @@
 import { faPlusCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { TableEditableRule } from 'libs/GenerateSqlFromChanges';
 import ResultChangeCollector from 'libs/ResultChangeCollector';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { TableCellManager } from 'renderer/contexts/EditableQueryResultProvider';
+import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
 
 interface DataTableContextMenuDeps {
   collector: ResultChangeCollector;
   cellManager: TableCellManager;
   selectedRowsIndex: number[];
   newRowCount: number;
-  data: { data: Record<string, unknown>; rowIndex: number }[];
+  data: QueryResultWithIndex[];
+  headers: QueryResultHeader[];
+  rules: TableEditableRule;
+  setSelectedRowsIndex: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+function dataToArray(
+  data: QueryResultWithIndex,
+  headers: QueryResultHeader[],
+  rules?: TableEditableRule
+): unknown[] {
+  const result = new Array(headers.length).fill(true).map((_, idx) => {
+    return data.data[headers[idx].name];
+  });
+
+  if (rules?.insertablePk) {
+    for (let i = 0; i < rules.insertablePk.length; i++) {
+      result[rules.insertablePk[i].columnNumber] = undefined;
+    }
+  }
+
+  return result;
 }
 
 export default function useDataTableContextMenu({
@@ -18,6 +41,9 @@ export default function useDataTableContextMenu({
   selectedRowsIndex,
   newRowCount,
   data,
+  headers,
+  rules,
+  setSelectedRowsIndex,
 }: DataTableContextMenuDeps) {
   return useContextMenu(() => {
     const selectedCell = cellManager.getFocusCell();
@@ -32,32 +58,12 @@ export default function useDataTableContextMenu({
       );
     }
 
+    const lastSelectedRow =
+      selectedRowsIndex.length > 0
+        ? data[selectedRowsIndex[selectedRowsIndex.length - 1]]
+        : undefined;
+
     return [
-      {
-        text: 'Insert new row',
-        onClick: () => {
-          collector.createNewRow();
-        },
-        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
-      },
-      {
-        text: 'Remove selected rows',
-        destructive: true,
-        disabled: selectedRowsIndex.length === 0,
-        onClick: () => {
-          for (const selectedRowIndex of selectedRowsIndex) {
-            collector.removeRow(data[selectedRowIndex].rowIndex);
-          }
-        },
-        icon: <FontAwesomeIcon icon={faTimesCircle} />,
-        separator: true,
-      },
-      {
-        text: 'Insert NULL',
-        disabled: !selectedCell,
-        onClick: () => selectedCell?.insert(null),
-        separator: true,
-      },
       {
         text: 'Copy',
         hotkey: 'Ctrl + C',
@@ -82,6 +88,54 @@ export default function useDataTableContextMenu({
         separator: true,
       },
       {
+        text: 'Insert new row',
+        disabled: !rules.insertable,
+        onClick: () => {
+          collector.createNewRow();
+        },
+        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
+      },
+      {
+        text: 'Duplicate row without key',
+        disabled: !lastSelectedRow,
+        onClick: () => {
+          if (lastSelectedRow) {
+            collector.createNewRow(
+              dataToArray(lastSelectedRow, headers, rules)
+            );
+          }
+        },
+        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
+      },
+      {
+        text: 'Duplicate row with key',
+        disabled: !lastSelectedRow,
+        onClick: () => {
+          if (lastSelectedRow) {
+            collector.createNewRow(dataToArray(lastSelectedRow, headers));
+          }
+        },
+        icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
+      },
+      {
+        text: 'Remove selected rows',
+        destructive: true,
+        disabled: selectedRowsIndex.length === 0 || !rules.removable,
+        onClick: () => {
+          for (const selectedRowIndex of selectedRowsIndex) {
+            collector.removeRow(data[selectedRowIndex].rowIndex);
+          }
+        },
+        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+        separator: true,
+      },
+      {
+        text: 'Insert NULL',
+        disabled: !selectedCell,
+        onClick: () => selectedCell?.insert(null),
+        separator: true,
+      },
+      {
         text: `Discard All Changes`,
         destructive: true,
         disabled: !collector.getChangesCount(),
@@ -101,5 +155,12 @@ export default function useDataTableContextMenu({
         },
       },
     ];
-  }, [collector, newRowCount, selectedRowsIndex, data]);
+  }, [
+    collector,
+    newRowCount,
+    setSelectedRowsIndex,
+    selectedRowsIndex,
+    data,
+    rules,
+  ]);
 }
