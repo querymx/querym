@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import useElementResize from 'renderer/hooks/useElementResize';
 import { getVisibleCellRange } from './helper';
+import { OptimizeTableHeaderWithIndexProps } from '.';
 
 export default function useTableVisibilityRecalculation({
   containerRef,
@@ -8,12 +9,14 @@ export default function useTableVisibilityRecalculation({
   headerSizes,
   rowHeight,
   renderAhead,
+  headers,
 }: {
   containerRef: React.RefObject<HTMLDivElement>;
   totalRowCount: number;
   headerSizes: number[];
   rowHeight: number;
   renderAhead: number;
+  headers: OptimizeTableHeaderWithIndexProps[];
 }) {
   const [visibleDebounce, setVisibleDebounce] = useState<{
     rowStart: number;
@@ -32,14 +35,21 @@ export default function useTableVisibilityRecalculation({
       setVisibleDebounce(
         getVisibleCellRange(
           e,
-          headerSizes,
+          headers.map((header) => headerSizes[header.index]),
           totalRowCount,
           rowHeight,
           renderAhead
         )
       );
     },
-    [setVisibleDebounce, totalRowCount, rowHeight, renderAhead, headerSizes]
+    [
+      setVisibleDebounce,
+      totalRowCount,
+      rowHeight,
+      renderAhead,
+      headerSizes,
+      headers,
+    ]
   );
 
   const onHeaderResize = useCallback(

@@ -7,8 +7,10 @@ export default function TableHeader({
   idx,
   header,
   onHeaderResize,
+  sticky,
 }: {
   idx: number;
+  sticky: boolean;
   header: OptimizeTableHeaderProps;
   onHeaderResize: (idx: number, newWidth: number) => void;
 }) {
@@ -19,6 +21,17 @@ export default function TableHeader({
     <th
       key={header.name}
       title={header.tooltip}
+      style={
+        sticky
+          ? {
+              position: 'sticky',
+              left: 0,
+              background: 'var(--color-surface)',
+              borderRight: '5px solid #eee',
+              zIndex: 20,
+            }
+          : undefined
+      }
       onContextMenu={(e) => {
         handleContextMenu(e);
         e.stopPropagation();
