@@ -5,6 +5,7 @@ import ResultChangeCollector from 'libs/ResultChangeCollector';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { TableCellManager } from 'renderer/contexts/EditableQueryResultProvider';
 import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
+import { getDisplayableFromDatabaseRows } from '../../../../libs/TransformResult';
 
 interface DataTableContextMenuDeps {
   collector: ResultChangeCollector;
@@ -48,6 +49,18 @@ export default function useDataTableContextMenu({
   return useContextMenu(() => {
     const selectedCell = cellManager.getFocusCell();
 
+    function onCopyAsExcel() {
+      const selectedRows = selectedRowsIndex.map((rowIndex) => data[rowIndex].data);
+      const displayableRows = getDisplayableFromDatabaseRows(selectedRows, headers);
+      const headerNames = headers.map((header) => header.name).join('\t');
+      const excelString = [headerNames];
+      excelString.push(
+        ...displayableRows.map((row) => Object.values(row).join('\t'))
+      );
+
+      window.navigator.clipboard.writeText(excelString.join('\n'));
+    }
+
     function onCopyAsJson() {
       window.navigator.clipboard.writeText(
         JSON.stringify(
@@ -74,7 +87,7 @@ export default function useDataTableContextMenu({
         text: 'Copy Selected Rows As',
         disabled: !selectedCell,
         children: [
-          { text: 'As Excel', disabled: true },
+          { text: 'As Excel', onClick: onCopyAsExcel },
           { text: 'As CSV', disabled: true },
           { text: 'As JSON', onClick: onCopyAsJson },
           { text: 'As SQL', disabled: true },
