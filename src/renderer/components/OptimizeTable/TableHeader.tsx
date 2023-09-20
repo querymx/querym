@@ -21,17 +21,7 @@ export default function TableHeader({
     <th
       key={header.name}
       title={header.tooltip}
-      style={
-        sticky
-          ? {
-              position: 'sticky',
-              left: 0,
-              background: 'var(--color-surface)',
-              borderRight: '5px solid #eee',
-              zIndex: 20,
-            }
-          : undefined
-      }
+      className={sticky ? styles.stickyColumn : undefined}
       onContextMenu={(e) => {
         handleContextMenu(e);
         e.stopPropagation();

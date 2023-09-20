@@ -52,7 +52,6 @@ function renderCellList({
   selectedRowsIndex,
   colEnd,
   colStart,
-  handleRowClick,
   rowHeight,
   onHeaderResize,
   data,
@@ -73,10 +72,6 @@ function renderCellList({
   colStart: number;
   rowHeight: number;
   data: unknown[];
-  handleRowClick: (
-    e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
-    rowIndex: number
-  ) => void;
 }) {
   const headersWithIndex = headerIndex.map((idx) => headers[idx]);
 
@@ -108,19 +103,11 @@ function renderCellList({
     return (
       <tr
         key={absoluteRowIndex}
-        onMouseDown={(e) => handleRowClick(e, absoluteRowIndex)}
+        data-row={absoluteRowIndex}
         className={rowClass}
       >
         {hasSticky && (
-          <td
-            style={{
-              position: 'sticky',
-              left: 0,
-              background: 'var(--color-surface)',
-              borderRight: '5px solid #eee',
-              zIndex: 1,
-            }}
-          >
+          <td className={styles.stickyColumn}>
             <div className={styles.tableCellContent}>
               {renderCell(absoluteRowIndex, headersWithIndex[0].index)}
             </div>
@@ -248,7 +235,11 @@ export default function OptimizeTable({
     };
 
     return (
-      <div ref={containerRef} className={`${styles.tableContainer} scroll`}>
+      <div
+        ref={containerRef}
+        className={`${styles.tableContainer} scroll`}
+        onMouseDown={handleRowClick}
+      >
         <div
           style={{
             height: (data.length + 1) * rowHeight + 10,

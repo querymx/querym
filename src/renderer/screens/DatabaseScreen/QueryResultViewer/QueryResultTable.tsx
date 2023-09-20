@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowDown,
   faArrowUp,
+  faCheck,
   faChevronDown,
   faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
@@ -34,6 +35,9 @@ function QueryResultTable({
   onSortReset,
   sortedHeader,
 }: QueryResultTableProps) {
+  const [stickyHeaderIndex, setStickyHeaderIndex] = useState<
+    number | undefined
+  >();
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector, cellManager } = useEditableResult();
   const { schema, currentDatabase } = useSchema();
@@ -144,8 +148,22 @@ function QueryResultTable({
       tooltip: header.columnDefinition?.comment,
       menu: [
         {
-          text: 'Reset Order',
+          text: 'Sticky',
+          icon:
+            idx === stickyHeaderIndex ? (
+              <FontAwesomeIcon icon={faCheck} />
+            ) : undefined,
           separator: true,
+          onClick: () => {
+            if (stickyHeaderIndex === idx) {
+              setStickyHeaderIndex(undefined);
+            } else {
+              setStickyHeaderIndex(idx);
+            }
+          },
+        },
+        {
+          text: 'Reset Order',
           disabled: !onSortHeader,
           onClick: () => {
             if (onSortReset) {
@@ -179,14 +197,20 @@ function QueryResultTable({
         getInitialSizeByHeaderType(idx, header)
       ),
     }));
-  }, [result, onSortHeader, sortedHeader]);
+  }, [
+    result,
+    onSortHeader,
+    sortedHeader,
+    stickyHeaderIndex,
+    setStickyHeaderIndex,
+  ]);
 
   const renderCell = useCallback(
     (y: number, x: number) => {
       if (data[y]) {
         return (
           <TableCell
-            key={data[y].rowIndex + '_' + revision}
+            key={data[y].rowIndex + '_' + x + '_' + revision}
             value={data[y].data[headers[x].name]}
             header={headers[x]}
             col={x}
@@ -213,6 +237,7 @@ function QueryResultTable({
   return (
     <div className={styles.container} onContextMenu={handleContextMenu}>
       <OptimizeTable
+        stickyHeaderIndex={stickyHeaderIndex}
         headers={headerMemo}
         data={data}
         renderAhead={20}

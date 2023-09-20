@@ -53,8 +53,17 @@ export default function useTableSelectionHandler({
   );
 
   const handleRowClick = useCallback(
-    (e: React.MouseEvent<HTMLTableRowElement>, rowIndex: number) => {
-      if (e.button === 0) {
+    (e: React.MouseEvent) => {
+      let rowIndex;
+
+      if (e.target instanceof Element) {
+        const row = e.target.closest('tr');
+        if (row && row.dataset.row) {
+          rowIndex = Number(row.dataset.row);
+        }
+      }
+
+      if (rowIndex && e.button === 0) {
         const isCtrlKey = e.ctrlKey || e.metaKey;
         const isShiftKey = e.shiftKey;
         handleRowSelection(rowIndex, isCtrlKey, isShiftKey);

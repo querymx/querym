@@ -85,3 +85,15 @@
 .removedRow td {
   background-color: var(--color-table-row-removed);
 }
+
+.stickyColumn {
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  border-right: 5px solid var(--color-table-grid) !important;
+  z-index: 1;
+}
+
+th.stickyColumn {
+  z-index: 20;
+}
