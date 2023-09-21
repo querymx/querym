@@ -1,6 +1,6 @@
 import Splitter from 'renderer/components/Splitter/Splitter';
 import WindowTab, { WindowTabItem } from 'renderer/components/WindowTab';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryWindow from './QueryWindow';
 import generateIncrementalName from 'renderer/utils/generateIncrementalName';
@@ -10,10 +10,15 @@ import MainToolbar from './MainToolbar';
 import RelationalDatabaseSidebar from './RelationalDatabaseSidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode } from '@fortawesome/free-solid-svg-icons';
+import WindowTabRenameModal from './WindowTabRenameModal';
 
 export default function MainView() {
   const { newWindow, tabs, setTabs, selectedTab, setSelectedTab } =
     useWindowTab();
+
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameTabId, setRenameTabId] = useState('');
+  const [renameValue, setRenameValue] = useState('');
 
   const onNewTabClick = useCallback(() => {
     const incrementalTabName = generateIncrementalName(
@@ -65,6 +70,15 @@ export default function MainView() {
     (additionalData?: WindowTabItem) => {
       return [
         {
+          text: 'Rename',
+          separator: true,
+          onClick: () => {
+            setShowRenameModal(true);
+            setRenameValue(additionalData?.name ?? '');
+            setRenameTabId(additionalData?.key ?? '');
+          },
+        },
+        {
           text: 'Close',
           disabled: tabs.length === 1,
           onClick: () => {
@@ -112,12 +126,22 @@ export default function MainView() {
         },
       ];
     },
-    [tabs, onTabClosed, setTabs, setSelectedTab, selectedTab]
+    [
+      tabs,
+      onTabClosed,
+      setTabs,
+      setSelectedTab,
+      selectedTab,
+      setShowRenameModal,
+      setRenameValue,
+      setRenameTabId,
+    ]
   );
 
   return (
     <Splitter primaryIndex={1} secondaryInitialSize={200}>
       <RelationalDatabaseSidebar />
+
       <Layout>
         <Layout.Fixed>
           <MainToolbar />
@@ -136,6 +160,15 @@ export default function MainView() {
             onTabDragged={handleTabDragged}
           />
         </Layout.Grow>
+
+        {showRenameModal && (
+          <WindowTabRenameModal
+            initialValue={renameValue}
+            onClose={() => setShowRenameModal(false)}
+            setTabs={setTabs}
+            tabKey={renameTabId}
+          />
+        )}
       </Layout>
     </Splitter>
   );

@@ -17,7 +17,7 @@ import { faCode } from '@fortawesome/free-solid-svg-icons';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import useBeforeClose from 'renderer/hooks/useBeforeClose';
 
-interface WindowTabItemProps {
+export interface WindowTabItemProps {
   key: string;
   name: string;
   icon?: ReactElement;

@@ -8,6 +8,7 @@ export interface TextFieldCommonProps {
   value?: string;
   autoFocus?: boolean;
   placeholder?: string;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
 interface TextFieldProps extends TextFieldCommonProps {
@@ -28,6 +29,7 @@ export default function TextField({
   actionClick,
   readOnly,
   multipleLine,
+  onKeyDown,
 }: TextFieldProps) {
   return (
     <div className={styles.input}>
@@ -37,6 +39,7 @@ export default function TextField({
         {multipleLine ? (
           <textarea
             readOnly={readOnly}
+            onKeyDown={onKeyDown}
             placeholder={placeholder}
             autoFocus={autoFocus}
             value={value}
@@ -49,6 +52,7 @@ export default function TextField({
         ) : (
           <input
             readOnly={readOnly}
+            onKeyDown={onKeyDown}
             placeholder={placeholder}
             type={type || 'text'}
             autoFocus={autoFocus}
