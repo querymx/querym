@@ -1,6 +1,6 @@
 import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faICursor } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faICursor, faSave } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.scss';
@@ -20,7 +20,7 @@ import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
-import QueryHeader from './QueryHeader';
+import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
 
 export type EnumSchema = Array<{
   table: string;
@@ -41,6 +41,11 @@ export default function QueryWindow({
   tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
+
+  const { binding } = useKeybinding();
+  const keyRunQuery = binding['run-query'];
+  const keyRunCurrentQuery = binding['run-current-query'];
+  const keySaveQuery = binding['save-query'];
 
   const [loading, setLoading] = useState(false);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
@@ -177,9 +182,9 @@ export default function QueryWindow({
   useEffect(() => {
     if (selectedTab === tabKey) {
       const onKeyBinding = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key === 'F9') {
+        if (keyRunCurrentQuery.match(e)) {
           onRun(getSelection());
-        } else if (e.key === 'F9') {
+        } else if (keyRunQuery.match(e)) {
           onRun(getText());
         }
       };
@@ -187,7 +192,7 @@ export default function QueryWindow({
       document.addEventListener('keydown', onKeyBinding);
       return () => document.removeEventListener('keydown', onKeyBinding);
     }
-  }, [onRun, selectedTab, tabKey]);
+  }, [onRun, selectedTab, tabKey, keyRunCurrentQuery, keyRunQuery]);
 
   useEffect(() => {
     if (initialRun && initialSql) {
@@ -205,10 +210,8 @@ export default function QueryWindow({
   }, [tabKey, setTabData, initialSql]);
 
   return (
-    <Splitter vertical primaryIndex={1} secondaryInitialSize={500}>
+    <Splitter vertical primaryIndex={1} secondaryInitialSize={300}>
       <div className={styles.queryContainer}>
-        <QueryHeader tabKey={tabKey} onSave={savedQuery} />
-
         <div className={styles.queryEditor}>
           <SqlCodeEditor
             ref={editorRef}
@@ -218,6 +221,11 @@ export default function QueryWindow({
             onChange={(newCode) => {
               setCode(newCode);
               setTabData(tabKey, { sql: newCode, type: 'query' });
+            }}
+            onKeyDown={(e) => {
+              if (keySaveQuery.match(e)) {
+                savedQuery();
+              }
             }}
             height="100%"
             schema={schema}
@@ -229,7 +237,8 @@ export default function QueryWindow({
           <Toolbar>
             <Toolbar.Item
               icon={<FontAwesomeIcon icon={faPlay} />}
-              text="Run (F9)"
+              text="Run"
+              keyboard={keyRunQuery.toString()}
               onClick={() => onRun(getText())}
             />
             <Toolbar.Item
@@ -242,8 +251,16 @@ export default function QueryWindow({
                   />
                 </Stack>
               }
-              text="Run Selection (Ctrl + F9)"
+              text="Run Selection"
+              keyboard={keyRunCurrentQuery.toString()}
               onClick={() => onRun(getSelection())}
+            />
+            <Toolbar.Separator />
+            <Toolbar.Item
+              text="Save"
+              keyboard={keySaveQuery.toString()}
+              onClick={savedQuery}
+              icon={<FontAwesomeIcon icon={faSave} color={'#3498db'} />}
             />
           </Toolbar>
         </div>

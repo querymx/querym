@@ -2,6 +2,7 @@ import { PropsWithChildren, ReactNode, useCallback } from 'react';
 import styles from './styles.module.scss';
 import { ContextMenuItemProps } from '../ContextMenu';
 import AttachedContextMenu from '../ContextMenu/AttachedContextMenu';
+import KeyboardKey from '../KeyboardKey';
 
 interface ToolbarItemProps {
   icon?: ReactNode;
@@ -11,6 +12,7 @@ interface ToolbarItemProps {
   onClick?: () => void;
   primary?: boolean;
   destructive?: boolean;
+  keyboard?: string;
 }
 
 export default function Toolbar({
@@ -41,6 +43,7 @@ Toolbar.Item = function ({
   disabled,
   destructive,
   primary,
+  keyboard,
 }: ToolbarItemProps) {
   const className = [
     styles.button,
@@ -57,8 +60,9 @@ Toolbar.Item = function ({
       style={{ opacity: disabled ? 0.5 : 1 }}
     >
       {icon && <span className={styles.icon}>{icon}</span>}
-      {text && <span>{text}</span>}
+      {text && <span className={styles.text}>{text}</span>}
       {badge ? <span className={styles.badge}>{badge}</span> : <></>}
+      {keyboard && <KeyboardKey name={keyboard} />}
     </li>
   );
 };
