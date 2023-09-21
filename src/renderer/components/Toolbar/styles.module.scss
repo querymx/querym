@@ -17,7 +17,6 @@
 
   span.icon {
     display: inline-block;
-    color: #27ae60;
     margin-right: 8px;
   }
 
@@ -40,6 +39,15 @@
 
   &:hover {
     background: var(--color-surface-light);
+  }
+}
+
+.button.primary {
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+
+  &:hover {
+    background: var(--color-primary-hover);
   }
 }
 

@@ -13,14 +13,14 @@ export default function MainToolbar() {
       <Toolbar>
         <Toolbar.Item
           text="Disconnect"
-          icon={<FontAwesomeIcon icon={faPlugCircleXmark} />}
+          icon={<FontAwesomeIcon icon={faPlugCircleXmark} color={'#e74c3c'} />}
           onClick={() => {
             disconnect();
           }}
         />
         <Toolbar.ContextMenu
           text={`Protection: Level ${protectionLevel}`}
-          icon={<FontAwesomeIcon icon={faShield} />}
+          icon={<FontAwesomeIcon icon={faShield} color="#27ae60" />}
           items={[
             {
               text: 'Level 0 - Send queries without any warning',

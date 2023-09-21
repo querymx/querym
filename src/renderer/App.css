@@ -26,6 +26,7 @@ body {
   --color-surface-light: #ecf0f1;
   --color-primary: #1a64f4;
   --color-primary-text: #fff;
+  --color-primary-hover: #3a84ff;
 
   --color-critical: #e74c3c;
 
@@ -77,6 +78,7 @@ body.dark {
   --color-surface-light: #4f4f4f;
   --color-primary: #1a64f4;
   --color-primary-text: #fff;
+  --color-primary-hover: #3a84ff;
 
   --color-critical: #e74c3c;
 

@@ -231,7 +231,7 @@ export default function QueryWindow({
         <div>
           <Toolbar>
             <Toolbar.Item
-              icon={<FontAwesomeIcon icon={faPlay} />}
+              icon={<FontAwesomeIcon icon={faPlay} color="#27ae60" />}
               text="Run"
               keyboard={keyRunQuery.toString()}
               onClick={() => onRun(getText())}
@@ -239,11 +239,12 @@ export default function QueryWindow({
             <Toolbar.Item
               icon={
                 <Stack spacing="none" center>
-                  <FontAwesomeIcon icon={faPlay} style={{ paddingRight: 3 }} />
                   <FontAwesomeIcon
-                    icon={faICursor}
-                    style={{ height: 11, color: 'black' }}
+                    icon={faPlay}
+                    style={{ paddingRight: 3 }}
+                    color="#27ae60"
                   />
+                  <FontAwesomeIcon icon={faICursor} style={{ height: 11 }} />
                 </Stack>
               }
               text="Run Selection"
@@ -255,7 +256,8 @@ export default function QueryWindow({
               text="Save"
               keyboard={keySaveQuery.toString()}
               onClick={savedQuery}
-              icon={<FontAwesomeIcon icon={faSave} color={'#3498db'} />}
+              primary
+              icon={<FontAwesomeIcon icon={faSave} color={'inherit'} />}
             />
           </Toolbar>
         </div>
