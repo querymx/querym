@@ -1,6 +1,12 @@
 import { faAdd, faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactElement, ReactNode, useState } from 'react';
+import {
+  ReactElement,
+  ReactNode,
+  createContext,
+  useContext,
+  useState,
+} from 'react';
 import styles from './styles.module.scss';
 
 export interface WindowTabItem {
@@ -22,6 +28,15 @@ interface WindowTabProps {
     e: React.MouseEvent<HTMLLIElement, MouseEvent>,
     tab: WindowTabItem
   ) => void;
+}
+
+const CurrentTabContext = createContext<{ tabName: string; tabKey: string }>({
+  tabName: '',
+  tabKey: '',
+});
+
+export function useCurrentTab() {
+  return useContext(CurrentTabContext);
 }
 
 export default function WindowTab({
@@ -149,7 +164,11 @@ export default function WindowTab({
                 visibility: tab.key === selected ? 'inherit' : 'hidden',
               }}
             >
-              {tab.component}
+              <CurrentTabContext.Provider
+                value={{ tabKey: tab.key, tabName: tab.name }}
+              >
+                {tab.component}
+              </CurrentTabContext.Provider>
             </div>
           );
         })}

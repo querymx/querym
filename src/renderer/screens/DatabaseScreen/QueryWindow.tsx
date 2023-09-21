@@ -2,7 +2,7 @@ import { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faICursor, faSave } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'sql-formatter';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import Toolbar from 'renderer/components/Toolbar';
@@ -21,6 +21,7 @@ import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
 import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
+import { useCurrentTab } from 'renderer/components/WindowTab';
 
 export type EnumSchema = Array<{
   table: string;
@@ -31,14 +32,11 @@ export type EnumSchema = Array<{
 interface QueryWindowProps {
   initialSql?: string;
   initialRun?: boolean;
-  tabKey: string;
-  name: string;
 }
 
 export default function QueryWindow({
   initialSql,
   initialRun,
-  tabKey,
 }: QueryWindowProps) {
   const editorRef = useRef<ReactCodeMirrorRef>(null);
 
@@ -55,12 +53,9 @@ export default function QueryWindow({
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const { schema, currentDatabase } = useSchema();
-  const { selectedTab, tabs, setTabData, saveWindowTabHistory } =
-    useWindowTab();
+  const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
 
-  const currentTab = useMemo(() => {
-    return tabs.find((tab) => tab.key === tabKey);
-  }, [tabKey, tabs]);
+  const { tabName, tabKey } = useCurrentTab();
 
   const [code, setCode] = useState(initialSql || '');
 
@@ -137,10 +132,10 @@ export default function QueryWindow({
   }, []);
 
   const savedQuery = useCallback(() => {
-    if (currentTab) {
-      publish({ id: currentTab.key, name: currentTab.name, sql: getText() });
+    if (tabKey) {
+      publish({ id: tabKey, name: tabName, sql: getText() });
     }
-  }, [getText, currentTab]);
+  }, [getText, tabName, tabKey]);
 
   const executeSql = useCallback(
     (code: string, skipProtection?: boolean) => {

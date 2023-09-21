@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+body {
+  user-select: none;
+}
+
 /* --------------------------------
   Color Variables
 ----------------------------------- */
@@ -258,4 +262,5 @@ hr {
 .cm-tooltip-cursor {
   overflow-y: auto;
   max-height: 600px;
+  user-select: text;
 }

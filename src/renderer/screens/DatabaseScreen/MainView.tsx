@@ -25,11 +25,9 @@ export default function MainView() {
       tabs.map((tab) => tab.name),
       'Unnamed Query'
     );
-    newWindow(
-      incrementalTabName,
-      (key, name) => <QueryWindow tabKey={key} name={name} />,
-      { icon: <FontAwesomeIcon icon={faCode} /> }
-    );
+    newWindow(incrementalTabName, () => <QueryWindow />, {
+      icon: <FontAwesomeIcon icon={faCode} />,
+    });
   }, [newWindow, tabs]);
 
   const handleTabDragged = (key: string, newIndex: number) => {
