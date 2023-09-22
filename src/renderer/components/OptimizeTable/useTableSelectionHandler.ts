@@ -63,13 +63,18 @@ export default function useTableSelectionHandler({
         }
       }
 
-      if (rowIndex && e.button === 0) {
+      if (rowIndex) {
         const isCtrlKey = e.ctrlKey || e.metaKey;
         const isShiftKey = e.shiftKey;
-        handleRowSelection(rowIndex, isCtrlKey, isShiftKey);
+
+        if (e.button === 0) {
+          handleRowSelection(rowIndex, isCtrlKey, isShiftKey);
+        } else if (selectedRowsIndex.length < 2) {
+          handleRowSelection(rowIndex, false, false);
+        }
       }
     },
-    [handleRowSelection]
+    [handleRowSelection, selectedRowsIndex]
   );
 
   return { newRowsIndexSet, removedRowsIndexSet, handleRowClick };
