@@ -104,13 +104,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
               const icon: ReactElement = <FontAwesomeIcon icon={faCode} />;
 
               if (tab.type === 'query' || !tab.type) {
-                component = (
-                  <QueryWindow
-                    tabKey={tab.key}
-                    name={tab.name}
-                    initialSql={tab.sql}
-                  />
-                );
+                component = <QueryWindow initialSql={tab.sql} />;
               }
 
               return {
@@ -138,7 +132,7 @@ export function WindowTabProvider({ children }: PropsWithChildren) {
               {
                 key,
                 name: 'Unnamed Query',
-                component: <QueryWindow tabKey={key} name={'Unnamed Query'} />,
+                component: <QueryWindow />,
               },
             ]);
             setSelectedTab(key);

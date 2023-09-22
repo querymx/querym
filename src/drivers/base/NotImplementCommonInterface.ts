@@ -17,4 +17,8 @@ export default class NotImplementCommonInterface extends SQLCommonInterface {
   async getVersion(): Promise<string> {
     throw new Error('Not implemented');
   }
+
+  async estimateTableRowCount(): Promise<number | null> {
+    throw new Error('Not implemented');
+  }
 }

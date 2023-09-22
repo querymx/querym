@@ -89,13 +89,7 @@ export default function SavedQuery() {
       else {
         newWindow(
           value.text ?? '',
-          (key, name) => (
-            <QueryWindow
-              name={name}
-              tabKey={key}
-              initialSql={value?.data?.sql ?? ''}
-            />
-          ),
+          () => <QueryWindow initialSql={value?.data?.sql ?? ''} />,
           {
             icon: <FontAwesomeIcon icon={faCode} />,
             overrideKey: value.id,
