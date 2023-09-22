@@ -310,4 +310,27 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       createSql: '',
     };
   }
+
+  async estimateTableRowCount(
+    database: string,
+    table: string
+  ): Promise<number | null> {
+    const sql = qb()
+      .table(`information_schema.TABLES`)
+      .select('TABLE_ROWS')
+      .where({
+        TABLE_SCHEMA: database,
+        TABLE_NAME: table,
+      })
+      .toRawSQL();
+
+    const result = await this.singleExecute<{ TABLE_ROWS: number }>(sql);
+    const rows = result.rows;
+
+    if (rows && rows.length === 1) {
+      return Number(rows[0].TABLE_ROWS);
+    }
+
+    return null;
+  }
 }

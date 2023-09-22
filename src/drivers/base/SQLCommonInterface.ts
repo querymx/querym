@@ -8,4 +8,8 @@ export default abstract class SQLCommonInterface {
     table: string
   ): Promise<TableDefinitionSchema>;
   abstract switchDatabase(database: string): Promise<boolean>;
+  abstract estimateTableRowCount(
+    database: string,
+    table: string
+  ): Promise<number | null>;
 }

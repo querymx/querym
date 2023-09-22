@@ -54,7 +54,7 @@ function TableDataViewerBody({
 }: {
   result: QueryResult<Record<string, unknown>>;
   setResult: Dispatch<SetStateAction<QueryResult<Record<string, unknown>>>>;
-  totalRows: number;
+  totalRows: number | null;
   page: number;
   refresh: () => void;
   sortedHeader: SortedHeader;
@@ -101,10 +101,12 @@ function TableDataViewerBody({
       />
       <Toolbar.Text>
         {rowRange.start}-{rowRange.end}/
-        {totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        {totalRows === null
+          ? 'unknown'
+          : totalRows.toLocaleString(undefined, { maximumFractionDigits: 0 })}
       </Toolbar.Text>
       <Toolbar.Item
-        disabled={PAGE_SIZE * (page + 1) >= totalRows}
+        disabled={data.length === 0}
         icon={<FontAwesomeIcon icon={faChevronRight} />}
         onClick={onNextPage}
       />
@@ -135,30 +137,17 @@ export default function TableDataViewer({
   databaseName,
   tableName,
 }: TableDataViewerProps) {
-  const { runner } = useSqlExecute();
+  const { runner, common } = useSqlExecute();
   const [result, setResult] = useState<QueryResult<Record<string, unknown>>>();
   const [refreshCounter, setRefreshCounter] = useState(0);
-  const [totalRows, setTotalRows] = useState(0);
+  const [totalRows, setTotalRows] = useState<number | null>(null);
   const { showErrorDialog } = useDialog();
   const [loading, setLoading] = useState(true);
   const [sortedHeader, setSortedHeader] = useState<SortedHeader>();
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    const c = qb();
-    c.table(`${databaseName}.${tableName}`).select(c.raw('COUNT(*) AS total'));
-    const countSql = c.toRawSQL();
-
-    runner
-      .execute([{ sql: countSql }], { skipProtection: true })
-      .then((result) => {
-        setTotalRows(Number(result[0].result.rows[0]['total'] ?? 0));
-      })
-      .catch((e) => {
-        if (e.message) {
-          showErrorDialog(e.message);
-        }
-      });
+    common.estimateTableRowCount(databaseName, tableName).then(setTotalRows);
   }, [databaseName, tableName, setTotalRows]);
 
   useEffect(() => {
