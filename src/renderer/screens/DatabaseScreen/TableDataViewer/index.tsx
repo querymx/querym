@@ -25,6 +25,8 @@ import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResu
 import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
 import { useDialog } from 'renderer/contexts/DialogProvider';
 import CommitChangeToolbarItem from '../QueryResultViewer/CommitChangeToolbarItem';
+import { transformResultHeaderUseSchema } from 'libs/TransformResult';
+import { useSchema } from 'renderer/contexts/SchemaProvider';
 
 interface TableDataViewerProps {
   databaseName: string;
@@ -137,6 +139,7 @@ export default function TableDataViewer({
   databaseName,
   tableName,
 }: TableDataViewerProps) {
+  const { schema } = useSchema();
   const { runner, common } = useSqlExecute();
   const [result, setResult] = useState<QueryResult<Record<string, unknown>>>();
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -169,7 +172,8 @@ export default function TableDataViewer({
         skipProtection: true,
       })
       .then((result) => {
-        setResult(result[0].result);
+        const transformResult = transformResultHeaderUseSchema(result, schema);
+        setResult(transformResult[0].result);
         setLoading(false);
       })
       .catch((e) => {
