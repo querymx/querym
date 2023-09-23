@@ -33,10 +33,7 @@ export default class PgConnection extends SQLLikeConnection {
     throw 'not implemented';
   }
 
-  async query(
-    sql: string,
-    params?: Record<string, unknown>
-  ): Promise<QueryResult> {
+  async query(sql: string): Promise<QueryResult> {
     const client = await this.getConnection();
     const result = await client.query(sql);
 

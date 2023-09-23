@@ -18,6 +18,7 @@ const config: Config = {
   },
   coverageDirectory: './coverage',
   collectCoverageFrom: ['./src/**/*.ts'],
+  setupFiles: ['dotenv/config'],
 };
 
 export default config;
