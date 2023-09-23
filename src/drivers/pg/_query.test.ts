@@ -8,18 +8,14 @@ afterAll(async () => {
 });
 
 test('perform normal query', async () => {
-  try {
-    const r = await connection.query(
-      qb('postgre').table('users').select().toRawSQL()
-    );
+  const r = await connection.query(
+    qb('postgre').table('users').select().toRawSQL()
+  );
 
-    expect(r.headers).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: 'id' }),
-        expect.objectContaining({ name: 'name' }),
-      ])
-    );
-  } catch (e) {
-    console.log(e);
-  }
+  expect(r.headers).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ name: 'id' }),
+      expect.objectContaining({ name: 'name' }),
+    ])
+  );
 });

@@ -154,9 +154,14 @@ export default function useConnectionContextMenu({
   const { handleContextMenu } = useContextMenu(() => {
     return [
       {
-        text: 'Rename',
-        disabled: !selectedItem?.data,
-        onClick: () => setRenameSelectedItem(true),
+        text: 'New MySQL Connection',
+        icon: <Icon.MySql />,
+        onClick: newMySQLDatabaseSetting,
+      },
+      {
+        text: 'New PostgreSQL Connection',
+        icon: <Icon.PostgreSQL />,
+        onClick: newMySQLDatabaseSetting,
         separator: true,
       },
       {
@@ -164,9 +169,9 @@ export default function useConnectionContextMenu({
         onClick: newFolderClicked,
       },
       {
-        text: 'New MySQL Database',
-        icon: <Icon.MySql />,
-        onClick: newMySQLDatabaseSetting,
+        text: 'Rename',
+        disabled: !selectedItem?.data,
+        onClick: () => setRenameSelectedItem(true),
         separator: true,
       },
       {

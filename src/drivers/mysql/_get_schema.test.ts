@@ -12,4 +12,7 @@ afterAll(async () => {
 test('get database schema', async () => {
   const r = await common.getSchema();
   expect(Object.keys(r)).toContain('querymaster_test');
+
+  const currentDatabase = r['querymaster_test'];
+  expect(Object.keys(currentDatabase.tables)).toEqual(['users']);
 });

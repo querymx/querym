@@ -24,9 +24,10 @@ export default class PgCommonInterface extends SQLCommonInterface {
 
   async getSchema(): Promise<DatabaseSchemas> {
     const sql = 'SELECT schema_name FROM information_schema.schemata';
-    const r = await this.singleExecute<{ schema_name: string }>(sql);
+    const schemas = await this.singleExecute<{ schema_name: string }>(sql);
 
-    const result: DatabaseSchemas = r.rows
+    // Get all schemas
+    const result: DatabaseSchemas = schemas.rows
       .map((row) => row.schema_name)
       .reduce((a, b) => {
         a[b] = {
@@ -37,6 +38,27 @@ export default class PgCommonInterface extends SQLCommonInterface {
         };
         return a;
       }, {} as DatabaseSchemas);
+
+    // Map each tables to correct schemas
+    const tables = await this.singleExecute<{
+      table_schema: string;
+      table_name: string;
+      table_type: string;
+    }>(
+      `SELECT table_schema, "table_name", table_type FROM information_schema.tables;`
+    );
+
+    for (const table of tables.rows) {
+      if (result[table.table_schema]) {
+        result[table.table_schema].tables[table.table_name] = {
+          columns: {},
+          constraints: [],
+          name: table.table_name,
+          primaryKey: [],
+          type: table.table_type === 'BASE_TABLE' ? 'TABLE' : 'VIEW',
+        };
+      }
+    }
 
     return result;
   }
