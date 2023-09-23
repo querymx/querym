@@ -1,4 +1,7 @@
 import SqlString from 'sqlstring';
+import { ParamItems, format } from 'sql-formatter';
+
+export type QueryDialetType = 'mysql' | 'postgre';
 
 interface QueryRaw {
   __typename: 'query_raw';
@@ -43,6 +46,23 @@ class MySqlDialect implements QueryDialect {
   }
 }
 
+class PgDialect implements QueryDialect {
+  escapeIdentifier(value: string): string {
+    return value;
+  }
+
+  format(sql: string, binding: unknown[]): string {
+    return format(sql, {
+      paramTypes: { named: [':'] },
+      language: 'postgresql',
+      params:
+        binding.length > 0
+          ? (binding as unknown as ParamItems | string[])
+          : undefined,
+    });
+  }
+}
+
 export class QueryBuilder {
   protected dialect: QueryDialect = new MySqlDialect();
   protected states: QueryStates = {
@@ -52,9 +72,11 @@ export class QueryBuilder {
     orderBy: [],
   };
 
-  constructor(dialect: 'mysql') {
+  constructor(dialect: QueryDialetType) {
     if (dialect === 'mysql') {
       this.dialect = new MySqlDialect();
+    } else if (dialect === 'postgre') {
+      this.dialect = new PgDialect();
     }
   }
 
@@ -305,6 +327,6 @@ export class QueryBuilder {
   }
 }
 
-export function qb(dialect?: 'mysql') {
+export function qb(dialect?: QueryDialetType) {
   return new QueryBuilder(dialect || 'mysql');
 }
