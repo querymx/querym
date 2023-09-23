@@ -9,10 +9,7 @@ export default class PgConnection extends SQLLikeConnection {
   protected client: Client | undefined;
   protected connectionConfig: DatabaseConnectionConfig;
 
-  constructor(
-    connectionConfig: DatabaseConnectionConfig,
-    statusChanged: (state: string) => void
-  ) {
+  constructor(connectionConfig: DatabaseConnectionConfig) {
     super();
     this.connectionConfig = connectionConfig;
   }

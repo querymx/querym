@@ -14,30 +14,20 @@ export function getTestExecute(conn: SQLLikeConnection) {
 
 export default function getTestingConnection(): SQLLikeConnection {
   if (TEST_DRIVER === 'postgre') {
-    return new PgConnection(
-      {
-        database: process.env.PG_DATABASE,
-        port: Number(process.env.PG_PORT),
-        host: process.env.PG_HOST,
-        user: process.env.PG_USERNAME,
-        password: process.env.PG_PASSWORD,
-      },
-      () => {
-        return;
-      }
-    );
+    return new PgConnection({
+      database: process.env.PG_DATABASE,
+      port: Number(process.env.PG_PORT),
+      host: process.env.PG_HOST,
+      user: process.env.PG_USERNAME,
+      password: process.env.PG_PASSWORD,
+    });
   }
 
-  return new MySQLConnection(
-    {
-      database: process.env.MYSQL_DATABASE,
-      port: Number(process.env.MYSQL_PORT),
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USERNAME,
-      password: process.env.MYSQL_PASSWORD,
-    },
-    () => {
-      return;
-    }
-  );
+  return new MySQLConnection({
+    database: process.env.MYSQL_DATABASE,
+    port: Number(process.env.MYSQL_PORT),
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USERNAME,
+    password: process.env.MYSQL_PASSWORD,
+  });
 }

@@ -10,16 +10,7 @@ export default function UpdateConnectionStatus() {
     common.getVersion().then((version) => {
       setStatusBarConnectionStatus({ version, status: 'Connected' });
     });
-  }, [common, setStatusBarConnectionStatus]);
-
-  useEffect(() => {
-    window.electron.listenConnectionStatusChanged((_, status) => {
-      setStatusBarConnectionStatus({ status });
-    });
-    return () => {
-      setStatusBarConnectionStatus(undefined);
-    };
-  }, [setStatusBarConnectionStatus]);
+  }, [common]);
 
   return <></>;
 }
