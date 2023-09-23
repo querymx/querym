@@ -1,5 +1,5 @@
 import { qb } from 'libs/QueryBuilder';
-import getTestingConnection, { TEST_DRIVER } from './connection';
+import getTestingConnection from './_connection';
 
 const connection = getTestingConnection();
 
@@ -7,10 +7,10 @@ afterAll(async () => {
   connection.close();
 });
 
-test('test normal query', async () => {
+test('perform normal query', async () => {
   try {
     const r = await connection.query(
-      qb(TEST_DRIVER).table('users').select().toRawSQL()
+      qb('postgre').table('users').select().toRawSQL()
     );
 
     expect(r.headers).toEqual(

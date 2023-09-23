@@ -84,8 +84,6 @@ export class SqlRunnerManager {
 
         if (options?.onStart) options.onStart();
 
-        console.log(statement.sql);
-
         const startTime = Date.now();
         const returnedResult = await this.executor(
           statement.sql,
