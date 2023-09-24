@@ -1,0 +1,5 @@
+{
+  "operatorChars": "*/+-%<>!=~",
+  "doubleQuotedStrings": true,
+  "charSetCasts": true
+}

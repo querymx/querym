@@ -52,7 +52,7 @@ export default function QueryWindow({
 
   const { runner } = useSqlExecute();
   const { showErrorDialog } = useDialog();
-  const { schema, currentDatabase } = useSchema();
+  const { schema, currentDatabase, dialect } = useSchema();
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
 
   const { tabName, tabKey } = useCurrentTab();
@@ -71,7 +71,11 @@ export default function QueryWindow({
         onClick: () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const codeFromRef: string = (viewState?.doc as any).text.join('\r');
-          setCode(format(codeFromRef));
+          setCode(
+            format(codeFromRef, {
+              language: dialect === 'mysql' ? 'mysql' : 'postgresql',
+            })
+          );
         },
         separator: true,
       },
@@ -118,7 +122,7 @@ export default function QueryWindow({
         },
       },
     ];
-  }, [editorRef, setCode]);
+  }, [editorRef, setCode, dialect]);
 
   const getSelection = useCallback(() => {
     const es = editorRef.current?.view?.state as EditorState;
@@ -209,6 +213,7 @@ export default function QueryWindow({
       <div className={styles.queryContainer}>
         <div className={styles.queryEditor}>
           <SqlCodeEditor
+            dialect={dialect}
             ref={editorRef}
             onContextMenu={handleContextMenu}
             style={{ fontSize: 20, height: '100%' }}
