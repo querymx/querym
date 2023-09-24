@@ -1,5 +1,4 @@
 import SqlString from 'sqlstring';
-import { ParamItems, format } from 'sql-formatter';
 
 export type QueryDialetType = 'mysql' | 'postgre';
 
@@ -48,18 +47,14 @@ class MySqlDialect implements QueryDialect {
 
 class PgDialect implements QueryDialect {
   escapeIdentifier(value: string): string {
-    return value;
+    return value
+      .split('.')
+      .map((str) => '"' + str.replace(/"/g, '""') + '"')
+      .join('.');
   }
 
   format(sql: string, binding: unknown[]): string {
-    return format(sql, {
-      paramTypes: { named: [':'] },
-      language: 'postgresql',
-      params:
-        binding.length > 0
-          ? (binding as unknown as ParamItems | string[])
-          : undefined,
-    });
+    return SqlString.format(sql, binding);
   }
 }
 

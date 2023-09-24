@@ -139,7 +139,7 @@ export default function TableDataViewer({
   databaseName,
   tableName,
 }: TableDataViewerProps) {
-  const { schema } = useSchema();
+  const { schema, dialect } = useSchema();
   const { runner, common } = useSqlExecute();
   const [result, setResult] = useState<QueryResult<Record<string, unknown>>>();
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -154,7 +154,7 @@ export default function TableDataViewer({
   }, [databaseName, tableName, setTotalRows]);
 
   useEffect(() => {
-    const builder = qb()
+    const builder = qb(dialect)
       .table(`${databaseName}.${tableName}`)
       .select()
       .offset(PAGE_SIZE * page)
@@ -182,6 +182,7 @@ export default function TableDataViewer({
         }
       });
   }, [
+    dialect,
     runner,
     page,
     sortedHeader,

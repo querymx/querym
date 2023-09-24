@@ -2,16 +2,19 @@ import React, { useState, PropsWithChildren, useContext, useMemo } from 'react';
 import { useDatabaseSetting } from './DatabaseSettingProvider';
 import { DatabaseSchemas } from 'types/SqlSchema';
 import NotImplementCallback from 'libs/NotImplementCallback';
+import { QueryDialetType } from 'libs/QueryBuilder';
 
 const SchemaContext = React.createContext<{
   schema?: DatabaseSchemas;
   currentDatabase?: string;
+  dialect: QueryDialetType;
   setCurrentDatabase: (v: string) => void;
   reloadSchema: () => void;
 }>({
   schema: {},
   setCurrentDatabase: NotImplementCallback,
   reloadSchema: NotImplementCallback,
+  dialect: 'mysql',
 });
 
 export function useSchema() {
@@ -34,8 +37,9 @@ export function SchemaProvider({
       currentDatabase,
       setCurrentDatabase,
       reloadSchema,
+      dialect: (setting?.type ?? 'mysql') as QueryDialetType,
     }),
-    [schema, currentDatabase, setCurrentDatabase, reloadSchema]
+    [schema, currentDatabase, setCurrentDatabase, reloadSchema, setting]
   );
 
   return (
