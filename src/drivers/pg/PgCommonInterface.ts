@@ -4,6 +4,8 @@ import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { QueryResult } from 'types/SqlResult';
 
 export default class PgCommonInterface extends SQLCommonInterface {
+  public FLAG_USE_STATEMENT = false;
+
   protected runner: SqlRunnerManager;
   protected currentDatabaseName?: string;
 
@@ -68,14 +70,22 @@ export default class PgCommonInterface extends SQLCommonInterface {
   }
 
   async switchDatabase(): Promise<boolean> {
-    throw new Error('Not implemented');
+    return true;
   }
 
   async getVersion(): Promise<string> {
-    throw new Error('Not implemented');
+    const sql = 'SHOW server_version;';
+    const version = await this.singleExecute<{ server_version: string }>(sql);
+
+    return version.rows[0].server_version;
   }
 
-  async estimateTableRowCount(): Promise<number | null> {
-    throw new Error('Not implemented');
+  async estimateTableRowCount(
+    database: string,
+    table: string
+  ): Promise<number | null> {
+    const sql = `SELECT reltuples AS estimate FROM pg_class WHERE oid = '${database}.${table}'::regclass;`;
+    return (await this.singleExecute<{ estimate: number }>(sql)).rows[0]
+      .estimate;
   }
 }

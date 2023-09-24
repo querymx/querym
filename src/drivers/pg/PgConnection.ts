@@ -34,6 +34,8 @@ export default class PgConnection extends SQLLikeConnection {
     const client = await this.getConnection();
     const result = await client.query(sql);
 
+    console.log(result);
+
     return {
       keys: {},
       error: null,

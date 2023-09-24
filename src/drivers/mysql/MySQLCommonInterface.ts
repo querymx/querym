@@ -167,6 +167,8 @@ export function buildDatabaseSchemaFrom(
 }
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
+  public FLAG_USE_STATEMENT = true;
+
   protected runner: SqlRunnerManager;
   protected currentDatabaseName?: string;
 

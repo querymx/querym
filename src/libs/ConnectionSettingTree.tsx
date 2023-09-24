@@ -38,8 +38,10 @@ export default class ConnectionSettingTree {
         icon:
           config.nodeType === 'folder' ? (
             <FontAwesomeIcon icon={faFolder} color="#f39c12" />
-          ) : (
+          ) : config.config?.type === 'mysql' ? (
             <Icon.MySql />
+          ) : (
+            <Icon.PostgreSQL />
           ),
         text: config.name,
         children:

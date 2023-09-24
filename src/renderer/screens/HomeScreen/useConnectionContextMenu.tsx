@@ -67,53 +67,50 @@ export default function useConnectionContextMenu({
   // ----------------------------------------------
   // Handle new connection
   // ----------------------------------------------
-  const newMySQLDatabaseSetting = useCallback(() => {
-    const newConnectionId = uuidv1();
-    const newConfig = {
-      id: newConnectionId,
-      name: generateIncrementalName(
-        connectionTree.getAllNodes().map((node) => node.name),
-        'Unnamed'
-      ),
-      type: 'mysql',
-      config: {
-        database: '',
-        host: '',
-        password: '',
-        port: '3306',
-        user: '',
-      } as ConnectionStoreConfig,
-    };
+  const newConnection = useCallback(
+    (type: string, config: ConnectionStoreConfig) => {
+      const newConnectionId = uuidv1();
+      const newConfig = {
+        id: newConnectionId,
+        name: generateIncrementalName(
+          connectionTree.getAllNodes().map((node) => node.name),
+          'Unnamed'
+        ),
+        type,
+        config,
+      };
 
-    const newTreeNode: ConnectionConfigTree = {
-      id: newConfig.id,
-      name: newConfig.name,
-      nodeType: 'connection',
-      config: newConfig,
-    };
+      const newTreeNode: ConnectionConfigTree = {
+        id: newConfig.id,
+        name: newConfig.name,
+        nodeType: 'connection',
+        config: newConfig,
+      };
 
-    setSelectedItem({
-      id: newTreeNode.id,
-      text: newTreeNode.name,
-      data: newTreeNode,
-      icon: <Icon.MySql />,
-    });
+      setSelectedItem({
+        id: newTreeNode.id,
+        text: newTreeNode.name,
+        data: newTreeNode,
+        icon: <Icon.MySql />,
+      });
 
-    connectionTree.insertNode(newTreeNode, selectedItem?.id);
-    setConnections(connectionTree.getNewTree());
+      connectionTree.insertNode(newTreeNode, selectedItem?.id);
+      setConnections(connectionTree.getNewTree());
 
-    if (selectedItem) {
-      setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
-    }
-  }, [
-    setConnections,
-    setSelectedItem,
-    selectedItem,
-    connections,
-    connectionTree,
-    collapsedKeys,
-    setSaveCollapsedKeys,
-  ]);
+      if (selectedItem) {
+        setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
+      }
+    },
+    [
+      setConnections,
+      setSelectedItem,
+      selectedItem,
+      connections,
+      connectionTree,
+      collapsedKeys,
+      setSaveCollapsedKeys,
+    ]
+  );
 
   const newFolderClicked = useCallback(() => {
     const newFolderId = uuidv1();
@@ -156,12 +153,26 @@ export default function useConnectionContextMenu({
       {
         text: 'New MySQL Connection',
         icon: <Icon.MySql />,
-        onClick: newMySQLDatabaseSetting,
+        onClick: () =>
+          newConnection('mysql', {
+            database: '',
+            host: '',
+            password: '',
+            port: '3306',
+            user: '',
+          }),
       },
       {
         text: 'New PostgreSQL Connection',
         icon: <Icon.PostgreSQL />,
-        onClick: newMySQLDatabaseSetting,
+        onClick: () =>
+          newConnection('postgre', {
+            database: '',
+            host: '',
+            password: '',
+            port: '3306',
+            user: '',
+          }),
         separator: true,
       },
       {
@@ -181,12 +192,7 @@ export default function useConnectionContextMenu({
         destructive: true,
       },
     ];
-  }, [
-    selectedItem,
-    newMySQLDatabaseSetting,
-    newFolderClicked,
-    setRenameSelectedItem,
-  ]);
+  }, [selectedItem, newConnection, newFolderClicked, setRenameSelectedItem]);
 
   return { handleContextMenu };
 }

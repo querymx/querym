@@ -1,6 +1,8 @@
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 
 export default abstract class SQLCommonInterface {
+  public abstract readonly FLAG_USE_STATEMENT: boolean;
+
   abstract getVersion(): Promise<string>;
   abstract getSchema(): Promise<DatabaseSchemas>;
   abstract getTableSchema(

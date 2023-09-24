@@ -46,6 +46,8 @@ export class SqlRunnerManager {
     const result: SqlStatementResult[] = [];
     const parser = new Parser();
 
+    console.log(statements);
+
     // We only wrap transaction if it is multiple statement and
     // insideTransactin is specified. Single statement, by itself, is
     // transactional already.
