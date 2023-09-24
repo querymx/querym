@@ -19,6 +19,7 @@ import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
+import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
 
 const WELCOME_SCREEN_ID = '00000000000000000000';
 
@@ -56,6 +57,9 @@ export default function HomeScreen() {
   const [collapsedKeys, setCollapsedKeys] = useState<string[] | undefined>(
     initialCollapsed
   );
+
+  const { binding } = useKeybinding();
+  const keyRenaming = binding['rename'];
 
   useEffect(() => {
     setSelectedItemChanged(selectedItem?.data?.config);
@@ -201,7 +205,15 @@ export default function HomeScreen() {
         secondaryInitialSize={300}
         primaryMinSize={500}
       >
-        <div className={styles.connectionList}>
+        <div
+          className={styles.connectionList}
+          onKeyDown={e => {
+            if (keyRenaming.match(e)) {
+              setRenameSelectedItem(true);
+            }
+          }}
+          tabIndex={0}
+        >
           {/* <Layout>
             <Layout.Grow> */}
           <TreeView
