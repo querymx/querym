@@ -71,6 +71,19 @@ export default function useDataTableContextMenu({
       );
     }
 
+    function onCopyAsMarkdown() {
+      const selectedRows = selectedRowsIndex.map((rowIndex) => data[rowIndex].data);
+      const displayableRows = getDisplayableFromDatabaseRows(selectedRows, headers);
+      const headerNames = headers.map((header) => header.name);
+      const markdownString = [headerNames.join(' | ')];
+      markdownString.push(new Array(headerNames.length).fill('---').join(' | '));
+      markdownString.push(
+        ...displayableRows.map((row) => headerNames.map((header) => row[header]).join(' | '))
+      );
+
+      window.navigator.clipboard.writeText(markdownString.join('\n'));
+    }
+
     const lastSelectedRow =
       selectedRowsIndex.length > 0
         ? data[selectedRowsIndex[selectedRowsIndex.length - 1]]
@@ -90,6 +103,7 @@ export default function useDataTableContextMenu({
           { text: 'As Excel', onClick: onCopyAsExcel },
           { text: 'As CSV', disabled: true },
           { text: 'As JSON', onClick: onCopyAsJson },
+          { text: 'As Markdown', onClick: onCopyAsMarkdown },
           { text: 'As SQL', disabled: true },
         ],
       },
