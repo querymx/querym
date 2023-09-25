@@ -155,7 +155,7 @@ export default function QueryWindow({
           }
         )
         .then((r) => {
-          setResult(transformResultHeaderUseSchema(r, schema));
+          setResult(transformResultHeaderUseSchema(r, schema?.getSchema()));
           setQueryKeyCounter((prev) => prev + 1);
         })
         .catch((e) => {

@@ -6,14 +6,14 @@ import {
 } from '@codemirror/autocomplete';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { MySQL, genericCompletion } from './../../../language/dist';
-import { DatabaseSchemas } from 'types/SqlSchema';
+import { DatabaseSchemaList } from 'types/SqlSchema';
 
 function get(
   doc: string,
   {
     schema,
     currentDatabase,
-  }: { schema: DatabaseSchemas; currentDatabase?: string }
+  }: { schema: DatabaseSchemaList; currentDatabase?: string }
 ) {
   const cur = doc.indexOf('|'),
     dialect = MySQL;
@@ -51,7 +51,7 @@ function str(result: CompletionResult | null) {
         .join(', ');
 }
 
-const schema1: DatabaseSchemas = {
+const schema1: DatabaseSchemaList = {
   foo: {
     name: 'foo',
     events: [],

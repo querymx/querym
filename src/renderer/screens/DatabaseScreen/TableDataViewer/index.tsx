@@ -172,7 +172,10 @@ export default function TableDataViewer({
         skipProtection: true,
       })
       .then((result) => {
-        const transformResult = transformResultHeaderUseSchema(result, schema);
+        const transformResult = transformResultHeaderUseSchema(
+          result,
+          schema?.getSchema()
+        );
         setResult(transformResult[0].result);
         setLoading(false);
       })

@@ -37,7 +37,7 @@ export default function CommitChangeToolbarItem({
 
   const onCommit = useCallback(() => {
     if (schema) {
-      const currentDatabaseSchema = schema[currentDatabase || ''];
+      const currentDatabaseSchema = schema.getDatabase(currentDatabase || '');
 
       if (currentDatabaseSchema && result) {
         const plans = generateSqlFromChanges(

@@ -46,7 +46,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
       return handleCustomSqlAutoComplete(
         context,
         tree,
-        schema,
+        schema?.getSchema(),
         currentDatabase
       );
     },
@@ -54,9 +54,9 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   );
 
   const tableNameHighlightPlugin = useMemo(() => {
-    if (schema && currentDatabase && schema[currentDatabase]) {
+    if (schema && currentDatabase) {
       return createSQLTableNameHighlightPlugin(
-        Object.keys(schema[currentDatabase].tables)
+        Object.keys(schema.getTableList(currentDatabase))
       );
     }
     return createSQLTableNameHighlightPlugin([]);

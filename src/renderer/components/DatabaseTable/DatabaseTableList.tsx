@@ -120,7 +120,7 @@ export default function DatabaseTableList() {
 
     if (common.FLAG_USE_STATEMENT) {
       if (!currentDatabase) return [];
-      const currentDatabaseSchema = schema[currentDatabase];
+      const currentDatabaseSchema = schema.getDatabase(currentDatabase);
       if (!currentDatabaseSchema) return [];
       return buildSchemaTree(currentDatabaseSchema, searchDebounce).children;
     } else {

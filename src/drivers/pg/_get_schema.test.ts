@@ -10,7 +10,7 @@ afterAll(async () => {
 });
 
 test('get database schema', async () => {
-  const r = await common.getSchema();
+  const r = (await common.getSchema()).getSchema();
   expect(Object.keys(r)).toContain('public');
 
   const currentDatabase = r['public'];

@@ -4,7 +4,7 @@ import {
   CompletionResult,
   Completion,
 } from '@codemirror/autocomplete';
-import { DatabaseSchemas, TableSchema } from 'types/SqlSchema';
+import { DatabaseSchemaList, TableSchema } from 'types/SqlSchema';
 import SchemaCompletionTree from './SchemaCompletionTree';
 import SqlCompletionHelper from './SqlCompletionHelper';
 
@@ -83,7 +83,7 @@ function searchForIdentifier(
 function handleEnumAutoComplete(
   context: CompletionContext,
   node: SyntaxNode,
-  schema: DatabaseSchemas,
+  schema: DatabaseSchemaList,
   currentDatabase: string | undefined,
   exposedTable: TableSchema[]
 ): CompletionResult | null {
@@ -137,7 +137,7 @@ function handleEnumAutoComplete(
 }
 
 function getSchemaSuggestionFromPath(
-  schema: DatabaseSchemas | undefined,
+  schema: DatabaseSchemaList | undefined,
   currentDatabase: string | undefined,
   path: string[]
 ) {
@@ -160,12 +160,10 @@ function getSchemaSuggestionFromPath(
 export default function handleCustomSqlAutoComplete(
   context: CompletionContext,
   tree: SyntaxNode,
-  schema: DatabaseSchemas | undefined,
+  schema: DatabaseSchemaList | undefined,
   currentDatabase: string | undefined
 ): CompletionResult | null {
   if (!schema) return null;
-
-  console.log(tree);
 
   if (tree.type.name === 'Script') {
     tree = tree.resolveInner(

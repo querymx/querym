@@ -1,14 +1,10 @@
-import {
-  DatabaseDataTypes,
-  DatabaseSchemas,
-  TableDefinitionSchema,
-} from 'types/SqlSchema';
+import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 
 export default class NotImplementCommonInterface extends SQLCommonInterface {
   public FLAG_USE_STATEMENT = false;
 
-  async getSchema(): Promise<[DatabaseSchemas, DatabaseDataTypes]> {
+  async getSchema(): Promise<DatabaseSchemas> {
     throw new Error('Not implemented');
   }
 

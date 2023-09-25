@@ -43,7 +43,7 @@ export interface DatabaseSchema {
   triggers: string[];
 }
 
-export type DatabaseSchemas = Record<string, DatabaseSchema>;
+export type DatabaseSchemaList = Record<string, DatabaseSchema>;
 
 interface DatabaseDataType {
   id: number;
@@ -51,13 +51,15 @@ interface DatabaseDataType {
   category: string;
 }
 
-export class DatabaseDataTypes {
+export class DatabaseSchemas {
+  protected schema: DatabaseSchemaList = {};
+  protected tableIds: Record<string, TableSchema> = {};
   protected types: Record<string, DatabaseDataType> = {};
   protected typesIds: Record<string, DatabaseDataType> = {};
 
-  addType(option: DatabaseDataType) {
-    this.types[option.name] = option;
-    this.typesIds[option.id.toString()] = option;
+  addType(type: DatabaseDataType) {
+    this.types[type.name] = type;
+    this.typesIds[type.id.toString()] = type;
   }
 
   getTypeById(id: number): DatabaseDataType | undefined {
@@ -66,5 +68,108 @@ export class DatabaseDataTypes {
 
   getTypeByName(name: string): DatabaseDataType | undefined {
     return this.types[name];
+  }
+
+  addDatabase(database: string) {
+    if (this.schema[database]) return;
+    this.schema[database] = {
+      tables: {},
+      triggers: [],
+      events: [],
+      name: database,
+    };
+  }
+
+  getTableList(database: string) {
+    if (this.schema[database]) return this.schema[database].tables;
+    return {};
+  }
+
+  getDatabase(database: string): DatabaseSchema {
+    return this.schema[database];
+  }
+
+  addEvent(database: string, event: string) {
+    if (this.schema[database]) {
+      this.schema[database].events.push(event);
+    }
+  }
+
+  addTrigger(database: string, trigger: string) {
+    if (this.schema[database]) {
+      this.schema[database].triggers.push(trigger);
+    }
+  }
+
+  addTable(database: string, table: Partial<TableSchema>) {
+    if (this.schema[database]) {
+      const tmp: TableSchema = {
+        columns: {},
+        constraints: [],
+        primaryKey: [],
+        type: 'TABLE',
+        name: '',
+        ...table,
+      };
+
+      this.schema[database].tables[tmp.name] = tmp;
+      if (tmp.id) {
+        this.tableIds[tmp.id] = tmp;
+      }
+    }
+  }
+
+  getTable(databaseName: string, tableName: string) {
+    const db = this.schema[databaseName];
+    if (!db) return;
+    return db.tables[tableName];
+  }
+
+  addColumn(
+    databaseName: string,
+    tableName: string,
+    column: TableColumnSchema
+  ) {
+    const table = this.getTable(databaseName, tableName);
+    if (!table) return;
+    table.columns[column.name] = column;
+  }
+
+  addPrimaryKey(databaseName: string, tableName: string, column: string) {
+    const table = this.getTable(databaseName, tableName);
+    if (!table) return;
+    table.primaryKey.push(column);
+  }
+
+  addConstraint(
+    databaseName: string,
+    tableName: string,
+    constraintName: string,
+    type: TableConstraintTypeSchema,
+    column: string
+  ) {
+    const table = this.getTable(databaseName, tableName);
+    if (!table) return;
+
+    const constraint = table.constraints.find(
+      (constraint) => constraint.name === constraintName
+    );
+    if (constraint) {
+      constraint.columns.push(column);
+    } else {
+      table.constraints.push({
+        name: constraintName,
+        columns: [column],
+        type,
+      });
+    }
+  }
+
+  getTableById(id: number): TableSchema | undefined {
+    return this.tableIds[id];
+  }
+
+  getSchema() {
+    return this.schema;
   }
 }

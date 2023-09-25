@@ -1,9 +1,9 @@
-import { DatabaseSchemas, TableColumnSchema } from 'types/SqlSchema';
+import { DatabaseSchemaList, TableColumnSchema } from 'types/SqlSchema';
 import { SqlStatementResult } from './SqlRunnerManager';
 import { QueryResultHeader } from 'types/SqlResult';
 
 function findMatchColumn(
-  schema: DatabaseSchemas,
+  schema: DatabaseSchemaList,
   header: QueryResultHeader
 ): QueryResultHeader {
   if (!header.schema?.database) return header;
@@ -26,7 +26,7 @@ function findMatchColumn(
 
 export function transformResultHeaderUseSchema(
   statements: SqlStatementResult[],
-  schema: DatabaseSchemas | undefined
+  schema: DatabaseSchemaList | undefined
 ): SqlStatementResult[] {
   if (!schema) return statements;
 

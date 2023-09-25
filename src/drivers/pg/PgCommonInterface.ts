@@ -1,8 +1,4 @@
-import {
-  DatabaseDataTypes,
-  DatabaseSchemas,
-  TableDefinitionSchema,
-} from 'types/SqlSchema';
+import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { QueryResult } from 'types/SqlResult';
@@ -28,22 +24,12 @@ export default class PgCommonInterface extends SQLCommonInterface {
     return response[0].result as QueryResult<T>;
   }
 
-  async getSchema(): Promise<[DatabaseSchemas, DatabaseDataTypes]> {
+  async getSchema(): Promise<DatabaseSchemas> {
     const sql = 'SELECT schema_name FROM information_schema.schemata';
     const schemas = await this.singleExecute<{ schema_name: string }>(sql);
 
-    // Get all schemas
-    const result: DatabaseSchemas = schemas.rows
-      .map((row) => row.schema_name)
-      .reduce((a, b) => {
-        a[b] = {
-          name: b,
-          events: [],
-          tables: {},
-          triggers: [],
-        };
-        return a;
-      }, {} as DatabaseSchemas);
+    const result = new DatabaseSchemas();
+    schemas.rows.forEach((schema) => result.addDatabase(schema.schema_name));
 
     // Map each tables to correct schemas
     const tables = await this.singleExecute<{
@@ -53,20 +39,14 @@ export default class PgCommonInterface extends SQLCommonInterface {
     }>(
       `SELECT table_schema, "table_name", table_type FROM information_schema.tables;`
     );
+    tables.rows.forEach((table) =>
+      result.addTable(table.table_schema, {
+        name: table.table_name,
+        type: table.table_type === 'BASE_TABLE' ? 'TABLE' : 'VIEW',
+      })
+    );
 
-    for (const table of tables.rows) {
-      if (result[table.table_schema]) {
-        result[table.table_schema].tables[table.table_name] = {
-          columns: {},
-          constraints: [],
-          name: table.table_name,
-          primaryKey: [],
-          type: table.table_type === 'BASE_TABLE' ? 'TABLE' : 'VIEW',
-        };
-      }
-    }
-
-    return [result, new DatabaseDataTypes()];
+    return result;
   }
 
   async getTableSchema(): Promise<TableDefinitionSchema> {

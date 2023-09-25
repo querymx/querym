@@ -28,7 +28,7 @@ function QueryResultViewer({
       .execute([statement])
       .then((result) => {
         setCacheResult(
-          transformResultHeaderUseSchema(result, schema)[0].result
+          transformResultHeaderUseSchema(result, schema?.getSchema())[0].result
         );
         setRunningIndex((prev) => prev + 1);
       })

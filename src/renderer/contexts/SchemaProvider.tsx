@@ -11,7 +11,7 @@ const SchemaContext = React.createContext<{
   setCurrentDatabase: (v: string) => void;
   reloadSchema: () => void;
 }>({
-  schema: {},
+  schema: new DatabaseSchemas(),
   setCurrentDatabase: NotImplementCallback,
   reloadSchema: NotImplementCallback,
   dialect: 'mysql',

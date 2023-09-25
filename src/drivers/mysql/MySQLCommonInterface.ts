@@ -3,7 +3,6 @@ import {
   TableConstraintTypeSchema,
   TableDefinitionSchema,
   TableColumnSchema,
-  DatabaseDataTypes,
 } from 'types/SqlSchema';
 import SQLCommonInterface from '../base/SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
@@ -75,96 +74,47 @@ export function buildDatabaseSchemaFrom(
   events: MySqlEvent[],
   triggers: MySqlTrigger[],
   constraints: MySqlConstraint[]
-): [DatabaseSchemas, DatabaseDataTypes] {
-  const tableDict: Record<string, Record<string, string>> = tables.reduce(
-    (a: Record<string, Record<string, string>>, row) => {
-      const databaseName = row.TABLE_SCHEMA;
-      const tableName = row.TABLE_NAME;
-      const tableType = row.TABLE_TYPE;
+): DatabaseSchemas {
+  const schemas = new DatabaseSchemas();
 
-      if (a[databaseName]) {
-        a[databaseName][tableName] = tableType;
-      } else {
-        a[databaseName] = { [tableName]: tableType };
-      }
+  for (const db of databases) {
+    schemas.addDatabase(db.SCHEMA_NAME);
+  }
 
-      return a;
-    },
-    {}
-  );
+  for (const event of events) {
+    schemas.addEvent(event.EVENT_SCHEMA, event.EVENT_NAME);
+  }
 
-  const schemas: DatabaseSchemas = databases.reduce((prev, { SCHEMA_NAME }) => {
-    const currentTriggers = triggers
-      .filter((row) => row.TRIGGER_SCHEMA === SCHEMA_NAME)
-      .map((row) => row.TRIGGER_NAME);
+  for (const trigger of triggers) {
+    schemas.addTrigger(trigger.TRIGGER_SCHEMA, trigger.TRIGGER_NAME);
+  }
 
-    const currentEvents = events
-      .filter((row) => row.EVENT_SCHEMA === SCHEMA_NAME)
-      .map((row) => row.EVENT_NAME);
-
-    return {
-      ...prev,
-      [SCHEMA_NAME]: {
-        name: SCHEMA_NAME,
-        tables: {},
-        events: currentEvents,
-        triggers: currentTriggers,
-      },
-    };
-  }, {});
+  for (const table of tables) {
+    schemas.addTable(table.TABLE_SCHEMA, {
+      name: table.TABLE_NAME,
+      type: table.TABLE_TYPE === 'VIEW' ? 'VIEW' : 'TABLE',
+    });
+  }
 
   for (const row of columns) {
-    const databaseName = row.TABLE_SCHEMA;
-    const tableName = row.TABLE_NAME;
-    const columnName = row.COLUMN_NAME;
-
-    const database = schemas[databaseName];
-    if (!database.tables[tableName]) {
-      database.tables[tableName] = {
-        type: tableDict[databaseName][tableName] === 'VIEW' ? 'VIEW' : 'TABLE',
-        name: tableName,
-        columns: {},
-        constraints: [],
-        primaryKey: [],
-      };
-    }
-
-    const table = database.tables[tableName];
-    table.columns[columnName] = mapColumnDefinition(row);
+    schemas.addColumn(
+      row.TABLE_SCHEMA,
+      row.TABLE_NAME,
+      mapColumnDefinition(row)
+    );
   }
 
   for (const row of constraints) {
-    const constraintName = row.CONSTRAINT_NAME;
-    const tableSchema = row.TABLE_SCHEMA;
-    const tableName = row.TABLE_NAME;
-    const constraintType = row.CONSTRAINT_TYPE;
-    const columnName = row.COLUMN_NAME;
-
-    if (schemas[tableSchema]) {
-      const database = schemas[tableSchema];
-      if (database.tables[tableName]) {
-        const table = database.tables[tableName];
-        if (constraintType === 'PRIMARY KEY') {
-          table.primaryKey.push(columnName);
-        }
-
-        const constraintFound = table.constraints.find(
-          (constraint) => constraint.name === constraintName
-        );
-        if (constraintFound) {
-          constraintFound.columns.push(columnName);
-        } else {
-          table.constraints.push({
-            columns: [columnName],
-            name: constraintName,
-            type: constraintType as TableConstraintTypeSchema,
-          });
-        }
-      }
-    }
+    schemas.addConstraint(
+      row.TABLE_SCHEMA,
+      row.TABLE_SCHEMA,
+      row.CONSTRAINT_NAME,
+      row.CONSTRAINT_TYPE as TableConstraintTypeSchema,
+      row.COLUMN_NAME
+    );
   }
 
-  return [schemas, new DatabaseDataTypes()];
+  return schemas;
 }
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
@@ -210,7 +160,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     return response.rows[0]['VERSION()'];
   }
 
-  async getSchema(): Promise<[DatabaseSchemas, DatabaseDataTypes]> {
+  async getSchema(): Promise<DatabaseSchemas> {
     const databaseListResponse = await this.singleExecute<MySqlDatabase>(
       qb().table('information_schema.SCHEMATA').select('SCHEMA_NAME').toRawSQL()
     );
