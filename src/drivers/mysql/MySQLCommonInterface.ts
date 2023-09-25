@@ -3,6 +3,7 @@ import {
   TableConstraintTypeSchema,
   TableDefinitionSchema,
   TableColumnSchema,
+  DatabaseDataTypes,
 } from 'types/SqlSchema';
 import SQLCommonInterface from '../base/SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
@@ -74,7 +75,7 @@ export function buildDatabaseSchemaFrom(
   events: MySqlEvent[],
   triggers: MySqlTrigger[],
   constraints: MySqlConstraint[]
-): DatabaseSchemas {
+): [DatabaseSchemas, DatabaseDataTypes] {
   const tableDict: Record<string, Record<string, string>> = tables.reduce(
     (a: Record<string, Record<string, string>>, row) => {
       const databaseName = row.TABLE_SCHEMA;
@@ -163,7 +164,7 @@ export function buildDatabaseSchemaFrom(
     }
   }
 
-  return schemas;
+  return [schemas, new DatabaseDataTypes()];
 }
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
@@ -209,7 +210,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     return response.rows[0]['VERSION()'];
   }
 
-  async getSchema(): Promise<DatabaseSchemas> {
+  async getSchema(): Promise<[DatabaseSchemas, DatabaseDataTypes]> {
     const databaseListResponse = await this.singleExecute<MySqlDatabase>(
       qb().table('information_schema.SCHEMATA').select('SCHEMA_NAME').toRawSQL()
     );

@@ -62,6 +62,7 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 
   return {
     name: column.name,
+    dataType: column.type,
     type,
     schema: {
       database: databaseName,

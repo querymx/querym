@@ -42,3 +42,27 @@ export interface DatabaseSchema {
 }
 
 export type DatabaseSchemas = Record<string, DatabaseSchema>;
+
+interface DatabaseDataType {
+  id: number;
+  name: string;
+  category: string;
+}
+
+export class DatabaseDataTypes {
+  protected types: Record<string, DatabaseDataType> = {};
+  protected typesIds: Record<string, DatabaseDataType> = {};
+
+  addType(option: DatabaseDataType) {
+    this.types[option.name] = option;
+    this.typesIds[option.id.toString()] = option;
+  }
+
+  getTypeById(id: number): DatabaseDataType | undefined {
+    return this.typesIds[id.toString()];
+  }
+
+  getTypeByName(name: string): DatabaseDataType | undefined {
+    return this.types[name];
+  }
+}

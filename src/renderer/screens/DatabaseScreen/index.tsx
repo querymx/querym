@@ -33,8 +33,8 @@ function DatabaseScreenBody() {
     setLoading(true);
     common
       .getSchema()
-      .then((data) => {
-        setSchema(data);
+      .then(([databaseSchema]) => {
+        setSchema(databaseSchema);
       })
       .catch((e) => {
         setError(true);
@@ -48,7 +48,9 @@ function DatabaseScreenBody() {
   const reloadSchema = useCallback(() => {
     common
       .getSchema()
-      .then(setSchema)
+      .then(([databaseSchema]) => {
+        setSchema(databaseSchema);
+      })
       .catch((e) => {
         setError(true);
         setErrorMessage(e.message);

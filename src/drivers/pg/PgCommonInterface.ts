@@ -1,4 +1,8 @@
-import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
+import {
+  DatabaseDataTypes,
+  DatabaseSchemas,
+  TableDefinitionSchema,
+} from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager } from 'libs/SqlRunnerManager';
 import { QueryResult } from 'types/SqlResult';
@@ -24,7 +28,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
     return response[0].result as QueryResult<T>;
   }
 
-  async getSchema(): Promise<DatabaseSchemas> {
+  async getSchema(): Promise<[DatabaseSchemas, DatabaseDataTypes]> {
     const sql = 'SELECT schema_name FROM information_schema.schemata';
     const schemas = await this.singleExecute<{ schema_name: string }>(sql);
 
@@ -62,7 +66,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
       }
     }
 
-    return result;
+    return [result, new DatabaseDataTypes()];
   }
 
   async getTableSchema(): Promise<TableDefinitionSchema> {
