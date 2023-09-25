@@ -1,4 +1,5 @@
 export interface TableColumnSchema {
+  id?: number;
   name: string;
   dataType: string;
   charLength: number | null;
@@ -21,6 +22,7 @@ interface TableConstraintSchema {
 }
 
 export interface TableSchema {
+  id?: number;
   name: string;
   type: TableType;
   columns: Record<string, TableColumnSchema>;
