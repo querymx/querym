@@ -64,6 +64,8 @@ const schema1: DatabaseSchemaList = {
         type: 'TABLE',
         columns: {
           id: {
+            schemaName: '',
+            tableName: '',
             name: 'id',
             comment: '',
             charLength: 0,
@@ -71,6 +73,8 @@ const schema1: DatabaseSchemaList = {
             nullable: false,
           },
           name: {
+            schemaName: '',
+            tableName: '',
             name: 'name',
             comment: '',
             charLength: 0,
@@ -78,6 +82,8 @@ const schema1: DatabaseSchemaList = {
             nullable: false,
           },
           address: {
+            schemaName: '',
+            tableName: '',
             name: 'address',
             comment: '',
             charLength: 0,
@@ -98,6 +104,8 @@ const schema1: DatabaseSchemaList = {
             charLength: 0,
             dataType: 'varchar',
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
           name: {
             name: 'description',
@@ -105,6 +113,8 @@ const schema1: DatabaseSchemaList = {
             charLength: 0,
             dataType: 'varchar',
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
           product_type: {
             name: 'product_type',
@@ -113,6 +123,8 @@ const schema1: DatabaseSchemaList = {
             dataType: 'enum',
             enumValues: ['HOME', 'BOOK', 'FASHION'],
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
         },
       },
