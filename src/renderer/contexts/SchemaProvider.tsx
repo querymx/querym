@@ -28,7 +28,7 @@ export function SchemaProvider({
 }: PropsWithChildren<{ schema?: DatabaseSchemas; reloadSchema: () => void }>) {
   const { setting } = useDatabaseSetting();
   const [currentDatabase, setCurrentDatabase] = useState(
-    setting?.config?.database
+    setting?.type === 'postgre' ? 'public' : setting?.config?.database
   );
 
   const providerValuesMemo = useMemo(

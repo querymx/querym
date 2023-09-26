@@ -3,11 +3,12 @@ import {
   TableConstraintTypeSchema,
   TableDefinitionSchema,
   TableColumnSchema,
+  DatabaseSchemaList,
 } from 'types/SqlSchema';
 import SQLCommonInterface from '../base/SQLCommonInterface';
-import { SqlRunnerManager } from 'libs/SqlRunnerManager';
+import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { parseEnumType } from 'libs/ParseColumnType';
 
 interface MySqlDatabase {
@@ -55,6 +56,8 @@ interface MySqlConstraint {
 
 function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
   return {
+    schemaName: col.TABLE_SCHEMA,
+    tableName: col.TABLE_NAME,
     name: col.COLUMN_NAME,
     dataType: col.DATA_TYPE,
     nullable: col.IS_NULLABLE === 'YES',
@@ -64,6 +67,28 @@ function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
     numericScale: col.NUMERIC_SCALE,
     default: col.COLUMN_DEFAULT,
     enumValues: col.DATA_TYPE === 'enum' ? parseEnumType(col.COLUMN_TYPE) : [],
+  };
+}
+
+function findMatchColumn(
+  schema: DatabaseSchemaList,
+  header: QueryResultHeader
+): QueryResultHeader {
+  if (!header.schema?.database) return header;
+  const matchedSchema = schema[header.schema.database];
+  if (!matchedSchema) return header;
+
+  if (!header.schema.table) return header;
+  const matchedTable = matchedSchema.tables[header.schema.table];
+  if (!matchedTable) return header;
+
+  if (!header.schema.column) return header;
+  const matchedColumn = matchedTable.columns[header.schema.column];
+  if (!matchedColumn) return header;
+
+  return {
+    ...header,
+    columnDefinition: matchedColumn,
   };
 }
 
@@ -107,11 +132,15 @@ export function buildDatabaseSchemaFrom(
   for (const row of constraints) {
     schemas.addConstraint(
       row.TABLE_SCHEMA,
-      row.TABLE_SCHEMA,
+      row.TABLE_NAME,
       row.CONSTRAINT_NAME,
       row.CONSTRAINT_TYPE as TableConstraintTypeSchema,
       row.COLUMN_NAME
     );
+
+    if (row.CONSTRAINT_TYPE === 'PRIMARY KEY') {
+      schemas.addPrimaryKey(row.TABLE_SCHEMA, row.TABLE_NAME, row.COLUMN_NAME);
+    }
   }
 
   return schemas;
@@ -285,5 +314,25 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     }
 
     return null;
+  }
+
+  attachHeaders(
+    statements: SqlStatementResult[],
+    schema: DatabaseSchemas | undefined
+  ): SqlStatementResult[] {
+    if (!schema) return statements;
+    const databaseList = schema.getSchema();
+
+    return statements.map((statement) => {
+      return {
+        ...statement,
+        result: {
+          ...statement.result,
+          headers: statement.result.headers.map((header) =>
+            findMatchColumn(databaseList, header)
+          ),
+        },
+      };
+    });
   }
 }

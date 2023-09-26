@@ -16,7 +16,6 @@ import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
-import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
@@ -50,7 +49,7 @@ export default function QueryWindow({
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const { publish } = useSavedQueryPubSub();
 
-  const { runner } = useSqlExecute();
+  const { runner, common } = useSqlExecute();
   const { showErrorDialog } = useDialog();
   const { schema, currentDatabase, dialect } = useSchema();
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
@@ -155,7 +154,7 @@ export default function QueryWindow({
           }
         )
         .then((r) => {
-          setResult(transformResultHeaderUseSchema(r, schema?.getSchema()));
+          setResult(common.attachHeaders(r, schema));
           setQueryKeyCounter((prev) => prev + 1);
         })
         .catch((e) => {
@@ -167,7 +166,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, schema, setLoading, saveWindowTabHistory]
+    [runner, setResult, schema, setLoading, saveWindowTabHistory, common]
   );
 
   const onRun = useCallback(

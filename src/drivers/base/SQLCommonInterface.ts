@@ -1,3 +1,4 @@
+import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 
 export default abstract class SQLCommonInterface {
@@ -15,4 +16,9 @@ export default abstract class SQLCommonInterface {
     database: string,
     table: string
   ): Promise<number | null>;
+
+  abstract attachHeaders(
+    statements: SqlStatementResult[],
+    schema: DatabaseSchemas | undefined
+  ): SqlStatementResult[];
 }

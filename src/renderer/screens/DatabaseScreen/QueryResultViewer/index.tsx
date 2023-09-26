@@ -3,7 +3,6 @@ import QueryResultTable from './QueryResultTable';
 import styles from './styles.module.scss';
 import QueryResultAction from './QueryResultAction';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
@@ -14,7 +13,7 @@ function QueryResultViewer({
   statementResult: SqlStatementResult;
 }) {
   const { statement, result } = statementResult;
-  const { runner } = useSqlExecute();
+  const { runner, common } = useSqlExecute();
   const { schema } = useSchema();
   const [runningIndex, setRunningIndex] = useState(0);
   const [cacheResult, setCacheResult] = useState(result);
@@ -27,13 +26,11 @@ function QueryResultViewer({
     runner
       .execute([statement])
       .then((result) => {
-        setCacheResult(
-          transformResultHeaderUseSchema(result, schema?.getSchema())[0].result
-        );
+        setCacheResult(common.attachHeaders(result, schema)[0].result);
         setRunningIndex((prev) => prev + 1);
       })
       .catch(console.error);
-  }, [statement, runner, setCacheResult, setRunningIndex]);
+  }, [statement, runner, setCacheResult, setRunningIndex, common]);
 
   const onSearchChange = useCallback(
     (value: string) => {

@@ -1,6 +1,8 @@
 export interface TableColumnSchema {
   id?: number;
   name: string;
+  tableName: string;
+  schemaName: string;
   dataType: string;
   charLength: number | null;
   enumValues?: string[];
@@ -133,6 +135,16 @@ export class DatabaseSchemas {
     const table = this.getTable(databaseName, tableName);
     if (!table) return;
     table.columns[column.name] = column;
+  }
+
+  getColumnById(tableId: number | undefined, columnId: number | undefined) {
+    if (tableId === undefined) return;
+    if (columnId === undefined) return;
+
+    const table = this.getTableById(tableId);
+    if (!table) return;
+
+    return Object.values(table.columns).find((col) => col.id === columnId);
   }
 
   addPrimaryKey(databaseName: string, tableName: string, column: string) {

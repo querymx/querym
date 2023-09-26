@@ -124,7 +124,7 @@ export default function DatabaseTableList() {
       if (!currentDatabaseSchema) return [];
       return buildSchemaTree(currentDatabaseSchema, searchDebounce).children;
     } else {
-      return Object.entries(schema).map((entry) => {
+      return Object.entries(schema.getSchema()).map((entry) => {
         return buildSchemaTree(entry[1], search);
       });
     }

@@ -25,7 +25,6 @@ import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResu
 import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
 import { useDialog } from 'renderer/contexts/DialogProvider';
 import CommitChangeToolbarItem from '../QueryResultViewer/CommitChangeToolbarItem';
-import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 
 interface TableDataViewerProps {
@@ -149,6 +148,8 @@ export default function TableDataViewer({
   const [sortedHeader, setSortedHeader] = useState<SortedHeader>();
   const [page, setPage] = useState(0);
 
+  console.log(schema?.getSchema());
+
   useEffect(() => {
     common.estimateTableRowCount(databaseName, tableName).then(setTotalRows);
   }, [databaseName, tableName, setTotalRows]);
@@ -172,10 +173,7 @@ export default function TableDataViewer({
         skipProtection: true,
       })
       .then((result) => {
-        const transformResult = transformResultHeaderUseSchema(
-          result,
-          schema?.getSchema()
-        );
+        const transformResult = common.attachHeaders(result, schema);
         setResult(transformResult[0].result);
         setLoading(false);
       })
@@ -193,6 +191,7 @@ export default function TableDataViewer({
     setLoading,
     setResult,
     refreshCounter,
+    common,
   ]);
 
   if (loading || !result) {
