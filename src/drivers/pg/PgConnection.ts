@@ -23,11 +23,11 @@ export default class PgConnection extends SQLLikeConnection {
   }
 
   protected async ping() {
-    // throw 'not implemented';
+    // do nothing
   }
 
   async killCurrentQuery() {
-    throw 'not implemented';
+    // do nothing
   }
 
   async query(sql: string): Promise<QueryResult> {

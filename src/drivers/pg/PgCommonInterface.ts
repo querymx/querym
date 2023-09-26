@@ -1,7 +1,34 @@
-import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
+import {
+  DatabaseSchemas,
+  TableColumnSchema,
+  TableDefinitionSchema,
+} from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { QueryResult } from 'types/SqlResult';
+import { qb } from 'libs/QueryBuilder';
+
+interface PgColumn {
+  table_schema: string;
+  table_name: string;
+  column_name: string;
+  ordinal_position: number;
+  udt_name: string;
+  is_nullable: string;
+}
+
+function mapColumnDefinition(col: PgColumn): TableColumnSchema {
+  return {
+    tableName: col.table_name,
+    schemaName: col.table_schema,
+    name: col.column_name,
+    id: col.ordinal_position,
+    charLength: 0,
+    comment: '',
+    dataType: col.udt_name,
+    nullable: col.is_nullable === 'YES',
+  };
+}
 
 export default class PgCommonInterface extends SQLCommonInterface {
   public FLAG_USE_STATEMENT = false;
@@ -61,16 +88,11 @@ export default class PgCommonInterface extends SQLCommonInterface {
     );
 
     columns.rows.forEach((col) =>
-      result.addColumn(col.table_schema, col.table_name, {
-        tableName: col.table_name,
-        schemaName: col.table_schema,
-        name: col.column_name,
-        id: col.ordinal_position,
-        charLength: 0,
-        comment: '',
-        dataType: col.udt_name,
-        nullable: col.is_nullable === 'YES',
-      })
+      result.addColumn(
+        col.table_schema,
+        col.table_name,
+        mapColumnDefinition(col)
+      )
     );
 
     // Map constraints
@@ -109,8 +131,40 @@ export default class PgCommonInterface extends SQLCommonInterface {
     return result;
   }
 
-  async getTableSchema(): Promise<TableDefinitionSchema> {
-    throw new Error('Not implemented');
+  async getTableSchema(
+    database: string,
+    table: string
+  ): Promise<TableDefinitionSchema> {
+    const columns = await this.singleExecute<{
+      table_schema: string;
+      table_name: string;
+      column_name: string;
+      ordinal_position: number;
+      udt_name: string;
+      is_nullable: string;
+    }>(
+      qb('postgre')
+        .table('information_schema.columns')
+        .select(
+          'table_schema',
+          'table_name',
+          'column_name',
+          'ordinal_position',
+          'udt_name',
+          'is_nullable'
+        )
+        .where({
+          table_schema: database,
+          table_name: table,
+        })
+        .toRawSQL()
+    );
+
+    return {
+      createSql: '',
+      name: table,
+      columns: columns.rows.map((col) => mapColumnDefinition(col)),
+    };
   }
 
   async switchDatabase(): Promise<boolean> {

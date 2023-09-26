@@ -163,7 +163,7 @@ export default function useConnectionContextMenu({
           }),
       },
       {
-        text: 'New PostgreSQL Connection',
+        text: 'New PostgreSQL Connection (Beta)',
         icon: <Icon.PostgreSQL />,
         onClick: () =>
           newConnection('postgre', {
