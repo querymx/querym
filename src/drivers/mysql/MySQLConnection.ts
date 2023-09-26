@@ -62,6 +62,7 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 
   return {
     name: column.name,
+    dataType: column.type,
     type,
     schema: {
       database: databaseName,
@@ -76,18 +77,13 @@ export default class MySQLConnection extends SQLLikeConnection {
   protected connectionConfig: DatabaseConnectionConfig;
   protected pool: Pool | undefined;
   protected currentConnection: PoolConnection | undefined;
-  protected onStateChangedCallback: (state: string) => void;
   protected lastActivity = 0;
   protected isRunning = false;
   protected keepAliveTimerId?: NodeJS.Timer;
 
-  constructor(
-    connectionConfig: DatabaseConnectionConfig,
-    statusChanged: (state: string) => void
-  ) {
+  constructor(connectionConfig: DatabaseConnectionConfig) {
     super();
     this.connectionConfig = connectionConfig;
-    this.onStateChangedCallback = statusChanged;
   }
 
   protected async getConnection() {
@@ -100,7 +96,6 @@ export default class MySQLConnection extends SQLLikeConnection {
       });
 
       this.lastActivity = Date.now();
-      this.onStateChangedCallback('Connected');
 
       this.keepAliveTimerId = setInterval(() => {
         if (Date.now() - this.lastActivity > 6000 && !this.isRunning) {

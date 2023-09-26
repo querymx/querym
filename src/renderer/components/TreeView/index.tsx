@@ -72,7 +72,7 @@ function TreeViewItem<T>(props: TreeViewItemProps<T>) {
     onRenamedSelectedItem,
   } = props;
 
-  const hasCollapsed = item.children && item.children.length > 0;
+  const hasCollapsed = !!item.children;
   const isCollapsed = collapsedKeys?.includes(item.id);
 
   const onSelectChangeCallback = useCallback(() => {

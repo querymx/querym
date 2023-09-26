@@ -1,7 +1,10 @@
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
+import { SqlStatementResult } from 'libs/SqlRunnerManager';
 
 export default class NotImplementCommonInterface extends SQLCommonInterface {
+  public FLAG_USE_STATEMENT = false;
+
   async getSchema(): Promise<DatabaseSchemas> {
     throw new Error('Not implemented');
   }
@@ -15,6 +18,10 @@ export default class NotImplementCommonInterface extends SQLCommonInterface {
   }
 
   async getVersion(): Promise<string> {
+    throw new Error('Not implemented');
+  }
+
+  attachHeaders(): SqlStatementResult[] {
     throw new Error('Not implemented');
   }
 

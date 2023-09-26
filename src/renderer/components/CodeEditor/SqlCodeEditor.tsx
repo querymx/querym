@@ -27,11 +27,14 @@ import { DatabaseSchemas } from 'types/SqlSchema';
 import createSQLTableNameHighlightPlugin from './SQLTableNameHightlight';
 import { functionTooltip } from './functionTooltips';
 import { MySQLDialect, MySQLTooltips } from 'dialects/MySQLDialect';
+import { QueryDialetType } from 'libs/QueryBuilder';
+import { PgDialect, PgTooltips } from 'dialects/PgDialect copy';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
     schema?: DatabaseSchemas;
     currentDatabase?: string;
+    dialect: QueryDialetType;
   },
   ref: Ref<ReactCodeMirrorRef>
 ) {
@@ -43,7 +46,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
       return handleCustomSqlAutoComplete(
         context,
         tree,
-        schema,
+        schema?.getSchema(),
         currentDatabase
       );
     },
@@ -51,13 +54,16 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   );
 
   const tableNameHighlightPlugin = useMemo(() => {
-    if (schema && currentDatabase && schema[currentDatabase]) {
+    if (schema && currentDatabase) {
       return createSQLTableNameHighlightPlugin(
-        Object.keys(schema[currentDatabase].tables)
+        Object.keys(schema.getTableList(currentDatabase))
       );
     }
     return createSQLTableNameHighlightPlugin([]);
   }, [schema, currentDatabase]);
+
+  const dialect = props.dialect === 'mysql' ? MySQLDialect : PgDialect;
+  const tooltips = props.dialect === 'mysql' ? MySQLTooltips : PgTooltips;
 
   return (
     <CodeMirror
@@ -94,17 +100,17 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
           ...defaultKeymap,
         ]),
         sql({
-          dialect: MySQLDialect,
+          dialect,
         }),
         autocompletion({
           override: [
             genericCompletion(customAutoComplete),
-            keywordCompletionSource(MySQLDialect, true),
+            keywordCompletionSource(dialect, true),
           ],
         }),
         indentUnit.of('  '),
         tableNameHighlightPlugin,
-        functionTooltip(MySQLTooltips),
+        functionTooltip(tooltips),
       ]}
       {...codeMirrorProps}
     />

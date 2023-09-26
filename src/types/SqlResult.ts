@@ -7,6 +7,9 @@ export interface QueryResultHeaderType {
 export interface QueryResultHeader {
   name: string;
   type: QueryResultHeaderType;
+  dataType: number;
+  tableId?: number; // This is for PostgreSQL
+  columnId?: number; // This is for PostgreSQL
   columnDefinition?: TableColumnSchema;
   schema?: {
     database?: string;

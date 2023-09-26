@@ -1,24 +1,13 @@
-import MySQLConnection from 'drivers/mysql/MySQLConnection';
 import { qb } from 'libs/QueryBuilder';
+import getTestingConnection from './_connection';
 
-const connection = new MySQLConnection(
-  {
-    database: 'querymaster_test',
-    port: 3306,
-    host: 'localhost',
-    user: 'root',
-    password: '123456',
-  },
-  () => {
-    return;
-  }
-);
+const connection = getTestingConnection();
 
 afterAll(async () => {
   connection.close();
 });
 
-test('test normal query', async () => {
+test('perform normal query', async () => {
   const r = await connection.query(
     qb('mysql').table('users').select().toRawSQL()
   );

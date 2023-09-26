@@ -1,0 +1,10 @@
+{
+  "ascii": {
+    "syntax": "ascii(string)",
+    "description": "<p>ASCII code of the first character of the argument. For UTF8 returns the Unicode code point of the character. For other multibyte encodings, the argument must be an ASCII character.</p>\n<pre><code>ascii('x')\n&gt; 120\n</code></pre>"
+  },
+  "btrim": {
+    "syntax": "btrim(string text [, characters text])",
+    "description": "<p>Remove the longest string consisting only of characters in characters (a space by default) from the start and end of string</p>\n<pre><code>btrim('xyxtrimyyx', 'xy')\n&gt; trim\n</code></pre>"
+  }
+}

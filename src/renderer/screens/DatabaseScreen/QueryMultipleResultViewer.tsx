@@ -11,7 +11,7 @@ export default memo(function QueryMultipleResultViewer({
   value,
 }: QueryMultipleResultViewerProps) {
   const queryResultOnly = useMemo(() => {
-    return value.filter((v) => !v.result.resultHeader);
+    return value.filter((v) => v.result.headers.length > 0);
   }, [value]);
   const [selected, setSelected] = useState(`query_0`);
 

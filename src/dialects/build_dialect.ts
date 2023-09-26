@@ -74,3 +74,4 @@ function build_dialect(folderName: string) {
 }
 
 build_dialect('mysql');
+build_dialect('pg');

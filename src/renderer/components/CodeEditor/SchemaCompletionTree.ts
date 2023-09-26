@@ -1,5 +1,9 @@
 import { Completion } from '@codemirror/autocomplete';
-import { DatabaseSchema, DatabaseSchemas, TableSchema } from 'types/SqlSchema';
+import {
+  DatabaseSchema,
+  DatabaseSchemaList,
+  TableSchema,
+} from 'types/SqlSchema';
 
 function buildTableCompletionTree(table: TableSchema): SchemaCompletionTree {
   const root = new SchemaCompletionTree();
@@ -36,7 +40,7 @@ function buildDatabaseCompletionTree(
 }
 
 function buildCompletionTree(
-  schema: DatabaseSchemas | undefined,
+  schema: DatabaseSchemaList | undefined,
   currentDatabase: string | undefined
 ): SchemaCompletionTree {
   const root: SchemaCompletionTree = new SchemaCompletionTree();
@@ -73,7 +77,7 @@ export default class SchemaCompletionTree {
   protected child: Record<string, SchemaCompletionTree> = {};
 
   static build(
-    schema: DatabaseSchemas | undefined,
+    schema: DatabaseSchemaList | undefined,
     currentDatabase: string | undefined
   ) {
     return buildCompletionTree(schema, currentDatabase);

@@ -3,11 +3,12 @@ import {
   TableConstraintTypeSchema,
   TableDefinitionSchema,
   TableColumnSchema,
+  DatabaseSchemaList,
 } from 'types/SqlSchema';
 import SQLCommonInterface from '../base/SQLCommonInterface';
-import { SqlRunnerManager } from 'libs/SqlRunnerManager';
+import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import { parseEnumType } from 'libs/ParseColumnType';
 
 interface MySqlDatabase {
@@ -55,6 +56,8 @@ interface MySqlConstraint {
 
 function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
   return {
+    schemaName: col.TABLE_SCHEMA,
+    tableName: col.TABLE_NAME,
     name: col.COLUMN_NAME,
     dataType: col.DATA_TYPE,
     nullable: col.IS_NULLABLE === 'YES',
@@ -67,6 +70,28 @@ function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
   };
 }
 
+function findMatchColumn(
+  schema: DatabaseSchemaList,
+  header: QueryResultHeader
+): QueryResultHeader {
+  if (!header.schema?.database) return header;
+  const matchedSchema = schema[header.schema.database];
+  if (!matchedSchema) return header;
+
+  if (!header.schema.table) return header;
+  const matchedTable = matchedSchema.tables[header.schema.table];
+  if (!matchedTable) return header;
+
+  if (!header.schema.column) return header;
+  const matchedColumn = matchedTable.columns[header.schema.column];
+  if (!matchedColumn) return header;
+
+  return {
+    ...header,
+    columnDefinition: matchedColumn,
+  };
+}
+
 export function buildDatabaseSchemaFrom(
   databases: MySqlDatabase[],
   tables: MySqlTable[],
@@ -75,91 +100,46 @@ export function buildDatabaseSchemaFrom(
   triggers: MySqlTrigger[],
   constraints: MySqlConstraint[]
 ): DatabaseSchemas {
-  const tableDict: Record<string, Record<string, string>> = tables.reduce(
-    (a: Record<string, Record<string, string>>, row) => {
-      const databaseName = row.TABLE_SCHEMA;
-      const tableName = row.TABLE_NAME;
-      const tableType = row.TABLE_TYPE;
+  const schemas = new DatabaseSchemas();
 
-      if (a[databaseName]) {
-        a[databaseName][tableName] = tableType;
-      } else {
-        a[databaseName] = { [tableName]: tableType };
-      }
+  for (const db of databases) {
+    schemas.addDatabase(db.SCHEMA_NAME);
+  }
 
-      return a;
-    },
-    {}
-  );
+  for (const event of events) {
+    schemas.addEvent(event.EVENT_SCHEMA, event.EVENT_NAME);
+  }
 
-  const schemas: DatabaseSchemas = databases.reduce((prev, { SCHEMA_NAME }) => {
-    const currentTriggers = triggers
-      .filter((row) => row.TRIGGER_SCHEMA === SCHEMA_NAME)
-      .map((row) => row.TRIGGER_NAME);
+  for (const trigger of triggers) {
+    schemas.addTrigger(trigger.TRIGGER_SCHEMA, trigger.TRIGGER_NAME);
+  }
 
-    const currentEvents = events
-      .filter((row) => row.EVENT_SCHEMA === SCHEMA_NAME)
-      .map((row) => row.EVENT_NAME);
-
-    return {
-      ...prev,
-      [SCHEMA_NAME]: {
-        name: SCHEMA_NAME,
-        tables: {},
-        events: currentEvents,
-        triggers: currentTriggers,
-      },
-    };
-  }, {});
+  for (const table of tables) {
+    schemas.addTable(table.TABLE_SCHEMA, {
+      name: table.TABLE_NAME,
+      type: table.TABLE_TYPE === 'VIEW' ? 'VIEW' : 'TABLE',
+    });
+  }
 
   for (const row of columns) {
-    const databaseName = row.TABLE_SCHEMA;
-    const tableName = row.TABLE_NAME;
-    const columnName = row.COLUMN_NAME;
-
-    const database = schemas[databaseName];
-    if (!database.tables[tableName]) {
-      database.tables[tableName] = {
-        type: tableDict[databaseName][tableName] === 'VIEW' ? 'VIEW' : 'TABLE',
-        name: tableName,
-        columns: {},
-        constraints: [],
-        primaryKey: [],
-      };
-    }
-
-    const table = database.tables[tableName];
-    table.columns[columnName] = mapColumnDefinition(row);
+    schemas.addColumn(
+      row.TABLE_SCHEMA,
+      row.TABLE_NAME,
+      mapColumnDefinition(row)
+    );
   }
 
   for (const row of constraints) {
-    const constraintName = row.CONSTRAINT_NAME;
-    const tableSchema = row.TABLE_SCHEMA;
-    const tableName = row.TABLE_NAME;
-    const constraintType = row.CONSTRAINT_TYPE;
-    const columnName = row.COLUMN_NAME;
+    schemas.addConstraint(
+      row.TABLE_SCHEMA,
+      row.TABLE_NAME,
+      row.CONSTRAINT_NAME,
+      row.CONSTRAINT_TYPE as TableConstraintTypeSchema,
+      row.COLUMN_NAME
+    );
 
-    if (schemas[tableSchema]) {
-      const database = schemas[tableSchema];
-      if (database.tables[tableName]) {
-        const table = database.tables[tableName];
-        if (constraintType === 'PRIMARY KEY') {
-          table.primaryKey.push(columnName);
-        }
-
-        const constraintFound = table.constraints.find(
-          (constraint) => constraint.name === constraintName
-        );
-        if (constraintFound) {
-          constraintFound.columns.push(columnName);
-        } else {
-          table.constraints.push({
-            columns: [columnName],
-            name: constraintName,
-            type: constraintType as TableConstraintTypeSchema,
-          });
-        }
-      }
+    if (row.CONSTRAINT_TYPE === 'PRIMARY KEY') {
+      schemas.addPrimaryKey(row.TABLE_SCHEMA, row.TABLE_NAME, row.COLUMN_NAME);
     }
   }
 
@@ -167,6 +147,8 @@ export function buildDatabaseSchemaFrom(
 }
 
 export default class MySQLCommonInterface extends SQLCommonInterface {
+  public FLAG_USE_STATEMENT = true;
+
   protected runner: SqlRunnerManager;
   protected currentDatabaseName?: string;
 
@@ -332,5 +314,25 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     }
 
     return null;
+  }
+
+  attachHeaders(
+    statements: SqlStatementResult[],
+    schema: DatabaseSchemas | undefined
+  ): SqlStatementResult[] {
+    if (!schema) return statements;
+    const databaseList = schema.getSchema();
+
+    return statements.map((statement) => {
+      return {
+        ...statement,
+        result: {
+          ...statement.result,
+          headers: statement.result.headers.map((header) =>
+            findMatchColumn(databaseList, header)
+          ),
+        },
+      };
+    });
   }
 }

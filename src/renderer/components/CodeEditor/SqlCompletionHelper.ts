@@ -1,7 +1,7 @@
 import { CompletionContext } from '@codemirror/autocomplete';
 import { SyntaxNode } from '@lezer/common';
 import {
-  DatabaseSchemas,
+  DatabaseSchemaList,
   TableColumnSchema,
   TableSchema,
 } from 'types/SqlSchema';
@@ -19,7 +19,7 @@ export default class SqlCompletionHelper {
   }
 
   static getColumnFromIdentifier(
-    schema: DatabaseSchemas,
+    schema: DatabaseSchemaList,
     currentDatabase: string | undefined,
     exposedTables: TableSchema[],
     identifier: string
@@ -33,7 +33,7 @@ export default class SqlCompletionHelper {
   }
 
   static getColumnFromIdentifierPath(
-    schema: DatabaseSchemas,
+    schema: DatabaseSchemaList,
     currentDatabase: string | undefined,
     exposedTables: TableSchema[],
     path: string[]
@@ -66,7 +66,7 @@ export default class SqlCompletionHelper {
    * @param identifer
    */
   static getTableFromIdentifier(
-    schema: DatabaseSchemas,
+    schema: DatabaseSchemaList,
     currentDatabase: string | undefined,
     identifier: string
   ): TableSchema | null {
@@ -78,7 +78,7 @@ export default class SqlCompletionHelper {
   }
 
   static getTableFromIdentifierPath(
-    schema: DatabaseSchemas,
+    schema: DatabaseSchemaList,
     currentDatabase: string | undefined,
     path: string[]
   ): TableSchema | null {

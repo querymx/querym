@@ -23,7 +23,7 @@ export default function CommitChangeToolbarItem({
   const { showErrorDialog } = useDialog();
   const [changeCount, setChangeCount] = useState(0);
   const { clearChange, collector } = useEditableResult();
-  const { schema, currentDatabase } = useSchema();
+  const { schema, currentDatabase, dialect } = useSchema();
   const { runner } = useSqlExecute();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function CommitChangeToolbarItem({
 
   const onCommit = useCallback(() => {
     if (schema) {
-      const currentDatabaseSchema = schema[currentDatabase || ''];
+      const currentDatabaseSchema = schema.getDatabase(currentDatabase || '');
 
       if (currentDatabaseSchema && result) {
         const plans = generateSqlFromChanges(
@@ -47,7 +47,7 @@ export default function CommitChangeToolbarItem({
         );
 
         const rawSql = plans.map((plan) => ({
-          sql: generateSqlFromPlan(plan),
+          sql: generateSqlFromPlan(dialect, plan),
         }));
 
         runner

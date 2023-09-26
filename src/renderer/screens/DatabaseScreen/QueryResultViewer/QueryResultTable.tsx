@@ -85,7 +85,7 @@ function QueryResultTable({
 
   const rules = useMemo<TableEditableRule>(() => {
     if (headers && currentDatabase && schema) {
-      return getEditableRule(headers, schema[currentDatabase]);
+      return getEditableRule(headers, schema.getDatabase(currentDatabase));
     }
 
     return {

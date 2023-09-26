@@ -16,7 +16,6 @@ import SqlCodeEditor from 'renderer/components/CodeEditor/SqlCodeEditor';
 import Stack from 'renderer/components/Stack';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import QueryResultLoading from './QueryResultViewer/QueryResultLoading';
-import { transformResultHeaderUseSchema } from 'libs/TransformResult';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
@@ -50,9 +49,9 @@ export default function QueryWindow({
   const [result, setResult] = useState<SqlStatementResult[]>([]);
   const { publish } = useSavedQueryPubSub();
 
-  const { runner } = useSqlExecute();
+  const { runner, common } = useSqlExecute();
   const { showErrorDialog } = useDialog();
-  const { schema, currentDatabase } = useSchema();
+  const { schema, currentDatabase, dialect } = useSchema();
   const { selectedTab, setTabData, saveWindowTabHistory } = useWindowTab();
 
   const { tabName, tabKey } = useCurrentTab();
@@ -71,7 +70,11 @@ export default function QueryWindow({
         onClick: () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const codeFromRef: string = (viewState?.doc as any).text.join('\r');
-          setCode(format(codeFromRef));
+          setCode(
+            format(codeFromRef, {
+              language: dialect === 'mysql' ? 'mysql' : 'postgresql',
+            })
+          );
         },
         separator: true,
       },
@@ -118,7 +121,7 @@ export default function QueryWindow({
         },
       },
     ];
-  }, [editorRef, setCode]);
+  }, [editorRef, setCode, dialect]);
 
   const getSelection = useCallback(() => {
     const es = editorRef.current?.view?.state as EditorState;
@@ -151,7 +154,7 @@ export default function QueryWindow({
           }
         )
         .then((r) => {
-          setResult(transformResultHeaderUseSchema(r, schema));
+          setResult(common.attachHeaders(r, schema));
           setQueryKeyCounter((prev) => prev + 1);
         })
         .catch((e) => {
@@ -163,7 +166,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, schema, setLoading, saveWindowTabHistory]
+    [runner, setResult, schema, setLoading, saveWindowTabHistory, common]
   );
 
   const onRun = useCallback(
@@ -209,6 +212,7 @@ export default function QueryWindow({
       <div className={styles.queryContainer}>
         <div className={styles.queryEditor}>
           <SqlCodeEditor
+            dialect={dialect}
             ref={editorRef}
             onContextMenu={handleContextMenu}
             style={{ fontSize: 20, height: '100%' }}

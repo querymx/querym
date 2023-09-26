@@ -50,14 +50,6 @@ const electronHandler = {
   close: () => {
     ipcRenderer.invoke('close');
   },
-
-  listenConnectionStatusChanged: (
-    callback: (event: IpcRendererEvent, status: string) => void
-  ) => {
-    ipcRenderer.removeAllListeners('connection-status-change');
-    return ipcRenderer.on('connection-status-change', callback);
-  },
-
   showMessageBox: (options: MessageBoxSyncOptions): Promise<number> =>
     ipcRenderer.invoke('show-message-box', [options]),
 

@@ -6,14 +6,14 @@ import {
 } from '@codemirror/autocomplete';
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { MySQL, genericCompletion } from './../../../language/dist';
-import { DatabaseSchemas } from 'types/SqlSchema';
+import { DatabaseSchemaList } from 'types/SqlSchema';
 
 function get(
   doc: string,
   {
     schema,
     currentDatabase,
-  }: { schema: DatabaseSchemas; currentDatabase?: string }
+  }: { schema: DatabaseSchemaList; currentDatabase?: string }
 ) {
   const cur = doc.indexOf('|'),
     dialect = MySQL;
@@ -51,7 +51,7 @@ function str(result: CompletionResult | null) {
         .join(', ');
 }
 
-const schema1: DatabaseSchemas = {
+const schema1: DatabaseSchemaList = {
   foo: {
     name: 'foo',
     events: [],
@@ -64,6 +64,8 @@ const schema1: DatabaseSchemas = {
         type: 'TABLE',
         columns: {
           id: {
+            schemaName: '',
+            tableName: '',
             name: 'id',
             comment: '',
             charLength: 0,
@@ -71,6 +73,8 @@ const schema1: DatabaseSchemas = {
             nullable: false,
           },
           name: {
+            schemaName: '',
+            tableName: '',
             name: 'name',
             comment: '',
             charLength: 0,
@@ -78,6 +82,8 @@ const schema1: DatabaseSchemas = {
             nullable: false,
           },
           address: {
+            schemaName: '',
+            tableName: '',
             name: 'address',
             comment: '',
             charLength: 0,
@@ -98,6 +104,8 @@ const schema1: DatabaseSchemas = {
             charLength: 0,
             dataType: 'varchar',
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
           name: {
             name: 'description',
@@ -105,6 +113,8 @@ const schema1: DatabaseSchemas = {
             charLength: 0,
             dataType: 'varchar',
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
           product_type: {
             name: 'product_type',
@@ -113,6 +123,8 @@ const schema1: DatabaseSchemas = {
             dataType: 'enum',
             enumValues: ['HOME', 'BOOK', 'FASHION'],
             nullable: false,
+            schemaName: '',
+            tableName: ''
           },
         },
       },

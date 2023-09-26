@@ -8,7 +8,7 @@ const config: Config = {
       '<rootDir>/.erb/mocks/fileMock.js',
     '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
   },
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',
   testEnvironmentOptions: {
     url: 'http://localhost/',
   },
@@ -18,6 +18,7 @@ const config: Config = {
   },
   coverageDirectory: './coverage',
   collectCoverageFrom: ['./src/**/*.ts'],
+  setupFiles: ['dotenv/config'],
 };
 
 export default config;

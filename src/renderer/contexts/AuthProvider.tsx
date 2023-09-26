@@ -58,7 +58,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     window.electron.listenDeeplink((_, url) => {
       const newToken = parseDeeplinkForToken(url);
-      console.log(url, newToken);
       if (newToken) {
         setToken(newToken);
         localStorage.setItem('token', newToken);

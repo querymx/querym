@@ -13,7 +13,7 @@ export default function ConnectionConfigEditor({
   config: ConnectionStoreConfig;
   onChange: (value: ConnectionStoreConfig) => void;
 }) {
-  if (type === 'mysql') {
+  if (type === 'mysql' || type === 'postgre') {
     return (
       <MySQLConnectionEditor
         config={config as MySqlConnectionConfig}

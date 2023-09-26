@@ -33,9 +33,7 @@ function DatabaseScreenBody() {
     setLoading(true);
     common
       .getSchema()
-      .then((data) => {
-        setSchema(data);
-      })
+      .then(setSchema)
       .catch((e) => {
         setError(true);
         setErrorMessage(e.message);

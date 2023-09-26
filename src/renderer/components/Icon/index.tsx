@@ -1,6 +1,7 @@
 import styles from './styles.module.scss';
 import iconMore from './more.svg';
 import iconMySql from './mysql.svg';
+import iconPostgre from './postgresql.svg';
 import iconDown from './down.svg';
 import iconRight from './right.svg';
 import iconTable from './table2.png';
@@ -65,6 +66,10 @@ Icon.More = (props: IconProps) => {
 
 Icon.MySql = (props: IconProps) => {
   return <Icon path={iconMySql} {...props} />;
+};
+
+Icon.PostgreSQL = (props: IconProps) => {
+  return <Icon path={iconPostgre} {...props} />;
 };
 
 Icon.Close = (props: IconProps) => {

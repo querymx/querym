@@ -31,15 +31,18 @@ test('Generate Sql from changes with primary key', () => {
       {
         name: 'id',
         type: { type: 'number' },
+        dataType: 0,
         schema: { table: 'users', column: 'id' },
       },
       {
         name: 'name',
         type: { type: 'string' },
+        dataType: 0,
         schema: { table: 'users', column: 'name' },
       },
       {
         name: 'age',
+        dataType: 0,
         type: { type: 'number' },
         schema: { table: 'users', column: 'age' },
       },

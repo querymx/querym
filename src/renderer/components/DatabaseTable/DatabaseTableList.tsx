@@ -1,13 +1,10 @@
 import styles from './styles.module.scss';
 import TreeView, { TreeViewItemData } from '../TreeView';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useWindowTab } from 'renderer/contexts/WindowTabProvider';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCalendar,
-  faEye,
-  faGear,
   faRefresh,
   faTableCells,
   faTableList,
@@ -20,6 +17,8 @@ import ListViewEmptyState from '../ListView/ListViewEmptyState';
 import TextField from '../TextField';
 import { useDebounce } from 'hooks/useDebounce';
 import TableDataViewer from 'renderer/screens/DatabaseScreen/TableDataViewer';
+import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
+import { buildSchemaTree } from './buildTableTree';
 
 type SelectedTreeViewItem = TreeViewItemData<{
   database: string;
@@ -30,15 +29,21 @@ type SelectedTreeViewItem = TreeViewItemData<{
 export default function DatabaseTableList() {
   const [search, setSearch] = useState('');
   const { reloadSchema } = useSchema();
+  const { common } = useSqlExecute();
   const searchDebounce = useDebounce(search, 500);
   const { schema, currentDatabase } = useSchema();
   const [selected, setSelected] = useState<SelectedTreeViewItem>();
   const { newWindow } = useWindowTab();
-  const [collapsed, setCollapsed] = useState<string[] | undefined>([
-    'tables',
-    'events',
-    'triggers',
-  ]);
+
+  const [collapsed, setCollapsed] = useState<string[] | undefined>();
+
+  useEffect(() => {
+    setCollapsed([
+      `${currentDatabase}/tables`,
+      `${currentDatabase}/events`,
+      `${currentDatabase}/triggers`,
+    ]);
+  }, [setCollapsed, currentDatabase]);
 
   const viewTableData = useCallback(
     (item: SelectedTreeViewItem) => {
@@ -112,94 +117,17 @@ export default function DatabaseTableList() {
 
   const schemaListItem = useMemo(() => {
     if (!schema) return [];
-    if (!currentDatabase) return [];
 
-    const currentDatabaseSchema = schema[currentDatabase];
-    if (!currentDatabaseSchema) return [];
-
-    const tables = Object.values(currentDatabaseSchema.tables)
-      .map((table) => ({
-        id: `table/${table.name}`,
-        text: table.name,
-        icon:
-          table.type === 'TABLE' ? (
-            <FontAwesomeIcon icon={faTableList} color="#3498db" />
-          ) : (
-            <FontAwesomeIcon icon={faEye} color="#e67e22" />
-          ),
-        data: {
-          name: table.name,
-          type: table.type === 'TABLE' ? 'table' : 'view',
-          database: currentDatabase,
-        },
-      }))
-      .filter((table) => {
-        if (searchDebounce) {
-          return table.text.indexOf(searchDebounce) >= 0;
-        }
-
-        return true;
+    if (common.FLAG_USE_STATEMENT) {
+      if (!currentDatabase) return [];
+      const currentDatabaseSchema = schema.getDatabase(currentDatabase);
+      if (!currentDatabaseSchema) return [];
+      return buildSchemaTree(currentDatabaseSchema, searchDebounce).children;
+    } else {
+      return Object.entries(schema.getSchema()).map((entry) => {
+        return buildSchemaTree(entry[1], search);
       });
-
-    const triggers = currentDatabaseSchema.triggers
-      .map((trigger) => ({
-        id: `trigger/${trigger}`,
-        text: trigger,
-        icon: <FontAwesomeIcon icon={faGear} color="#bdc3c7" />,
-        data: {
-          name: trigger,
-          database: currentDatabase,
-          type: 'trigger',
-        },
-      }))
-      .filter((table) => {
-        if (searchDebounce) {
-          return table.text.indexOf(searchDebounce) >= 0;
-        }
-
-        return true;
-      });
-
-    const events = currentDatabaseSchema.events
-      .map((event) => ({
-        id: `event/${event}`,
-        text: event,
-        icon: <FontAwesomeIcon icon={faCalendar} color="#27ae60" />,
-        data: {
-          name: event,
-          type: 'event',
-          database: currentDatabase,
-        },
-      }))
-      .filter((table) => {
-        if (searchDebounce) {
-          return table.text.indexOf(searchDebounce) >= 0;
-        }
-
-        return true;
-      });
-
-    tables.sort((a, b) => a.text.localeCompare(b.text));
-    triggers.sort((a, b) => a.text.localeCompare(b.text));
-    events.sort((a, b) => a.text.localeCompare(b.text));
-
-    return [
-      {
-        id: 'tables',
-        text: `Tables (${Object.values(currentDatabaseSchema.tables).length})`,
-        children: tables,
-      },
-      {
-        id: 'events',
-        text: `Events (${currentDatabaseSchema.events.length})`,
-        children: events,
-      },
-      {
-        id: 'triggers',
-        text: `Triggers (${currentDatabaseSchema.triggers.length})`,
-        children: triggers,
-      },
-    ];
+    }
   }, [schema, currentDatabase, searchDebounce]);
 
   if (!schema) return <div />;
@@ -207,9 +135,11 @@ export default function DatabaseTableList() {
   return (
     <div className={styles.tables}>
       <Layout>
-        <Layout.Fixed>
-          <DatabaseSelection />
-        </Layout.Fixed>
+        {common.FLAG_USE_STATEMENT && (
+          <Layout.Fixed>
+            <DatabaseSelection />
+          </Layout.Fixed>
+        )}
         <Layout.Grow>
           {currentDatabase ? (
             <TreeView
