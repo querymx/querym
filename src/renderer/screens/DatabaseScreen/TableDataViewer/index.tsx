@@ -68,7 +68,7 @@ function TableDataViewerBody({
         rowIndex: idx,
         data: row,
       })),
-    [result]
+    [result],
   );
 
   const headers = result.headers;

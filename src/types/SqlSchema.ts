@@ -47,7 +47,7 @@ export interface DatabaseSchema {
 
 export type DatabaseSchemaList = Record<string, DatabaseSchema>;
 
-interface DatabaseDataType {
+export interface DatabaseDataType {
   id: number;
   name: string;
   category: string;
@@ -130,7 +130,7 @@ export class DatabaseSchemas {
   addColumn(
     databaseName: string,
     tableName: string,
-    column: TableColumnSchema
+    column: TableColumnSchema,
   ) {
     const table = this.getTable(databaseName, tableName);
     if (!table) return;
@@ -158,17 +158,17 @@ export class DatabaseSchemas {
     tableName: string,
     constraintName: string,
     type: TableConstraintTypeSchema,
-    column: string
+    column: string,
   ) {
     const table = this.getTable(databaseName, tableName);
     if (!table) return;
 
     const constraint = table.constraints.find(
-      (constraint) => constraint.name === constraintName
+      (constraint) => constraint.name === constraintName,
     );
+
     if (constraint) {
       constraint.columns.push(column);
-    } else {
       table.constraints.push({
         name: constraintName,
         columns: [column],
