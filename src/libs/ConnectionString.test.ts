@@ -6,6 +6,8 @@ test('decode MySQL connection string', () => {
       id: '',
       name: '',
       type: 'mysql',
+      createdAt: 0,
+      lastUsedAt: 0,
       config: {
         database: 'testing_db',
         host: 'localhost',
@@ -13,6 +15,6 @@ test('decode MySQL connection string', () => {
         user: 'root',
         port: '3306',
       },
-    })
+    }),
   ).toBe('mysql://root:123@localhost:3306/testing_db');
 });

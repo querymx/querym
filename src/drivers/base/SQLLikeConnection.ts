@@ -1,3 +1,4 @@
+import { QueryDialetType } from 'libs/QueryBuilder';
 import { QueryResult } from 'types/SqlResult';
 
 export interface DatabaseConnectionConfig {
@@ -24,36 +25,33 @@ export interface SqliteConnectionConfig {
   path: string;
 }
 
-export interface ConnectionConfigTree {
-  id: string;
+export interface ConnectionStoreItemWithoutId {
+  id?: string;
   name: string;
-  nodeType: 'folder' | 'connection';
-  config?: ConnectionStoreItem;
-  parentId?: string;
-  children?: ConnectionConfigTree[];
+  type: QueryDialetType;
+  protectionLevel?: number;
+  tag?: string;
+  createdAt: number;
+  lastUsedAt: number;
+  config: ConnectionStoreConfig;
 }
 
-export interface ConnectionStoreItem {
+export interface ConnectionStoreItem extends ConnectionStoreItemWithoutId {
   id: string;
-  name: string;
-  type?: string;
-  protectionLevel?: number;
-  config: ConnectionStoreConfig;
 }
 
 export type SqlQueryCallback = (
   sql: string,
   params?: Record<string, unknown>,
-  safetyLevel?: number
+  safetyLevel?: number,
 ) => Promise<QueryResult>;
 
 export default abstract class SQLLikeConnection {
   abstract query(
     sql: string,
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ): Promise<QueryResult>;
 
   abstract killCurrentQuery(): Promise<void>;
-
   abstract close(): void;
 }
