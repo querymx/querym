@@ -1,14 +1,11 @@
 import { v1 as uuidv1 } from 'uuid';
 import { useCallback } from 'react';
-import Icon from 'renderer/components/Icon';
 import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import generateIncrementalName from 'renderer/utils/generateIncrementalName';
-import {
-  ConnectionConfigTree,
-  ConnectionStoreConfig,
-} from 'drivers/base/SQLLikeConnection';
+import { ConnectionConfigTree } from 'drivers/base/SQLLikeConnection';
 import { TreeViewItemData } from 'renderer/components/TreeView';
 import ConnectionSettingTree from 'libs/ConnectionSettingTree';
+import { ContextMenuItemProps } from 'renderer/components/ContextMenu';
 
 export default function useConnectionContextMenu({
   connectionTree,
@@ -19,17 +16,19 @@ export default function useConnectionContextMenu({
   setRenameSelectedItem,
   setSaveCollapsedKeys,
   collapsedKeys,
+  newConnectionMenu,
 }: {
   connectionTree: ConnectionSettingTree;
   connections: ConnectionConfigTree[] | undefined;
   selectedItem?: TreeViewItemData<ConnectionConfigTree>;
   setConnections: (v: ConnectionConfigTree[]) => void;
   setSelectedItem: (
-    v: TreeViewItemData<ConnectionConfigTree> | undefined
+    v: TreeViewItemData<ConnectionConfigTree> | undefined,
   ) => void;
   setRenameSelectedItem: (v: boolean) => void;
   collapsedKeys: string[] | undefined;
   setSaveCollapsedKeys: (v: string[] | undefined) => void;
+  newConnectionMenu: ContextMenuItemProps[];
 }) {
   // ----------------------------------------------
   // Handle remove database
@@ -48,7 +47,7 @@ export default function useConnectionContextMenu({
         const parent = connectionTree.getById(selectedItem.data.parentId);
         if (parent?.children) {
           parent.children = parent.children.filter(
-            (node) => node.id !== selectedItem.id
+            (node) => node.id !== selectedItem.id,
           );
         }
       }
@@ -64,59 +63,11 @@ export default function useConnectionContextMenu({
     connectionTree,
   ]);
 
-  // ----------------------------------------------
-  // Handle new connection
-  // ----------------------------------------------
-  const newConnection = useCallback(
-    (type: string, config: ConnectionStoreConfig) => {
-      const newConnectionId = uuidv1();
-      const newConfig = {
-        id: newConnectionId,
-        name: generateIncrementalName(
-          connectionTree.getAllNodes().map((node) => node.name),
-          'Unnamed'
-        ),
-        type,
-        config,
-      };
-
-      const newTreeNode: ConnectionConfigTree = {
-        id: newConfig.id,
-        name: newConfig.name,
-        nodeType: 'connection',
-        config: newConfig,
-      };
-
-      setSelectedItem({
-        id: newTreeNode.id,
-        text: newTreeNode.name,
-        data: newTreeNode,
-        icon: <Icon.MySql />,
-      });
-
-      connectionTree.insertNode(newTreeNode, selectedItem?.id);
-      setConnections(connectionTree.getNewTree());
-
-      if (selectedItem) {
-        setSaveCollapsedKeys([...(collapsedKeys ?? []), selectedItem.id]);
-      }
-    },
-    [
-      setConnections,
-      setSelectedItem,
-      selectedItem,
-      connections,
-      connectionTree,
-      collapsedKeys,
-      setSaveCollapsedKeys,
-    ]
-  );
-
   const newFolderClicked = useCallback(() => {
     const newFolderId = uuidv1();
     const newFolderName = generateIncrementalName(
       connectionTree.getAllNodes().map((node) => node.name),
-      'Unnamed Folders'
+      'Unnamed Folders',
     );
 
     const newTreeNode: ConnectionConfigTree = {
@@ -151,29 +102,8 @@ export default function useConnectionContextMenu({
   const { handleContextMenu } = useContextMenu(() => {
     return [
       {
-        text: 'New MySQL Connection',
-        icon: <Icon.MySql />,
-        onClick: () =>
-          newConnection('mysql', {
-            database: '',
-            host: '',
-            password: '',
-            port: '3306',
-            user: '',
-          }),
-      },
-      {
-        text: 'New PostgreSQL Connection (Beta)',
-        icon: <Icon.PostgreSQL />,
-        onClick: () =>
-          newConnection('postgre', {
-            database: '',
-            host: '',
-            password: '',
-            port: '3306',
-            user: '',
-          }),
-        separator: true,
+        text: 'New Connection',
+        children: newConnectionMenu,
       },
       {
         text: 'New Folder',
@@ -192,7 +122,12 @@ export default function useConnectionContextMenu({
         destructive: true,
       },
     ];
-  }, [selectedItem, newConnection, newFolderClicked, setRenameSelectedItem]);
+  }, [
+    selectedItem,
+    newFolderClicked,
+    setRenameSelectedItem,
+    newConnectionMenu,
+  ]);
 
   return { handleContextMenu };
 }

@@ -17,9 +17,12 @@ import { useIndexDbConnection } from 'renderer/hooks/useIndexDbConnections';
 import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
 import useConnectionContextMenu from './useConnectionContextMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
+import Layout from 'renderer/components/Layout';
+import Toolbar from 'renderer/components/Toolbar';
+import useNewConnectionMenu from './useNewConnectionMenu';
 
 const WELCOME_SCREEN_ID = '00000000000000000000';
 
@@ -55,7 +58,7 @@ export default function HomeScreen() {
     useState<ConnectionStoreItem>();
 
   const [collapsedKeys, setCollapsedKeys] = useState<string[] | undefined>(
-    initialCollapsed
+    initialCollapsed,
   );
 
   const { binding } = useKeybinding();
@@ -70,7 +73,7 @@ export default function HomeScreen() {
     !!selectedItem?.data &&
       !!selectedItemChanged &&
       !deepEqual(selectedItem.data.config, selectedItemChanged),
-    200
+    200,
   );
 
   const [renameSelectedItem, setRenameSelectedItem] = useState(false);
@@ -92,12 +95,12 @@ export default function HomeScreen() {
   const setSaveCollapsedKeys = useCallback(
     (keys: string[] | undefined) => {
       const legitKeys = Array.from(
-        new Set(keys?.filter((key) => !!connectionTree.getById(key)))
+        new Set(keys?.filter((key) => !!connectionTree.getById(key))),
       );
 
       setCollapsedKeys(legitKeys);
     },
-    [setCollapsedKeys, saveCollapsed, connectionTree]
+    [setCollapsedKeys, saveCollapsed, connectionTree],
   );
 
   // -----------------------------------------------
@@ -115,7 +118,7 @@ export default function HomeScreen() {
   const handleDragAndOverItem = useCallback(
     (
       from: TreeViewItemData<ConnectionConfigTree>,
-      to: TreeViewItemData<ConnectionConfigTree>
+      to: TreeViewItemData<ConnectionConfigTree>,
     ) => {
       if (from.data && to.data) {
         connectionTree.moveNode(from.data, to.data);
@@ -125,7 +128,7 @@ export default function HomeScreen() {
         setConnections(connectionTree.getNewTree());
       }
     },
-    [connectionTree, setConnections]
+    [connectionTree, setConnections],
   );
 
   const handleRenameExit = useCallback(
@@ -140,7 +143,7 @@ export default function HomeScreen() {
         }
 
         setSelectedItemChanged((prev) =>
-          prev ? { ...prev, name: newValue } : prev
+          prev ? { ...prev, name: newValue } : prev,
         );
 
         const parent = connectionTree.getById(selectedItem.id);
@@ -159,7 +162,7 @@ export default function HomeScreen() {
       selectedItem,
       setSelectedItemChanged,
       setRenameSelectedItem,
-    ]
+    ],
   );
 
   // -----------------------------------------------
@@ -186,6 +189,17 @@ export default function HomeScreen() {
     return true;
   }, [selectedItemChanged, onSaveClick, hasChange]);
 
+  const newConnectionMenu = useNewConnectionMenu({
+    connections,
+    setSaveCollapsedKeys,
+    collapsedKeys,
+    setSelectedItem,
+    setConnections,
+    setRenameSelectedItem,
+    selectedItem,
+    connectionTree,
+  });
+
   const { handleContextMenu } = useConnectionContextMenu({
     connections,
     setSaveCollapsedKeys,
@@ -195,6 +209,7 @@ export default function HomeScreen() {
     setRenameSelectedItem,
     selectedItem,
     connectionTree,
+    newConnectionMenu,
   });
 
   return (
@@ -207,41 +222,47 @@ export default function HomeScreen() {
       >
         <div
           className={styles.connectionList}
-          onKeyDown={e => {
+          onKeyDown={(e) => {
             if (keyRenaming.match(e)) {
               setRenameSelectedItem(true);
             }
           }}
           tabIndex={0}
         >
-          {/* <Layout>
-            <Layout.Grow> */}
-          <TreeView
-            draggable
-            renameSelectedItem={renameSelectedItem}
-            onRenamedSelectedItem={handleRenameExit}
-            onDragItem={handleDragAndOverItem}
-            items={treeItems}
-            onCollapsedChange={setSaveCollapsedKeys}
-            collapsedKeys={collapsedKeys}
-            onSelectChange={setSelectedItem}
-            onDoubleClick={(item) => {
-              if (item.data?.config) {
-                connect(item.data?.config);
-              }
-            }}
-            selected={selectedItem}
-            onBeforeSelectChange={onBeforeSelectChange}
-            onContextMenu={handleContextMenu}
-            emptyState={
-              <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
-            }
-          />
-          {/* </Layout.Grow>
+          <Layout>
             <Layout.Fixed>
-              <ConnectedUser />
+              <Toolbar>
+                <Toolbar.ContextMenu
+                  icon={<FontAwesomeIcon icon={faAdd} />}
+                  text=""
+                  items={newConnectionMenu}
+                />
+              </Toolbar>
             </Layout.Fixed>
-          </Layout> */}
+            <Layout.Grow>
+              <TreeView
+                draggable
+                renameSelectedItem={renameSelectedItem}
+                onRenamedSelectedItem={handleRenameExit}
+                onDragItem={handleDragAndOverItem}
+                items={treeItems}
+                onCollapsedChange={setSaveCollapsedKeys}
+                collapsedKeys={collapsedKeys}
+                onSelectChange={setSelectedItem}
+                onDoubleClick={(item) => {
+                  if (item.data?.config) {
+                    connect(item.data?.config);
+                  }
+                }}
+                selected={selectedItem}
+                onBeforeSelectChange={onBeforeSelectChange}
+                onContextMenu={handleContextMenu}
+                emptyState={
+                  <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
+                }
+              />
+            </Layout.Grow>
+          </Layout>
         </div>
 
         <div className={styles.connectionDetail}>
