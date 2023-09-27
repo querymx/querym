@@ -1,11 +1,12 @@
 import {
+  DatabaseDataType,
   DatabaseSchemas,
   TableColumnSchema,
   TableDefinitionSchema,
 } from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryResultHeaderType } from 'types/SqlResult';
 import { qb } from 'libs/QueryBuilder';
 
 interface PgColumn {
@@ -28,6 +29,16 @@ function mapColumnDefinition(col: PgColumn): TableColumnSchema {
     dataType: col.udt_name,
     nullable: col.is_nullable === 'YES',
   };
+}
+
+function mapDataType(type?: DatabaseDataType): QueryResultHeaderType {
+  if (!type) return { type: 'other' };
+
+  // https://www.postgresql.org/docs/current/catalog-pg-type.html#CATALOG-TYPCATEGORY-TABLE
+  const category = type.category.toUpperCase();
+  if (category === 'S') return { type: 'string' };
+  if (category === 'N') return { type: 'number' };
+  return { type: 'other' };
 }
 
 export default class PgCommonInterface extends SQLCommonInterface {
@@ -65,14 +76,14 @@ export default class PgCommonInterface extends SQLCommonInterface {
       relname: string;
       relkind: string;
     }>(
-      `SELECT pg_class.oid, relname, pg_namespace.nspname, pg_class.relkind FROM pg_class INNER JOIN pg_namespace ON (pg_class.relnamespace = pg_namespace.oid) WHERE pg_class.relkind IN ('r', 'v');`
+      `SELECT pg_class.oid, relname, pg_namespace.nspname, pg_class.relkind FROM pg_class INNER JOIN pg_namespace ON (pg_class.relnamespace = pg_namespace.oid) WHERE pg_class.relkind IN ('r', 'v');`,
     );
     tables.rows.forEach((table) =>
       result.addTable(table.nspname, {
         name: table.relname,
         id: table.oid,
         type: table.relkind === 'r' ? 'TABLE' : 'VIEW',
-      })
+      }),
     );
 
     // Map columns
@@ -84,15 +95,15 @@ export default class PgCommonInterface extends SQLCommonInterface {
       udt_name: string;
       is_nullable: string;
     }>(
-      'SELECT table_schema, "table_name", "column_name", ordinal_position, udt_name, is_nullable FROM information_schema."columns";'
+      'SELECT table_schema, "table_name", "column_name", ordinal_position, udt_name, is_nullable FROM information_schema."columns";',
     );
 
     columns.rows.forEach((col) =>
       result.addColumn(
         col.table_schema,
         col.table_name,
-        mapColumnDefinition(col)
-      )
+        mapColumnDefinition(col),
+      ),
     );
 
     // Map constraints
@@ -104,7 +115,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
       conkey: number[];
       nspname: string;
     }>(
-      'SELECT pg_constraint.oid, conname, conrelid, contype, conkey, nspname FROM pg_constraint INNER JOIN pg_namespace ON (pg_constraint.connamespace = pg_namespace.oid);'
+      'SELECT pg_constraint.oid, conname, conrelid, contype, conkey, nspname FROM pg_constraint INNER JOIN pg_namespace ON (pg_constraint.connamespace = pg_namespace.oid);',
     );
 
     constraints.rows.forEach((constraint) => {
@@ -119,7 +130,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
             table.name,
             constraint.conname,
             constraint.contype === 'p' ? 'PRIMARY KEY' : 'UNIQUE',
-            col.name
+            col.name,
           );
 
           if (constraint.contype === 'p') {
@@ -128,12 +139,26 @@ export default class PgCommonInterface extends SQLCommonInterface {
         });
     });
 
+    // Map the type
+    const types = await this.singleExecute<{
+      oid: number;
+      typname: string;
+      typcategory: string;
+    }>('SELECT oid, typname, typcategory FROM pg_type');
+    types.rows.forEach((type) =>
+      result.addType({
+        id: type.oid,
+        category: type.typcategory,
+        name: type.typname,
+      }),
+    );
+
     return result;
   }
 
   async getTableSchema(
     database: string,
-    table: string
+    table: string,
   ): Promise<TableDefinitionSchema> {
     const columns = await this.singleExecute<{
       table_schema: string;
@@ -151,13 +176,13 @@ export default class PgCommonInterface extends SQLCommonInterface {
           'column_name',
           'ordinal_position',
           'udt_name',
-          'is_nullable'
+          'is_nullable',
         )
         .where({
           table_schema: database,
           table_name: table,
         })
-        .toRawSQL()
+        .toRawSQL(),
     );
 
     return {
@@ -180,7 +205,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
 
   async estimateTableRowCount(
     database: string,
-    table: string
+    table: string,
   ): Promise<number | null> {
     const sql = `SELECT reltuples AS estimate FROM pg_class WHERE oid = '${database}.${table}'::regclass;`;
     return (await this.singleExecute<{ estimate: number }>(sql)).rows[0]
@@ -189,7 +214,7 @@ export default class PgCommonInterface extends SQLCommonInterface {
 
   attachHeaders(
     statements: SqlStatementResult[],
-    schema: DatabaseSchemas | undefined
+    schema: DatabaseSchemas | undefined,
   ): SqlStatementResult[] {
     if (!schema) return statements;
 
@@ -199,6 +224,8 @@ export default class PgCommonInterface extends SQLCommonInterface {
 
         if (!column) return header;
 
+        const type = mapDataType(schema.getTypeById(header.dataType));
+
         return {
           ...header,
           schema: {
@@ -206,9 +233,10 @@ export default class PgCommonInterface extends SQLCommonInterface {
             column: column.name,
             table: column.tableName,
           },
+          type,
           columnDefinition: schema.getColumnById(
             header.tableId,
-            header.columnId
+            header.columnId,
           ),
         };
       });

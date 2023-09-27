@@ -68,7 +68,7 @@ function TableDataViewerBody({
         rowIndex: idx,
         data: row,
       })),
-    [result]
+    [result],
   );
 
   const headers = result.headers;
@@ -147,8 +147,6 @@ export default function TableDataViewer({
   const [loading, setLoading] = useState(true);
   const [sortedHeader, setSortedHeader] = useState<SortedHeader>();
   const [page, setPage] = useState(0);
-
-  console.log(schema?.getSchema());
 
   useEffect(() => {
     common.estimateTableRowCount(databaseName, tableName).then(setTotalRows);
