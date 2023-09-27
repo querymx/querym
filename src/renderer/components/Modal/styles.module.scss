@@ -41,7 +41,19 @@
   font-size: 1.2rem;
   flex-grow: 1;
   height: 28px;
-  line-height: 28px;;
+  line-height: 28px;
+}
+
+.modalIcon {
+  display: flex;
+  margin-right: 8px;
+  align-items: center;
+
+  img {
+    width: 20px;
+    height: 20px;
+
+  }
 }
 
 .modalClose {

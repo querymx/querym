@@ -15,28 +15,40 @@ export default function MySQLConnectionEditor({
 }) {
   return (
     <Stack vertical>
-      <TextField
-        label="Host"
-        value={config?.host}
-        onChange={(value) => onChange({ ...config, host: value })}
-      />
-      <div style={{ width: 150 }}>
-        <TextField
-          label="Port"
-          value={config?.port}
-          onChange={(value) => onChange({ ...config, port: value })}
-        />
-      </div>
-      <TextField
-        label="Username"
-        value={config?.user}
-        onChange={(value) => onChange({ ...config, user: value })}
-      />
-      <PasswordField
-        label="Password"
-        value={config?.password}
-        onChange={(value) => onChange({ ...config, password: value })}
-      />
+      <Stack>
+        <div style={{ flexGrow: 1 }}>
+          <TextField
+            label="Host"
+            value={config?.host}
+            onChange={(value) => onChange({ ...config, host: value })}
+          />
+        </div>
+        <div style={{ width: 150 }}>
+          <TextField
+            label="Port"
+            value={config?.port}
+            onChange={(value) => onChange({ ...config, port: value })}
+          />
+        </div>
+      </Stack>
+
+      <Stack>
+        <div style={{ width: '50%' }}>
+          <TextField
+            label="Username"
+            value={config?.user}
+            onChange={(value) => onChange({ ...config, user: value })}
+          />
+        </div>
+        <div style={{ width: '50%' }}>
+          <PasswordField
+            label="Password"
+            value={config?.password}
+            onChange={(value) => onChange({ ...config, password: value })}
+          />
+        </div>
+      </Stack>
+
       <TextField
         label="Database"
         value={config?.database}

@@ -9,6 +9,8 @@ interface ModalProps {
   onClose?: () => void;
   wide?: boolean;
   maxWidth?: number;
+  minWidth?: number;
+  icon?: React.ReactElement;
 }
 
 export default function Modal({
@@ -18,6 +20,8 @@ export default function Modal({
   onClose,
   wide,
   maxWidth,
+  minWidth,
+  icon,
 }: PropsWithChildren<ModalProps>) {
   return open
     ? createPortal(
@@ -29,9 +33,10 @@ export default function Modal({
           >
             <div
               className={styles.modal}
-              style={{ width: wide ? '80%' : undefined, maxWidth }}
+              style={{ width: wide ? '80%' : undefined, maxWidth, minWidth }}
             >
               <div className={styles.modalHeader}>
+                {icon && <div className={styles.modalIcon}>{icon}</div>}
                 <div className={styles.modalTitle}>{title}</div>
                 <div className={styles.modalClose} onClick={onClose}>
                   <Icon.Close />
@@ -41,7 +46,7 @@ export default function Modal({
             </div>
           </div>
         </>,
-        document.body
+        document.body,
       )
     : null;
 }

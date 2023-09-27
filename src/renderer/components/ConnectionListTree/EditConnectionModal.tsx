@@ -4,6 +4,7 @@ import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
 import DatabaseConfigEditor from './DatabaseConfigEditor';
 import { useConnectionList } from '.';
+import ConnectionIcon from '../ConnectionIcon';
 
 export default function EditConnectionModal({
   initialValue,
@@ -25,8 +26,11 @@ export default function EditConnectionModal({
 
   return (
     <Modal
+      icon={<ConnectionIcon dialect={initialValue.type} />}
       title={initialValue.id ? 'Edit Connection' : 'New Connection'}
       open
+      minWidth={600}
+      maxWidth={600}
       onClose={finishEditing}
     >
       <Modal.Body>

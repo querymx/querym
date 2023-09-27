@@ -38,7 +38,7 @@ export default function useNewConnectionMenu() {
         onClick: () =>
           newConnection('mysql', {
             database: '',
-            host: '',
+            host: 'localhost',
             password: '',
             port: '3306',
             user: '',
@@ -50,10 +50,10 @@ export default function useNewConnectionMenu() {
         onClick: () =>
           newConnection('postgre', {
             database: '',
-            host: '',
+            host: 'localhost',
             password: '',
-            port: '3306',
-            user: '',
+            port: '5432',
+            user: 'postgres',
           }),
       },
       { text: 'SQLite (coming soon)', disabled: true },

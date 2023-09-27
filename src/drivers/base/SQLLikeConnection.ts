@@ -31,6 +31,7 @@ export interface ConnectionStoreItemWithoutId {
   type: QueryDialetType;
   protectionLevel?: number;
   tag?: string;
+  color?: string;
   createdAt: number;
   lastUsedAt: number;
   config: ConnectionStoreConfig;

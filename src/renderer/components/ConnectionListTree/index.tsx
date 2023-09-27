@@ -11,7 +11,6 @@ import {
   useCallback,
   useContext,
 } from 'react';
-import Icon from 'renderer/components/Icon';
 import ListViewEmptyState from 'renderer/components/ListView/ListViewEmptyState';
 import TreeView, { TreeViewItemData } from 'renderer/components/TreeView';
 import Layout from 'renderer/components/Layout';
@@ -19,6 +18,8 @@ import EditConnectionModal from './EditConnectionModal';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import ConnectionToolbar from './ConnectionToolbar';
 import useConnectionContextMenu from './useConnectionContextMenu';
+import { useConnection } from 'renderer/App';
+import ConnectionIcon from '../ConnectionIcon';
 
 const ConnectionListContext = createContext<{
   storage: ConnectionListStorage;
@@ -36,11 +37,12 @@ export function useConnectionList() {
   return useContext(ConnectionListContext);
 }
 
-function ConnectionListTreeeBody({
+function ConnectionListTreeBody({
   connectionList,
 }: {
   connectionList: ConnectionStoreItem[];
 }) {
+  const { connect } = useConnection();
   const [selectedItem, setSelectedItem] =
     useState<TreeViewItemData<ConnectionStoreItem>>();
 
@@ -50,8 +52,7 @@ function ConnectionListTreeeBody({
         return {
           id: connection.id,
           data: connection,
-          icon:
-            connection.type === 'mysql' ? <Icon.MySql /> : <Icon.PostgreSQL />,
+          icon: <ConnectionIcon dialect={connection.type} />,
           text: connection.name,
         };
       },
@@ -76,6 +77,11 @@ function ConnectionListTreeeBody({
       selected={selectedItem}
       onContextMenu={handleContextMenu}
       onSelectChange={setSelectedItem}
+      onDoubleClick={(e) => {
+        if (e.data) {
+          connect(e.data);
+        }
+      }}
       emptyState={
         <ListViewEmptyState text="There is no database setting. Right click to create new setting." />
       }
@@ -118,7 +124,7 @@ export default function ConnectionListTree() {
         <Layout.Fixed>
           <ConnectionToolbar />
         </Layout.Fixed>
-        <ConnectionListTreeeBody connectionList={connectionList} />
+        <ConnectionListTreeBody connectionList={connectionList} />
       </Layout>
 
       {editingItem && <EditConnectionModal initialValue={editingItem} />}

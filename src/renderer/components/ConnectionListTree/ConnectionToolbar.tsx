@@ -7,7 +7,7 @@ export default function ConnectionToolbar() {
   const menu = useNewConnectionMenu();
 
   return (
-    <Toolbar shadow>
+    <Toolbar>
       <Toolbar.ContextMenu
         icon={<FontAwesomeIcon icon={faAdd} />}
         text=""
