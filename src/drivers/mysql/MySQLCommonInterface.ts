@@ -113,7 +113,7 @@ function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
 
 function mapDataType(header: QueryResultHeader): QueryResultHeader {
   const columnType = header.dataType;
-  let type: QueryResultHeaderType = { type: 'other' };
+  let type: QueryResultHeaderType = { type: 'string' };
 
   // List of all column type
   // https://dev.mysql.com/doc/dev/mysql-server/latest/field__types_8h_source.html

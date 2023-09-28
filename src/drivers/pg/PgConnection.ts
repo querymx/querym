@@ -23,10 +23,13 @@ export default class PgConnection extends SQLLikeConnection {
   }
 
   protected async getConnection(): Promise<Client> {
-    const client = new Client(this.connectionConfig);
-    this.client = client;
+    if (!this.client) {
+      const client = new Client(this.connectionConfig);
+      this.client = client;
+      await client.connect();
+      return this.client;
+    }
 
-    await client.connect();
     return this.client;
   }
 
