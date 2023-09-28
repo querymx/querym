@@ -20,6 +20,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronLeft,
   faChevronRight,
+  faRefresh,
 } from '@fortawesome/free-solid-svg-icons';
 import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
 import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
@@ -94,6 +95,11 @@ function TableDataViewerBody({
           onRequestRefetch={refresh}
         />
       )}
+      <Toolbar.Item
+        icon={<FontAwesomeIcon icon={faRefresh} color="#27ae60" />}
+        text="Refresh"
+        onClick={() => refresh()}
+      />
       <Toolbar.Filler />
       <Toolbar.Item
         icon={<FontAwesomeIcon icon={faChevronLeft} />}
