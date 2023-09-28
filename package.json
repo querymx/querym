@@ -1,5 +1,5 @@
 {
-  "name": "querymaster",
+  "name": "querym",
   "description": "just another database graphical client",
   "version": "0.4.6",
   "keywords": [
@@ -195,12 +195,12 @@
   },
   "build": {
     "protocols": {
-      "name": "QueryMaster",
+      "name": "QueryM",
       "schemes": [
         "querymaster"
       ]
     },
-    "productName": "QueryMaster",
+    "productName": "QueryM",
     "appId": "com.invisal.querymaster",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
@@ -241,11 +241,11 @@
       ]
     },
     "appx": {
-      "applicationId": "QueryMaster",
+      "applicationId": "QueryM",
       "identityName": "12586QueryMaster.QueryMaster",
-      "displayName": "QueryMaster",
+      "displayName": "QueryM",
       "publisher": "CN=CE087293-2717-47BA-A1C8-389DD9E965BB",
-      "publisherDisplayName": "QueryMaster"
+      "publisherDisplayName": "QueryM"
     },
     "win": {
       "target": [

@@ -9,24 +9,22 @@ import ButtonGroup from 'renderer/components/ButtonGroup';
 
 export default function WelcomeScreen() {
   const onGithubClicked = useCallback(() => {
-    window.electron.openExternal('https://github.com/invisal/query-master');
+    window.electron.openExternal('https://github.com/QueryMx/QueryM');
   }, []);
 
   const onReportIssueClicked = useCallback(() => {
-    window.electron.openExternal(
-      'https://github.com/invisal/query-master/issues'
-    );
+    window.electron.openExternal('https://github.com/QueryMx/QueryM/issues');
   }, []);
 
   return (
     <Stack padding vertical full>
       <img src={imageLogo} alt="" width={150} height={150} />
 
-      <Heading>Query Master v{pkg.version}</Heading>
+      <Heading>QueryM v{pkg.version}</Heading>
 
       <div>
-        <strong>Query Master</strong> is a complete free open-source cross
-        platform database graphical client. Please support us on:
+        <strong>QueryM</strong> is a complete free open-source cross platform
+        database graphical client. Please support us on:
       </div>
 
       <div>

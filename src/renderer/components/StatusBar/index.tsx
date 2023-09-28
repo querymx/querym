@@ -14,7 +14,7 @@ function StatusBarAutoUpdate() {
 
   useEffect(() => {
     window.electron.listenCheckingForUpdate(() =>
-      setAutoUpdateMessage('Checking for update...')
+      setAutoUpdateMessage('Checking for update...'),
     );
 
     window.electron.listenUpdateNotAvailable(() => {
@@ -98,7 +98,7 @@ export default function StatusBar() {
   return (
     <div className={styles.statusBarContainer}>
       <ul>
-        <li>QueryMaster v{pkg.version}</li>
+        <li>QueryM v{pkg.version}</li>
         {!!connectionStatus?.version && (
           <li>MySQL {connectionStatus?.version}</li>
         )}

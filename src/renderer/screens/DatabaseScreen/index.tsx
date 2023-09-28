@@ -115,7 +115,7 @@ export default function DatabaseScreen({
 }: {
   config: ConnectionStoreItem;
 }) {
-  useWindowTitle('Query Master - ' + config.name);
+  useWindowTitle('QueryM - ' + config.name);
   const [isConnected, setConnected] = useState(false);
 
   useEffect(() => {
