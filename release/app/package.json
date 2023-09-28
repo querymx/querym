@@ -1,6 +1,6 @@
 {
   "name": "query-master",
-  "version": "0.4.6",
+  "version": "0.5.0",
   "description": "Yet another database GUI for MySQL",
   "license": "MIT",
   "author": {
