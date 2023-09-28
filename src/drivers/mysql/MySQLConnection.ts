@@ -35,25 +35,12 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
     ? column._buf
         .subarray(
           column._orgTableStart,
-          column._orgTableStart + column._orgTableLength
+          column._orgTableStart + column._orgTableLength,
         )
         .toString()
     : undefined;
 
-  let type: QueryResultHeaderType = { type: 'string' };
-
-  // List of all column type
-  // https://dev.mysql.com/doc/dev/mysql-server/latest/field__types_8h_source.html
-  if (column.type === 245) {
-    type = { type: 'json' };
-  } else if ([0, 1, 2, 3, 4, 5, 8, 9, 16].includes(column.type)) {
-    type = { type: 'number' };
-  } else if ([0, 246].includes(column.type)) {
-    type = { type: 'decimal' };
-  } else if ([255, 250, 251].includes(column.type)) {
-    type = { type: 'other' };
-  }
-
+  const type: QueryResultHeaderType = { type: 'string' };
   const databaseNameLength = column._buf[13];
   const databaseName =
     databaseNameLength > 0
@@ -131,7 +118,7 @@ export default class MySQLConnection extends SQLLikeConnection {
 
   async query(
     sql: string,
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ): Promise<QueryResult> {
     this.lastActivity = Date.now();
     this.isRunning = true;
@@ -156,7 +143,7 @@ export default class MySQLConnection extends SQLLikeConnection {
       }
 
       const headers = (result[1] as unknown as ColumnDefinition[]).map(
-        mapHeaderType
+        mapHeaderType,
       );
 
       this.isRunning = false;

@@ -8,11 +8,52 @@ import {
 import SQLCommonInterface from '../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
 import { qb } from 'libs/QueryBuilder';
-import { QueryResult, QueryResultHeader } from 'types/SqlResult';
+import {
+  QueryResult,
+  QueryResultHeader,
+  QueryResultHeaderType,
+} from 'types/SqlResult';
 import { parseEnumType } from 'libs/ParseColumnType';
 
 interface MySqlDatabase {
   SCHEMA_NAME: string;
+}
+
+enum MySQLType {
+  MYSQL_TYPE_DECIMAL,
+  MYSQL_TYPE_TINY,
+  MYSQL_TYPE_SHORT,
+  MYSQL_TYPE_LONG,
+  MYSQL_TYPE_FLOAT,
+  MYSQL_TYPE_DOUBLE,
+  MYSQL_TYPE_NULL,
+  MYSQL_TYPE_TIMESTAMP,
+  MYSQL_TYPE_LONGLONG,
+  MYSQL_TYPE_INT24,
+  MYSQL_TYPE_DATE,
+  MYSQL_TYPE_TIME,
+  MYSQL_TYPE_DATETIME,
+  MYSQL_TYPE_YEAR,
+  MYSQL_TYPE_NEWDATE /**< Internal to MySQL. Not used in protocol */,
+  MYSQL_TYPE_VARCHAR,
+  MYSQL_TYPE_BIT,
+  MYSQL_TYPE_TIMESTAMP2,
+  MYSQL_TYPE_DATETIME2 /**< Internal to MySQL. Not used in protocol */,
+  MYSQL_TYPE_TIME2 /**< Internal to MySQL. Not used in protocol */,
+  MYSQL_TYPE_TYPED_ARRAY /**< Used for replication only */,
+  MYSQL_TYPE_INVALID = 243,
+  MYSQL_TYPE_BOOL = 244 /**< Currently just a placeholder */,
+  MYSQL_TYPE_JSON = 245,
+  MYSQL_TYPE_NEWDECIMAL = 246,
+  MYSQL_TYPE_ENUM = 247,
+  MYSQL_TYPE_SET = 248,
+  MYSQL_TYPE_TINY_BLOB = 249,
+  MYSQL_TYPE_MEDIUM_BLOB = 250,
+  MYSQL_TYPE_LONG_BLOB = 251,
+  MYSQL_TYPE_BLOB = 252,
+  MYSQL_TYPE_VAR_STRING = 253,
+  MYSQL_TYPE_STRING = 254,
+  MYSQL_TYPE_GEOMETRY = 255,
 }
 
 interface MySqlColumn {
@@ -70,9 +111,67 @@ function mapColumnDefinition(col: MySqlColumn): TableColumnSchema {
   };
 }
 
+function mapDataType(header: QueryResultHeader): QueryResultHeader {
+  const columnType = header.dataType;
+  let type: QueryResultHeaderType = { type: 'other' };
+
+  // List of all column type
+  // https://dev.mysql.com/doc/dev/mysql-server/latest/field__types_8h_source.html
+  if (columnType === MySQLType.MYSQL_TYPE_JSON) {
+    type = { type: 'json' };
+  } else if (
+    [
+      MySQLType.MYSQL_TYPE_TINY,
+      MySQLType.MYSQL_TYPE_SHORT,
+      MySQLType.MYSQL_TYPE_LONG,
+      MySQLType.MYSQL_TYPE_FLOAT,
+      MySQLType.MYSQL_TYPE_DOUBLE,
+      MySQLType.MYSQL_TYPE_LONGLONG,
+      MySQLType.MYSQL_TYPE_INT24,
+      MySQLType.MYSQL_TYPE_BIT,
+    ].includes(columnType)
+  ) {
+    type = { type: 'number' };
+  } else if (
+    [MySQLType.MYSQL_TYPE_DECIMAL, MySQLType.MYSQL_TYPE_NEWDECIMAL].includes(
+      columnType,
+    )
+  ) {
+    type = { type: 'decimal' };
+  } else if (
+    [
+      MySQLType.MYSQL_TYPE_GEOMETRY,
+      MySQLType.MYSQL_TYPE_MEDIUM_BLOB,
+      MySQLType.MYSQL_TYPE_LONG_BLOB,
+    ].includes(columnType)
+  ) {
+    type = { type: 'other' };
+  } else if ([MySQLType.MYSQL_TYPE_DATE].includes(columnType)) {
+    type = { type: 'string_date' };
+  } else if (
+    [MySQLType.MYSQL_TYPE_TIME, MySQLType.MYSQL_TYPE_TIME2].includes(columnType)
+  ) {
+    type = { type: 'string_time' };
+  } else if (
+    [
+      MySQLType.MYSQL_TYPE_DATETIME,
+      MySQLType.MYSQL_TYPE_DATETIME2,
+      MySQLType.MYSQL_TYPE_TIMESTAMP,
+      MySQLType.MYSQL_TYPE_TIMESTAMP2,
+    ].includes(columnType)
+  ) {
+    type = { type: 'string_datetime' };
+  }
+
+  return {
+    ...header,
+    type,
+  };
+}
+
 function findMatchColumn(
   schema: DatabaseSchemaList,
-  header: QueryResultHeader
+  header: QueryResultHeader,
 ): QueryResultHeader {
   if (!header.schema?.database) return header;
   const matchedSchema = schema[header.schema.database];
@@ -98,7 +197,7 @@ export function buildDatabaseSchemaFrom(
   columns: MySqlColumn[],
   events: MySqlEvent[],
   triggers: MySqlTrigger[],
-  constraints: MySqlConstraint[]
+  constraints: MySqlConstraint[],
 ): DatabaseSchemas {
   const schemas = new DatabaseSchemas();
 
@@ -125,7 +224,7 @@ export function buildDatabaseSchemaFrom(
     schemas.addColumn(
       row.TABLE_SCHEMA,
       row.TABLE_NAME,
-      mapColumnDefinition(row)
+      mapColumnDefinition(row),
     );
   }
 
@@ -135,7 +234,7 @@ export function buildDatabaseSchemaFrom(
       row.TABLE_NAME,
       row.CONSTRAINT_NAME,
       row.CONSTRAINT_TYPE as TableConstraintTypeSchema,
-      row.COLUMN_NAME
+      row.COLUMN_NAME,
     );
 
     if (row.CONSTRAINT_TYPE === 'PRIMARY KEY') {
@@ -172,7 +271,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       [{ sql: 'USE ' + qb().escapeId(databaseName) }],
       {
         skipProtection: true,
-      }
+      },
     );
 
     if (response[0].result.error) {
@@ -184,21 +283,24 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
 
   async getVersion(): Promise<string> {
     const response = await this.singleExecute<{ 'VERSION()': string }>(
-      'SELECT VERSION();'
+      'SELECT VERSION();',
     );
     return response.rows[0]['VERSION()'];
   }
 
   async getSchema(): Promise<DatabaseSchemas> {
     const databaseListResponse = await this.singleExecute<MySqlDatabase>(
-      qb().table('information_schema.SCHEMATA').select('SCHEMA_NAME').toRawSQL()
+      qb()
+        .table('information_schema.SCHEMATA')
+        .select('SCHEMA_NAME')
+        .toRawSQL(),
     );
 
     const tableListResponse = await this.singleExecute<MySqlTable>(
       qb()
         .table('information_schema.tables')
         .select('TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_TYPE')
-        .toRawSQL()
+        .toRawSQL(),
     );
 
     const columnListResponse = await this.singleExecute<MySqlColumn>(
@@ -215,27 +317,27 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
           'NUMERIC_PRECISION',
           'NUMERIC_SCALE',
           'COLUMN_DEFAULT',
-          'COLUMN_TYPE'
+          'COLUMN_TYPE',
         )
-        .toRawSQL()
+        .toRawSQL(),
     );
 
     const triggerListResponse = await this.singleExecute<MySqlTrigger>(
       qb()
         .table('information_schema.triggers')
         .select('TRIGGER_SCHEMA', 'TRIGGER_NAME')
-        .toRawSQL()
+        .toRawSQL(),
     );
 
     const eventListResponse = await this.singleExecute<MySqlEvent>(
       qb()
         .table('information_schema.events')
         .select('EVENT_SCHEMA', 'EVENT_NAME')
-        .toRawSQL()
+        .toRawSQL(),
     );
 
     const constraintListResponse = await this.singleExecute<MySqlConstraint>(
-      'SELECT kc.CONSTRAINT_SCHEMA, kc.CONSTRAINT_NAME, kc.TABLE_SCHEMA, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kc INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc ON (kc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND kc.TABLE_NAME = tc.TABLE_NAME AND kc.TABLE_SCHEMA = tc.TABLE_SCHEMA)'
+      'SELECT kc.CONSTRAINT_SCHEMA, kc.CONSTRAINT_NAME, kc.TABLE_SCHEMA, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kc INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc ON (kc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND kc.TABLE_NAME = tc.TABLE_NAME AND kc.TABLE_SCHEMA = tc.TABLE_SCHEMA)',
     );
 
     return buildDatabaseSchemaFrom(
@@ -244,13 +346,13 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       columnListResponse.rows,
       eventListResponse.rows,
       triggerListResponse.rows,
-      constraintListResponse.rows
+      constraintListResponse.rows,
     );
   }
 
   async getTableSchema(
     database: string,
-    table: string
+    table: string,
   ): Promise<TableDefinitionSchema> {
     const response = await this.runner.execute(
       [
@@ -268,7 +370,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
               'NUMERIC_PRECISION',
               'NUMERIC_SCALE',
               'COLUMN_DEFAULT',
-              'COLUMN_TYPE'
+              'COLUMN_TYPE',
             )
             .where({
               table_schema: database,
@@ -280,7 +382,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       {
         disableAnalyze: true,
         skipProtection: true,
-      }
+      },
     );
 
     const columns = (response[0].result as unknown as QueryResult<MySqlColumn>)
@@ -295,7 +397,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
 
   async estimateTableRowCount(
     database: string,
-    table: string
+    table: string,
   ): Promise<number | null> {
     const sql = qb()
       .table(`information_schema.TABLES`)
@@ -318,7 +420,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
 
   attachHeaders(
     statements: SqlStatementResult[],
-    schema: DatabaseSchemas | undefined
+    schema: DatabaseSchemas | undefined,
   ): SqlStatementResult[] {
     if (!schema) return statements;
     const databaseList = schema.getSchema();
@@ -329,7 +431,7 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
         result: {
           ...statement.result,
           headers: statement.result.headers.map((header) =>
-            findMatchColumn(databaseList, header)
+            mapDataType(findMatchColumn(databaseList, header)),
           ),
         },
       };

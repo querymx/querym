@@ -1,7 +1,16 @@
 import { TableColumnSchema } from './SqlSchema';
 
 export interface QueryResultHeaderType {
-  type: 'string' | 'number' | 'json' | 'decimal' | 'other';
+  type:
+    | 'string'
+    | 'date'
+    | 'string_date'
+    | 'string_time'
+    | 'string_datetime'
+    | 'number'
+    | 'json'
+    | 'decimal'
+    | 'other';
 }
 
 export interface QueryResultHeader {

@@ -38,6 +38,9 @@ function mapDataType(type?: DatabaseDataType): QueryResultHeaderType {
   const category = type.category.toUpperCase();
   if (category === 'S') return { type: 'string' };
   if (category === 'N') return { type: 'number' };
+  if (['date'].includes(type.name)) return { type: 'string_date' };
+  if (['time'].includes(type.name)) return { type: 'string_time' };
+  if (['timestamp'].includes(type.name)) return { type: 'string_datetime' };
   return { type: 'other' };
 }
 
@@ -222,9 +225,8 @@ export default class PgCommonInterface extends SQLCommonInterface {
       const headers = statement.result.headers.map((header) => {
         const column = schema.getColumnById(header.tableId, header.columnId);
 
-        if (!column) return header;
-
         const type = mapDataType(schema.getTypeById(header.dataType));
+        if (!column) return { ...header, type };
 
         return {
           ...header,

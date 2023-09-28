@@ -3,7 +3,15 @@ import SQLLikeConnection, {
   DatabaseConnectionConfig,
 } from '../base/SQLLikeConnection';
 
-import { Client } from 'pg';
+import { Client, types } from 'pg';
+
+types.setTypeParser(1114, function (stringValue) {
+  return stringValue;
+});
+
+types.setTypeParser(1082, function (stringValue) {
+  return stringValue;
+});
 
 export default class PgConnection extends SQLLikeConnection {
   protected client: Client | undefined;
@@ -47,7 +55,7 @@ export default class PgConnection extends SQLLikeConnection {
             type: {
               type: 'string',
             },
-          } as QueryResultHeader)
+          }) as QueryResultHeader,
       ),
       rows: result.rows,
       resultHeader: {

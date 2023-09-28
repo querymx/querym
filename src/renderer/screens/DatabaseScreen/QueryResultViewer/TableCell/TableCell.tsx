@@ -7,6 +7,7 @@ import TableCellEnum from './TableCellEnum';
 import { TableCellCustomTypeProps } from './createTableCellType';
 import TableCellOther from './TableCellOther';
 import TableCellString from './TableCellString';
+import TableCellDateString from './TableCellDateString';
 
 interface TableCellProps {
   value: unknown;
@@ -17,7 +18,7 @@ interface TableCellProps {
 }
 
 function getComponentFromHeader(
-  header: QueryResultHeader
+  header: QueryResultHeader,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): React.FC<TableCellCustomTypeProps<any>> {
   if (header.type.type === 'number') {
@@ -26,6 +27,10 @@ function getComponentFromHeader(
     return TableCellJson;
   } else if (header.type.type === 'decimal') {
     return TableCellDecimal;
+  } else if (
+    ['string_date', 'string_time', 'string_datetime'].includes(header.type.type)
+  ) {
+    return TableCellDateString;
   } else if (['string'].includes(header.type.type)) {
     if (header.columnDefinition) {
       if (header.columnDefinition.dataType === 'enum') {
