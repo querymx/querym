@@ -11,15 +11,17 @@ export default function EditConnectionModal({
 }: {
   initialValue: ConnectionStoreItemWithoutId;
 }) {
-  const { finishEditing, refresh, storage } = useConnectionList();
+  const { finishEditing, refresh, storage, setSelectedItem } =
+    useConnectionList();
   const [value, setValue] = useState(initialValue);
 
   const onSave = useCallback(() => {
     storage
       .save(value)
-      .then(() => {
+      .then((newItem) => {
         refresh();
         finishEditing();
+        setSelectedItem({ id: newItem.id, data: newItem });
       })
       .catch(console.error);
   }, [finishEditing, value]);

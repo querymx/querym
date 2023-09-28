@@ -59,7 +59,14 @@ Toolbar.Item = function ({
       onClick={disabled ? undefined : onClick}
       style={{ opacity: disabled ? 0.5 : 1 }}
     >
-      {icon && <span className={styles.icon}>{icon}</span>}
+      {icon && (
+        <span
+          className={styles.icon}
+          style={{ marginRight: text ? '8px' : undefined }}
+        >
+          {icon}
+        </span>
+      )}
       {text && <span className={styles.text}>{text}</span>}
       {badge ? <span className={styles.badge}>{badge}</span> : <></>}
       {keyboard && <KeyboardKey name={keyboard} />}
@@ -119,7 +126,14 @@ Toolbar.ContextMenu = function ToolbarContextMenu({
   const activator = useCallback(() => {
     return (
       <li className={styles.button}>
-        {icon && <span className={styles.icon}>{icon}</span>}
+        {icon && (
+          <span
+            className={styles.icon}
+            style={{ marginRight: text ? '8px' : undefined }}
+          >
+            {icon}
+          </span>
+        )}
         <span>{text}</span>
       </li>
     );

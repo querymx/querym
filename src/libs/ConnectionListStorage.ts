@@ -28,15 +28,20 @@ export default class ConnectionListStorage {
     return this.connections;
   }
 
-  async save(data: Omit<ConnectionStoreItem, 'id'> & { id?: string }) {
+  async save(
+    data: Omit<ConnectionStoreItem, 'id'> & { id?: string },
+  ): Promise<ConnectionStoreItem> {
+    const id = data.id ? data.id : uuidv1();
     const newData: ConnectionStoreItem = {
       ...data,
-      id: data.id ? data.id : uuidv1(),
+      id,
       createdAt: data.createdAt ? data.createdAt : Math.ceil(Date.now() / 1000),
     };
 
     this.dict[newData.id] = newData;
     db.table('connections').put(newData);
+
+    return newData;
   }
 
   async remove(id: string) {

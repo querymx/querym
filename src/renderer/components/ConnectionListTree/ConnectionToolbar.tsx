@@ -5,12 +5,11 @@ import useNewConnectionMenu from './useNewConnectionMenu';
 
 export default function ConnectionToolbar() {
   const menu = useNewConnectionMenu();
-
   return (
     <Toolbar>
       <Toolbar.ContextMenu
-        icon={<FontAwesomeIcon icon={faAdd} />}
-        text=""
+        icon={<FontAwesomeIcon icon={faAdd} color="#2980b9" />}
+        text="New Connection"
         items={menu}
       />
     </Toolbar>

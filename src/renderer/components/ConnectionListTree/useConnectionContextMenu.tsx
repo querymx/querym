@@ -9,7 +9,8 @@ export default function useConnectionContextMenu({
 }: {
   selectedItem?: ConnectionStoreItem;
 }) {
-  const { storage, refresh, showEditConnection } = useConnectionList();
+  const { storage, refresh, showEditConnection, setSelectedItem } =
+    useConnectionList();
   const newConnectionMenu = useNewConnectionMenu();
 
   const onRemoveClick = useCallback(async () => {
@@ -24,8 +25,9 @@ export default function useConnectionContextMenu({
 
       storage.remove(selectedItem.id);
       refresh();
+      setSelectedItem(undefined);
     }
-  }, [selectedItem, storage]);
+  }, [selectedItem, storage, setSelectedItem]);
 
   const { handleContextMenu } = useContextMenu(() => {
     return [
