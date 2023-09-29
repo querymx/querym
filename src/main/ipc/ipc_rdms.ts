@@ -1,8 +1,10 @@
 import CommunicateHandler from './../CommunicateHandler';
 import MySQLConnection from '../../drivers/mysql/MySQLConnection';
 import SQLLikeConnection, {
+  ConnectionStoreConfig,
   ConnectionStoreItem,
-  DatabaseConnectionConfig,
+  MySqlConnectionConfig,
+  PgConnectionConfig,
 } from '../../drivers/base/SQLLikeConnection';
 import PgConnection from '../../drivers/pg/PgConnection';
 
@@ -13,12 +15,12 @@ CommunicateHandler.handle('connect', async ([store]: [ConnectionStoreItem]) => {
     connection.close();
   }
 
-  const config = store.config as unknown as DatabaseConnectionConfig;
+  const config = store.config as unknown as ConnectionStoreConfig;
 
   if (store.type === 'mysql') {
-    connection = new MySQLConnection(config);
+    connection = new MySQLConnection(config as MySqlConnectionConfig);
   } else if (store.type === 'postgre') {
-    connection = new PgConnection(config);
+    connection = new PgConnection(config as PgConnectionConfig);
   }
   return true;
 })
@@ -26,7 +28,7 @@ CommunicateHandler.handle('connect', async ([store]: [ConnectionStoreItem]) => {
     'query',
     async ([sql, params]: [string, Record<string, unknown> | undefined]) => {
       return await connection?.query(sql, params);
-    }
+    },
   )
   .handle('close', () => {
     if (connection) {

@@ -56,6 +56,15 @@ function ConnectionListTreeBody({
   const { connect } = useConnection();
   const { storage, refresh } = useConnectionList();
 
+  const connectWithRecordUpdate = useCallback(
+    (config: ConnectionStoreItem) => {
+      connect(config);
+      storage.updateLastUsed(config.id);
+      refresh();
+    },
+    [storage, refresh, connect],
+  );
+
   const treeItemList: TreeViewItemData<ConnectionStoreItem>[] = useMemo(() => {
     const tmp = [...connectionList];
     tmp.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
@@ -98,6 +107,7 @@ function ConnectionListTreeBody({
 
   const { handleContextMenu } = useConnectionContextMenu({
     selectedItem: selectedItem?.data,
+    connectWithRecordUpdate,
   });
 
   return (
@@ -110,9 +120,7 @@ function ConnectionListTreeBody({
       onCollapsedChange={setCollapsed}
       onDoubleClick={(e) => {
         if (e.data) {
-          connect(e.data);
-          storage.updateLastUsed(e.data.id);
-          refresh();
+          connectWithRecordUpdate(e.data);
         }
       }}
       emptyState={

@@ -1,16 +1,8 @@
 import { QueryDialetType } from 'libs/QueryBuilder';
 import { QueryResult } from 'types/SqlResult';
 
-export interface DatabaseConnectionConfig {
-  database: string;
-  user: string;
-  password: string;
-  host: string;
-  port: number;
-}
-
 export type ConnectionStoreConfig = Partial<
-  MySqlConnectionConfig & SqliteConnectionConfig
+  MySqlConnectionConfig & SqliteConnectionConfig & PgConnectionConfig
 >;
 
 export interface MySqlConnectionConfig {
@@ -18,7 +10,16 @@ export interface MySqlConnectionConfig {
   user: string;
   password: string;
   host: string;
-  port: string;
+  port: number;
+}
+
+export interface PgConnectionConfig {
+  database: string;
+  user: string;
+  password: string;
+  host: string;
+  port: number;
+  ssl?: boolean;
 }
 
 export interface SqliteConnectionConfig {

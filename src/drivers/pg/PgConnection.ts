@@ -1,6 +1,6 @@
 import { QueryResult, QueryResultHeader } from 'types/SqlResult';
 import SQLLikeConnection, {
-  DatabaseConnectionConfig,
+  PgConnectionConfig,
 } from '../base/SQLLikeConnection';
 
 import { Client, types } from 'pg';
@@ -15,9 +15,9 @@ types.setTypeParser(1082, function (stringValue) {
 
 export default class PgConnection extends SQLLikeConnection {
   protected client: Client | undefined;
-  protected connectionConfig: DatabaseConnectionConfig;
+  protected connectionConfig: PgConnectionConfig;
 
-  constructor(connectionConfig: DatabaseConnectionConfig) {
+  constructor(connectionConfig: PgConnectionConfig) {
     super();
     this.connectionConfig = connectionConfig;
   }

@@ -4,7 +4,7 @@ import {
   QueryResult,
 } from 'types/SqlResult';
 import SQLLikeConnection, {
-  DatabaseConnectionConfig,
+  MySqlConnectionConfig,
 } from '../base/SQLLikeConnection';
 import {
   PoolConnection,
@@ -61,14 +61,14 @@ function mapHeaderType(column: ColumnDefinition): QueryResultHeader {
 }
 
 export default class MySQLConnection extends SQLLikeConnection {
-  protected connectionConfig: DatabaseConnectionConfig;
+  protected connectionConfig: MySqlConnectionConfig;
   protected pool: Pool | undefined;
   protected currentConnection: PoolConnection | undefined;
   protected lastActivity = 0;
   protected isRunning = false;
   protected keepAliveTimerId?: NodeJS.Timer;
 
-  constructor(connectionConfig: DatabaseConnectionConfig) {
+  constructor(connectionConfig: MySqlConnectionConfig) {
     super();
     this.connectionConfig = connectionConfig;
   }

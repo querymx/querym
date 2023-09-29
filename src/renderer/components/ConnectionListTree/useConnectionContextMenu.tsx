@@ -6,8 +6,10 @@ import { useConnectionList } from '.';
 
 export default function useConnectionContextMenu({
   selectedItem,
+  connectWithRecordUpdate,
 }: {
   selectedItem?: ConnectionStoreItem;
+  connectWithRecordUpdate: (config: ConnectionStoreItem) => void;
 }) {
   const { storage, refresh, showEditConnection, setSelectedItem } =
     useConnectionList();
@@ -32,6 +34,16 @@ export default function useConnectionContextMenu({
   const { handleContextMenu } = useContextMenu(() => {
     return [
       {
+        text: 'Connect',
+        disabled: !selectedItem,
+        separator: true,
+        onClick: () => {
+          if (selectedItem) {
+            connectWithRecordUpdate(selectedItem);
+          }
+        },
+      },
+      {
         text: 'New Connection',
         children: newConnectionMenu,
       },
@@ -52,7 +64,13 @@ export default function useConnectionContextMenu({
         destructive: true,
       },
     ];
-  }, [newConnectionMenu, selectedItem, onRemoveClick, showEditConnection]);
+  }, [
+    newConnectionMenu,
+    selectedItem,
+    onRemoveClick,
+    showEditConnection,
+    connectWithRecordUpdate,
+  ]);
 
   return { handleContextMenu };
 }

@@ -1,8 +1,6 @@
-import {
-  ConnectionStoreConfig,
-  MySqlConnectionConfig,
-} from 'drivers/base/SQLLikeConnection';
+import { ConnectionStoreConfig } from 'drivers/base/SQLLikeConnection';
 import MySQLConnectionEditor from './MySQLConnectionEditor';
+import PostgreConnectionEditor from './PostgreConnectionEditor copy';
 
 export default function ConnectionConfigEditor({
   type,
@@ -13,13 +11,10 @@ export default function ConnectionConfigEditor({
   config: ConnectionStoreConfig;
   onChange: (value: ConnectionStoreConfig) => void;
 }) {
-  if (type === 'mysql' || type === 'postgre') {
-    return (
-      <MySQLConnectionEditor
-        config={config as MySqlConnectionConfig}
-        onChange={onChange}
-      />
-    );
+  if (type === 'mysql') {
+    return <MySQLConnectionEditor config={config} onChange={onChange} />;
+  } else if (type === 'postgre') {
+    return <PostgreConnectionEditor config={config} onChange={onChange} />;
   }
 
   return <div />;
