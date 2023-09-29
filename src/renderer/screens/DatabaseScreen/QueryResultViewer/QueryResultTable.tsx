@@ -20,12 +20,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 
+export interface QuertResultTableSortedHeader {
+  by: 'ASC' | 'DESC';
+  header: QueryResultHeader;
+}
+
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
   result: QueryResultWithIndex[];
-  onSortHeader?: (header: QueryResultHeader, by: 'ASC' | 'DESC') => void;
+  onSortHeader?: (header: QuertResultTableSortedHeader) => void;
   onSortReset?: () => void;
-  sortedHeader?: { header: QueryResultHeader; by: 'ASC' | 'DESC' };
+  sortedHeader?: QuertResultTableSortedHeader;
 }
 
 function QueryResultTable({
@@ -48,7 +53,7 @@ function QueryResultTable({
 
   const newRowsIndex = useMemo(
     () => new Array(newRowCount).fill(0).map((_, idx) => idx),
-    [newRowCount]
+    [newRowCount],
   );
 
   useEffect(() => {
@@ -75,7 +80,7 @@ function QueryResultTable({
             rowIndex: -(newRowIndex + 1),
             data: headers.reduce(
               (prev, header) => ({ ...prev, [header.name]: undefined }),
-              {}
+              {},
             ),
           };
         });
@@ -122,7 +127,7 @@ function QueryResultTable({
             if (typeof row[header.name] === 'string')
               return (row[header.name] as string).length;
             return 10;
-          })
+          }),
         );
 
         return Math.max(150, Math.min(500, maxLength * 8));
@@ -177,7 +182,7 @@ function QueryResultTable({
           disabled: !onSortHeader,
           onClick: () => {
             if (onSortHeader) {
-              onSortHeader(header, 'ASC');
+              onSortHeader({ header, by: 'ASC' });
             }
           },
         },
@@ -187,14 +192,14 @@ function QueryResultTable({
           disabled: !onSortHeader,
           onClick: () => {
             if (onSortHeader) {
-              onSortHeader(header, 'DESC');
+              onSortHeader({ header, by: 'DESC' });
             }
           },
         },
       ],
       initialSize: Math.max(
         header.name.length * 10,
-        getInitialSizeByHeaderType(idx, header)
+        getInitialSizeByHeaderType(idx, header),
       ),
     }));
   }, [
@@ -221,7 +226,7 @@ function QueryResultTable({
       }
       return <></>;
     },
-    [data, result, updatableTables, newRowCount, revision]
+    [data, result, updatableTables, newRowCount, revision],
   );
 
   const relativeRemoveRowsIndex = useMemo(() => {

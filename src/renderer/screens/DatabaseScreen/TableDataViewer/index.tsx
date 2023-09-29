@@ -7,13 +7,11 @@ import {
   SetStateAction,
   Dispatch,
 } from 'react';
-import QueryResultTable from '../QueryResultViewer/QueryResultTable';
+import QueryResultTable, {
+  QuertResultTableSortedHeader,
+} from '../QueryResultViewer/QueryResultTable';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import {
-  QueryResult,
-  QueryResultHeader,
-  QueryResultWithIndex,
-} from 'types/SqlResult';
+import { QueryResult, QueryResultWithIndex } from 'types/SqlResult';
 import Layout from 'renderer/components/Layout';
 import Toolbar from 'renderer/components/Toolbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,13 +33,6 @@ interface TableDataViewerProps {
   name: string;
 }
 
-type SortedHeader =
-  | {
-      by: 'ASC' | 'DESC';
-      header: QueryResultHeader;
-    }
-  | undefined;
-
 const PAGE_SIZE = 200;
 
 function TableDataViewerBody({
@@ -59,8 +50,10 @@ function TableDataViewerBody({
   totalRows: number | null;
   page: number;
   refresh: () => void;
-  sortedHeader: SortedHeader;
-  setSortedHeader: React.Dispatch<React.SetStateAction<SortedHeader>>;
+  sortedHeader?: QuertResultTableSortedHeader;
+  setSortedHeader: React.Dispatch<
+    React.SetStateAction<QuertResultTableSortedHeader | undefined>
+  >;
   setPage: Dispatch<SetStateAction<number>>;
 }) {
   const data = useMemo<QueryResultWithIndex[]>(
@@ -128,7 +121,7 @@ function TableDataViewerBody({
             <QueryResultTable
               headers={headers}
               result={data}
-              onSortHeader={(header, by) => setSortedHeader({ by, header })}
+              onSortHeader={setSortedHeader}
               onSortReset={() => setSortedHeader(undefined)}
               sortedHeader={sortedHeader}
             />
@@ -151,7 +144,8 @@ export default function TableDataViewer({
   const [totalRows, setTotalRows] = useState<number | null>(null);
   const { showErrorDialog } = useDialog();
   const [loading, setLoading] = useState(true);
-  const [sortedHeader, setSortedHeader] = useState<SortedHeader>();
+  const [sortedHeader, setSortedHeader] =
+    useState<QuertResultTableSortedHeader>();
   const [page, setPage] = useState(0);
 
   console.log(schema?.getSchema());

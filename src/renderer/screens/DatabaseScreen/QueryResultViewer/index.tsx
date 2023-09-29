@@ -1,5 +1,7 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import QueryResultTable from './QueryResultTable';
+import QueryResultTable, {
+  QuertResultTableSortedHeader,
+} from './QueryResultTable';
 import styles from './styles.module.scss';
 import QueryResultAction from './QueryResultAction';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
@@ -17,6 +19,8 @@ function QueryResultViewer({
   const { schema } = useSchema();
   const [runningIndex, setRunningIndex] = useState(0);
   const [cacheResult, setCacheResult] = useState(result);
+  const [sortedHeader, setSortedHeader] =
+    useState<QuertResultTableSortedHeader>();
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
@@ -37,7 +41,7 @@ function QueryResultViewer({
       setSearch(value);
       setPage(0);
     },
-    [setSearch, setPage]
+    [setSearch, setPage],
   );
 
   const resultWithIndex = useMemo(() => {
@@ -62,8 +66,27 @@ function QueryResultViewer({
       });
     }
 
+    if (sortedHeader) {
+      rows.sort((a, b) => {
+        if (
+          a.data[sortedHeader.header.name] == b.data[sortedHeader.header.name]
+        )
+          return 0;
+        if (
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (a.data[sortedHeader.header.name] as any) >
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (b.data[sortedHeader.header.name] as any)
+        )
+          return 1;
+        return -1;
+      });
+
+      if (sortedHeader.by === 'DESC') rows.reverse();
+    }
+
     return rows;
-  }, [page, cacheResult, search]);
+  }, [page, cacheResult, search, sortedHeader]);
 
   const slicedResult = useMemo(() => {
     return resultWithIndex.slice(page * pageSize, (page + 1) * pageSize);
@@ -72,7 +95,15 @@ function QueryResultViewer({
   return (
     <EditableQueryResultProvider key={runningIndex.toString()}>
       <div className={styles.result}>
-        <QueryResultTable headers={result.headers} result={slicedResult} />
+        <QueryResultTable
+          headers={result.headers}
+          result={slicedResult}
+          sortedHeader={sortedHeader}
+          onSortHeader={setSortedHeader}
+          onSortReset={() => {
+            setSortedHeader(undefined);
+          }}
+        />
         <QueryResultAction
           page={page}
           pageSize={pageSize}
