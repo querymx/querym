@@ -16,6 +16,8 @@ export interface LoginUser {
   id: number;
   name: string;
   picture: string;
+  salt: string;
+  test_encryption: string | null;
 }
 
 const UserContext = createContext<{
@@ -25,7 +27,9 @@ const UserContext = createContext<{
 
 const AuthContext = createContext<{
   logout: () => void;
-}>({ logout: NotImplementCallback });
+  masterPassword?: string | null;
+  setMasterPassword: (password: string) => void;
+}>({ logout: NotImplementCallback, setMasterPassword: NotImplementCallback });
 
 export function useCurrentUser() {
   return useContext(UserContext);
@@ -54,6 +58,21 @@ function AuthProviderBody({
 export default function AuthProvider({ children }: PropsWithChildren) {
   const { deviceId } = useDevice();
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [masterPassword, setMasterPassword] = useState(
+    localStorage.getItem('master_password'),
+  );
+
+  const setPersistentMasterPassword = useCallback(
+    (password: string | null) => {
+      setMasterPassword(password);
+      if (password) {
+        localStorage.setItem('master_password', password);
+      } else {
+        localStorage.removeItem('master_password');
+      }
+    },
+    [setMasterPassword],
+  );
 
   useEffect(() => {
     window.electron.listenDeeplink((_, url) => {
@@ -82,11 +101,18 @@ export default function AuthProvider({ children }: PropsWithChildren) {
 
   const onLogout = useCallback(() => {
     setToken(null);
+    setPersistentMasterPassword(null);
     localStorage.removeItem('token');
-  }, [setToken]);
+  }, [setToken, setPersistentMasterPassword]);
 
   return (
-    <AuthContext.Provider value={{ logout: onLogout }}>
+    <AuthContext.Provider
+      value={{
+        logout: onLogout,
+        masterPassword,
+        setMasterPassword: setPersistentMasterPassword,
+      }}
+    >
       <SWRConfig value={{ fetcher }}>
         <AuthProviderBody token={token}>{children}</AuthProviderBody>
       </SWRConfig>

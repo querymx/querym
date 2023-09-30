@@ -1,8 +1,13 @@
 import Button from 'renderer/components/Button';
 import styles from './styles.module.scss';
 import Stack from 'renderer/components/Stack';
-import { LoginUser, useCurrentUser } from 'renderer/contexts/AuthProvider';
+import {
+  LoginUser,
+  useAuth,
+  useCurrentUser,
+} from 'renderer/contexts/AuthProvider';
 import PasswordField from 'renderer/components/PasswordField';
+import { useCallback, useRef, useState } from 'react';
 
 function SetupAccountNotLogin() {
   return (
@@ -48,10 +53,9 @@ function SetupAccountNotLogin() {
   );
 }
 
-function SetupAccountDetail({ user }: { user: LoginUser }) {
+function SetupMasterPasswordInstruction() {
   return (
-    <div className={styles.calloutContainer}>
-      <h2>Welcome, {user.name}</h2>
+    <>
       <p>
         Provide us with your master password. It will be used for encrypt and
         decrypt your credentials before save on our server.
@@ -63,11 +67,80 @@ function SetupAccountDetail({ user }: { user: LoginUser }) {
           data
         </li>
       </ul>
+    </>
+  );
+}
+
+function SetupAccountNewMasterKey({ user }: { user: LoginUser }) {
+  return (
+    <div className={styles.calloutContainer}>
+      <h2>Welcome, {user.name}</h2>
+
+      <SetupMasterPasswordInstruction />
+
       <PasswordField autoFocus placeholder="Master password" />
       <p></p>
-      <Button primary>Enter</Button>
+      <PasswordField autoFocus placeholder="Confirm master password" />
+      <p></p>
+      <Button primary>Setup Master Password</Button>
     </div>
   );
+}
+
+function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
+  const { setMasterPassword } = useAuth();
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const onCheckMasterPassword = useCallback(() => {
+    if (user.test_encryption) {
+      window.electron
+        .decrypt(user.test_encryption, password, user.salt)
+        .then((decryptedText: string) => {
+          if (decryptedText === user.salt) {
+            setErrorMessage('');
+            setMasterPassword(password);
+          } else {
+            setErrorMessage('Not correct password');
+          }
+        });
+    }
+  }, [setErrorMessage, password]);
+
+  return (
+    <div className={styles.calloutContainer}>
+      <h2>Welcome, {user.name}</h2>
+
+      <SetupMasterPasswordInstruction />
+
+      {!!errorMessage && (
+        <p style={{ color: 'var(--color-critical)' }}>
+          <strong>Error</strong>: {errorMessage}
+        </p>
+      )}
+
+      <PasswordField
+        ref={passwordRef}
+        autoFocus
+        placeholder="Master password"
+        value={password}
+        onChange={setPassword}
+      />
+      <p></p>
+      <Button primary onClick={onCheckMasterPassword}>
+        Enter
+      </Button>
+    </div>
+  );
+}
+
+function SetupAccountDetail({ user }: { user: LoginUser }) {
+  if (user.test_encryption) {
+    return <SetupAccountExistingMasterKey user={user} />;
+  } else {
+    return <SetupAccountNewMasterKey user={user} />;
+  }
 }
 
 export default function SetupAccountCallout() {
