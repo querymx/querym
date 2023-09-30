@@ -57,7 +57,7 @@ const electronHandler = {
   // Related to File O/I
   // ----------------------------------
   showSaveDialog: (
-    options: SaveDialogSyncOptions
+    options: SaveDialogSyncOptions,
   ): Promise<string | undefined> =>
     ipcRenderer.invoke('show-save-dialog', [options]),
 
@@ -78,7 +78,7 @@ const electronHandler = {
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 
   handleMenuClick: (
-    callback: (event: IpcRendererEvent, id: string) => void
+    callback: (event: IpcRendererEvent, id: string) => void,
   ) => {
     if (cacheHandleMenuClickCb) {
       ipcRenderer.off('native-menu-click', cacheHandleMenuClickCb);
@@ -88,7 +88,7 @@ const electronHandler = {
   },
 
   listenDeeplink: (
-    callback: (event: IpcRendererEvent, url: string) => void
+    callback: (event: IpcRendererEvent, url: string) => void,
   ) => {
     ipcRenderer.removeAllListeners('deeplink');
     return ipcRenderer.on('deeplink', callback);
@@ -100,28 +100,28 @@ const electronHandler = {
   },
 
   listenUpdateAvailable: (
-    callback: (event: IpcRendererEvent, e: UpdateInfo) => void
+    callback: (event: IpcRendererEvent, e: UpdateInfo) => void,
   ) => {
     ipcRenderer.removeAllListeners('update-available');
     return ipcRenderer.on('update-available', callback);
   },
 
   listenUpdateNotAvailable: (
-    callback: (event: IpcRendererEvent, e: UpdateInfo) => void
+    callback: (event: IpcRendererEvent, e: UpdateInfo) => void,
   ) => {
     ipcRenderer.removeAllListeners('update-not-available');
     return ipcRenderer.on('update-not-available', callback);
   },
 
   listenUpdateDownloadProgress: (
-    callback: (event: IpcRendererEvent, e: ProgressInfo) => void
+    callback: (event: IpcRendererEvent, e: ProgressInfo) => void,
   ) => {
     ipcRenderer.removeAllListeners('update-download-progress');
     return ipcRenderer.on('update-download-progress', callback);
   },
 
   listenUpdateDownloaded: (
-    callback: (event: IpcRendererEvent, e: UpdateDownloadedEvent) => void
+    callback: (event: IpcRendererEvent, e: UpdateDownloadedEvent) => void,
   ) => {
     ipcRenderer.removeAllListeners('update-downloaded');
     return ipcRenderer.on('update-downloaded', callback);
@@ -129,12 +129,18 @@ const electronHandler = {
 
   listen: function listen<T = unknown[]>(
     name: string,
-    callback: (event: IpcRendererEvent, ...args: T[]) => void
+    callback: (event: IpcRendererEvent, ...args: T[]) => void,
   ) {
     return ipcRenderer.on(name, callback);
   },
 
   openExternal: (url: string) => ipcRenderer.invoke('open-external', [url]),
+
+  // Encryption
+  encrypt: (text: string, masterKey: string, salt: string) =>
+    ipcRenderer.invoke('encrypt', [text, masterKey, salt]),
+  decrypt: (encrypted: string, masterKey: string, salt: string) =>
+    ipcRenderer.invoke('decrypt', [encrypted, masterKey, salt]),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

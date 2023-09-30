@@ -12,14 +12,14 @@ import { useDevice } from './DeviceProvider';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import { parseDeeplinkForToken } from 'libs/ParseDeeplink';
 
-interface User {
+export interface LoginUser {
   id: number;
   name: string;
   picture: string;
 }
 
 const UserContext = createContext<{
-  user?: User;
+  user?: LoginUser;
   loading: boolean;
 }>({ loading: true });
 
@@ -39,9 +39,9 @@ function AuthProviderBody({
   children,
   token,
 }: PropsWithChildren<{ token?: string | null }>) {
-  const { data, isLoading } = useSWR<User>(
+  const { data, isLoading } = useSWR<LoginUser>(
     token ? 'https://api.querymaster.io/v1/user' : null,
-    { shouldRetryOnError: false, revalidateOnFocus: false }
+    { shouldRetryOnError: false, revalidateOnFocus: false },
   );
 
   return (
@@ -77,7 +77,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         .then((res) => res.data);
       return r;
     },
-    [deviceId, token]
+    [deviceId, token],
   );
 
   const onLogout = useCallback(() => {

@@ -1,11 +1,9 @@
 import { useCallback } from 'react';
 import Stack from 'renderer/components/Stack';
-import Heading from 'renderer/components/Typo/Heading';
-import imageLogo from './../../../../assets/icon.svg';
-import pkg from '../../../../package.json';
 import Contributors from './Contributors';
 import Button from 'renderer/components/Button';
 import ButtonGroup from 'renderer/components/ButtonGroup';
+import SetupAccountCallout from './SetupAccountCallout';
 
 export default function WelcomeScreen() {
   const onGithubClicked = useCallback(() => {
@@ -17,28 +15,31 @@ export default function WelcomeScreen() {
   }, []);
 
   return (
-    <Stack padding vertical full>
-      <img src={imageLogo} alt="" width={150} height={150} />
+    <div>
+      <SetupAccountCallout />
+      <div style={{ padding: '40px', maxWidth: 700 }}>
+        <Stack vertical full>
+          <div>
+            <strong>Querym</strong> is a free, open-source, and cross-platform
+            GUI tool for databases. Although this project is relatively young,
+            we are ambitious in our goal to create one of the best tools
+            available.
+          </div>
 
-      <Heading>QueryM v{pkg.version}</Heading>
+          <div>
+            <ButtonGroup>
+              <Button primary onClick={onGithubClicked}>
+                Github
+              </Button>
+              <Button destructive onClick={onReportIssueClicked}>
+                Report Issue
+              </Button>
+            </ButtonGroup>
+          </div>
 
-      <div>
-        <strong>QueryM</strong> is a complete free open-source cross platform
-        database graphical client. Please support us on:
+          {window.env.env !== 'development' && <Contributors />}
+        </Stack>
       </div>
-
-      <div>
-        <ButtonGroup>
-          <Button primary onClick={onGithubClicked}>
-            Github
-          </Button>
-          <Button destructive onClick={onReportIssueClicked}>
-            Report Issue
-          </Button>
-        </ButtonGroup>
-      </div>
-
-      {window.env.env !== 'development' && <Contributors />}
-    </Stack>
+    </div>
   );
 }
