@@ -7,11 +7,11 @@ import SetupAccountCallout from './SetupAccountCallout';
 
 export default function WelcomeScreen() {
   const onGithubClicked = useCallback(() => {
-    window.electron.openExternal('https://github.com/QueryMx/QueryM');
+    window.electron.openExternal('https://github.com/Querymx/Querym');
   }, []);
 
   const onReportIssueClicked = useCallback(() => {
-    window.electron.openExternal('https://github.com/QueryMx/QueryM/issues');
+    window.electron.openExternal('https://github.com/Querymx/Querym/issues');
   }, []);
 
   return (
