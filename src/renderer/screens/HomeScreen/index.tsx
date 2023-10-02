@@ -4,24 +4,14 @@ import SplitterLayout from 'renderer/components/Splitter/Splitter';
 import ConnectionListTree from '../../components/ConnectionListTree';
 import WindowTab from 'renderer/components/WindowTab';
 import { useMemo, useState, useEffect } from 'react';
-import { useAuth, useCurrentUser } from 'renderer/contexts/AuthProvider';
+import { useCurrentUser } from 'renderer/contexts/AuthProvider';
 import ConnectionListLocalStorage from 'libs/ConnectionListStorage/ConnectionListLocalStorage';
-import ConnectionListRemoteStorage from 'libs/ConnectionListStorage/ConnectionListRemoteStorage';
+import RemoteConnectionList from './RemoteConnectionList';
 
 export default function HomeScreen() {
-  const { api, masterPassword } = useAuth();
   const { user } = useCurrentUser();
   const [selected, setSelected] = useState('local');
 
-  const remoteStorage = useMemo(
-    () =>
-      new ConnectionListRemoteStorage(
-        api,
-        masterPassword ?? '',
-        user?.salt ?? '',
-      ),
-    [user, api, masterPassword],
-  );
   const localStorage = useMemo(() => new ConnectionListLocalStorage(), []);
 
   const tabs = useMemo(() => {
@@ -30,7 +20,7 @@ export default function HomeScreen() {
         {
           key: 'remote',
           name: 'Remote',
-          component: <ConnectionListTree storage={remoteStorage} />,
+          component: <RemoteConnectionList />,
         },
         {
           key: 'local',
@@ -47,7 +37,7 @@ export default function HomeScreen() {
         },
       ];
     }
-  }, [user, remoteStorage, localStorage]);
+  }, [user, localStorage]);
 
   useEffect(() => {
     if (user) setSelected('remote');

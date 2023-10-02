@@ -1,0 +1,22 @@
+.container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.message {
+  padding: 2rem;
+  text-align: center;
+}
+
+.blurred {
+  background-image: radial-gradient(circle 248px at center, #16d9e3 0%, #30c7ec 47%, #46aef7 100%);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  filter: blur(10rem);
+  opacity: 0.5;
+}
