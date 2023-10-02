@@ -148,8 +148,6 @@ export default function TableDataViewer({
     useState<QuertResultTableSortedHeader>();
   const [page, setPage] = useState(0);
 
-  console.log(schema?.getSchema());
-
   useEffect(() => {
     common.estimateTableRowCount(databaseName, tableName).then(setTotalRows);
   }, [databaseName, tableName, setTotalRows]);

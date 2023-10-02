@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import useSWR, { SWRConfig } from 'swr';
@@ -11,6 +12,7 @@ import axios from 'axios';
 import { useDevice } from './DeviceProvider';
 import NotImplementCallback from 'libs/NotImplementCallback';
 import { parseDeeplinkForToken } from 'libs/ParseDeeplink';
+import RemoteAPI from 'renderer/utils/RemoteAPI';
 
 export interface LoginUser {
   id: number;
@@ -23,13 +25,24 @@ export interface LoginUser {
 const UserContext = createContext<{
   user?: LoginUser;
   loading: boolean;
-}>({ loading: true });
+  isValidMasterPassword: boolean;
+  refetch: () => void;
+}>({
+  loading: true,
+  isValidMasterPassword: false,
+  refetch: NotImplementCallback,
+});
 
 const AuthContext = createContext<{
   logout: () => void;
   masterPassword?: string | null;
   setMasterPassword: (password: string) => void;
-}>({ logout: NotImplementCallback, setMasterPassword: NotImplementCallback });
+  api: RemoteAPI;
+}>({
+  logout: NotImplementCallback,
+  setMasterPassword: NotImplementCallback,
+  api: new RemoteAPI(undefined, undefined),
+});
 
 export function useCurrentUser() {
   return useContext(UserContext);
@@ -42,14 +55,52 @@ export function useAuth() {
 function AuthProviderBody({
   children,
   token,
-}: PropsWithChildren<{ token?: string | null }>) {
-  const { data, isLoading } = useSWR<LoginUser>(
+  masterPassword,
+}: PropsWithChildren<{
+  token?: string | null;
+  masterPassword?: string | null;
+}>) {
+  const { data, isLoading, mutate } = useSWR<LoginUser>(
     token ? 'https://api.querymaster.io/v1/user' : null,
     { shouldRetryOnError: false, revalidateOnFocus: false },
   );
 
+  const [isValidMasterPassword, setValidMasterPassword] = useState(false);
+
+  console.log('ss', data, masterPassword);
+
+  useEffect(() => {
+    if (!masterPassword) {
+      setValidMasterPassword(false);
+      return;
+    }
+
+    if (!data?.test_encryption) {
+      setValidMasterPassword(false);
+      return;
+    }
+
+    if (!data?.salt) {
+      setValidMasterPassword(false);
+      return;
+    }
+
+    window.electron
+      .decrypt(data.test_encryption, masterPassword, data.salt)
+      .then((decrypted) => {
+        setValidMasterPassword(decrypted === data.salt);
+      });
+  }, [data, masterPassword, setValidMasterPassword]);
+
   return (
-    <UserContext.Provider value={{ user: data, loading: isLoading }}>
+    <UserContext.Provider
+      value={{
+        user: data,
+        loading: isLoading,
+        isValidMasterPassword,
+        refetch: mutate,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -99,6 +150,10 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     [deviceId, token],
   );
 
+  const api = useMemo(() => {
+    return new RemoteAPI(token, deviceId);
+  }, [deviceId, token]);
+
   const onLogout = useCallback(() => {
     setToken(null);
     setPersistentMasterPassword(null);
@@ -111,10 +166,13 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         logout: onLogout,
         masterPassword,
         setMasterPassword: setPersistentMasterPassword,
+        api,
       }}
     >
       <SWRConfig value={{ fetcher }}>
-        <AuthProviderBody token={token}>{children}</AuthProviderBody>
+        <AuthProviderBody token={token} masterPassword={masterPassword}>
+          {children}
+        </AuthProviderBody>
       </SWRConfig>
     </AuthContext.Provider>
   );

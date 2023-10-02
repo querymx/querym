@@ -36,12 +36,17 @@ export default function useConnectionContextMenu({
       {
         text: 'Connect',
         disabled: !selectedItem,
-        separator: true,
+
         onClick: () => {
           if (selectedItem) {
             connectWithRecordUpdate(selectedItem);
           }
         },
+      },
+      {
+        text: 'Refresh',
+        separator: true,
+        onClick: refresh,
       },
       {
         text: 'New Connection',
@@ -70,6 +75,7 @@ export default function useConnectionContextMenu({
     onRemoveClick,
     showEditConnection,
     connectWithRecordUpdate,
+    refresh,
   ]);
 
   return { handleContextMenu };

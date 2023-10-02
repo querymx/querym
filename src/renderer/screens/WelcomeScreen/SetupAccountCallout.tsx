@@ -8,10 +8,12 @@ import {
 } from 'renderer/contexts/AuthProvider';
 import PasswordField from 'renderer/components/PasswordField';
 import { useCallback, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 function SetupAccountNotLogin() {
   return (
-    <div className={styles.calloutContainer}>
+    <div>
       <h2>Setup Account</h2>
 
       <p>Link with your Github account to share your work across devices.</p>
@@ -72,17 +74,41 @@ function SetupMasterPasswordInstruction() {
 }
 
 function SetupAccountNewMasterKey({ user }: { user: LoginUser }) {
+  const { api, setMasterPassword } = useAuth();
+  const { refetch } = useCurrentUser();
+  const [password, setPassword] = useState('');
+  const [confirmed, setConfirmed] = useState('');
+
+  const onSetupPassword = useCallback(() => {
+    if (password === confirmed) {
+      setMasterPassword(password);
+      api.updateMasterPassword(password).then(() => refetch);
+    }
+  }, [password, setMasterPassword, confirmed]);
+
   return (
-    <div className={styles.calloutContainer}>
+    <div>
       <h2>Welcome, {user.name}</h2>
 
       <SetupMasterPasswordInstruction />
 
-      <PasswordField autoFocus placeholder="Master password" />
+      <PasswordField
+        autoFocus
+        placeholder="Master password"
+        value={password}
+        onChange={setPassword}
+      />
       <p></p>
-      <PasswordField autoFocus placeholder="Confirm master password" />
+      <PasswordField
+        autoFocus
+        placeholder="Confirm master password"
+        value={confirmed}
+        onChange={setConfirmed}
+      />
       <p></p>
-      <Button primary>Setup Master Password</Button>
+      <Button primary onClick={onSetupPassword}>
+        Setup Master Password
+      </Button>
     </div>
   );
 }
@@ -109,7 +135,7 @@ function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
   }, [setErrorMessage, password]);
 
   return (
-    <div className={styles.calloutContainer}>
+    <div>
       <h2>Welcome, {user.name}</h2>
 
       <SetupMasterPasswordInstruction />
@@ -135,8 +161,30 @@ function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
   );
 }
 
+function SetupAccountComplete({ user }: { user: LoginUser }) {
+  return (
+    <Stack>
+      <div>
+        <FontAwesomeIcon
+          icon={faCheckCircle}
+          color="#27ae60"
+          style={{ fontSize: 30 }}
+        />
+      </div>
+      <div>
+        <h2 style={{ marginBottom: '0.5rem' }}>Welcome, {user.name}</h2>
+        <p>Your account is secured with your master password.</p>
+      </div>
+    </Stack>
+  );
+}
+
 function SetupAccountDetail({ user }: { user: LoginUser }) {
-  if (user.test_encryption) {
+  const { isValidMasterPassword } = useCurrentUser();
+
+  if (isValidMasterPassword) {
+    return <SetupAccountComplete user={user} />;
+  } else if (user.test_encryption) {
     return <SetupAccountExistingMasterKey user={user} />;
   } else {
     return <SetupAccountNewMasterKey user={user} />;
@@ -145,9 +193,12 @@ function SetupAccountDetail({ user }: { user: LoginUser }) {
 
 export default function SetupAccountCallout() {
   const { user } = useCurrentUser();
+
   return (
     <div className={styles.calloutBackground}>
-      {user ? <SetupAccountDetail user={user} /> : <SetupAccountNotLogin />}
+      <div className={styles.calloutContainer}>
+        {user ? <SetupAccountDetail user={user} /> : <SetupAccountNotLogin />}
+      </div>
     </div>
   );
 }

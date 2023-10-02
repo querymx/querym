@@ -9,12 +9,12 @@ export interface SqlStatementWithAnalyze extends SqlStatement {
 
 export type BeforeAllEventCallback = (
   statements: SqlStatementWithAnalyze[],
-  skipProtection?: boolean
+  skipProtection?: boolean,
 ) => Promise<boolean>;
 
 export type BeforeEachEventCallback = (
   statements: SqlStatementWithAnalyze,
-  skipProtection?: boolean
+  skipProtection?: boolean,
 ) => Promise<boolean>;
 
 export interface SqlStatementResult {
@@ -41,12 +41,10 @@ export class SqlRunnerManager {
 
   async execute(
     statements: SqlStatement[],
-    options?: SqlExecuteOption
+    options?: SqlExecuteOption,
   ): Promise<SqlStatementResult[]> {
     const result: SqlStatementResult[] = [];
     const parser = new Parser();
-
-    console.log(statements);
 
     // We only wrap transaction if it is multiple statement and
     // insideTransactin is specified. Single statement, by itself, is
@@ -89,7 +87,7 @@ export class SqlRunnerManager {
         const startTime = Date.now();
         const returnedResult = await this.executor(
           statement.sql,
-          statement.params
+          statement.params,
         );
 
         if (!returnedResult?.error) {
@@ -117,7 +115,7 @@ export class SqlRunnerManager {
 
   unregisterBeforeAll(cb: BeforeAllEventCallback) {
     this.beforeAllCallbacks = this.beforeAllCallbacks.filter(
-      (prevCb) => prevCb !== cb
+      (prevCb) => prevCb !== cb,
     );
   }
 
@@ -127,7 +125,7 @@ export class SqlRunnerManager {
 
   unregisterBeforeEach(cb: BeforeEachEventCallback) {
     this.beforeEachCallbacks = this.beforeEachCallbacks.filter(
-      (prevCb) => prevCb !== cb
+      (prevCb) => prevCb !== cb,
     );
   }
 }
