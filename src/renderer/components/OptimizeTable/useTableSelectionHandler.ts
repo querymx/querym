@@ -13,12 +13,12 @@ export default function useTableSelectionHandler({
 }) {
   const newRowsIndexSet = useMemo(
     () => new Set(newRowsIndex ?? []),
-    [newRowsIndex]
+    [newRowsIndex],
   );
 
   const removedRowsIndexSet = useMemo(
     () => new Set(removedRowsIndex ?? []),
-    [removedRowsIndex]
+    [removedRowsIndex],
   );
 
   const handleRowSelection = useCallback(
@@ -29,7 +29,7 @@ export default function useTableSelectionHandler({
         // If CTRL key is pressed, toggle the selection of the clicked row
         if (selectedRowsIndex.includes(rowIndex)) {
           updatedSelectedRowsIndex = selectedRowsIndex.filter(
-            (index) => index !== rowIndex
+            (index) => index !== rowIndex,
           );
         } else {
           updatedSelectedRowsIndex = [...selectedRowsIndex, rowIndex];
@@ -49,7 +49,7 @@ export default function useTableSelectionHandler({
 
       onSelectedRowsIndexChanged(updatedSelectedRowsIndex);
     },
-    [selectedRowsIndex, onSelectedRowsIndexChanged]
+    [selectedRowsIndex, onSelectedRowsIndexChanged],
   );
 
   const handleRowClick = useCallback(
@@ -63,7 +63,7 @@ export default function useTableSelectionHandler({
         }
       }
 
-      if (rowIndex) {
+      if (rowIndex !== null && rowIndex !== undefined) {
         const isCtrlKey = e.ctrlKey || e.metaKey;
         const isShiftKey = e.shiftKey;
 
@@ -74,7 +74,7 @@ export default function useTableSelectionHandler({
         }
       }
     },
-    [handleRowSelection, selectedRowsIndex]
+    [handleRowSelection, selectedRowsIndex],
   );
 
   return { newRowsIndexSet, removedRowsIndexSet, handleRowClick };
