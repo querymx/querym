@@ -13,7 +13,7 @@ test('decode MySQL connection string', () => {
         host: 'localhost',
         password: '123',
         user: 'root',
-        port: '3306',
+        port: 3306,
       },
     }),
   ).toBe('mysql://root:123@localhost:3306/testing_db');

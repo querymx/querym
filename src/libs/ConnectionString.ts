@@ -7,7 +7,7 @@ export default class ConnectionString {
   static decode(connectionString: string): ConnectionStoreConfig {
     const protocol = connectionString.substring(
       0,
-      connectionString.indexOf(':')
+      connectionString.indexOf(':'),
     );
 
     const httpString = connectionString.replace(protocol, 'http');
@@ -15,7 +15,7 @@ export default class ConnectionString {
 
     return {
       database: url.pathname.replace('/', ''),
-      port: url.port,
+      port: Number(url.port),
       host: url.hostname,
       password: decodeURIComponent(url.password),
       user: url.username,

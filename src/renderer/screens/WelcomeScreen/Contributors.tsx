@@ -1,5 +1,4 @@
 import useSWR from 'swr';
-import ContributorList from './ContributorList';
 
 export interface ProjectContributor {
   id: number;
