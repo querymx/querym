@@ -2,7 +2,7 @@ import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import { v1 as uuidv1 } from 'uuid';
 import { db } from 'renderer/db';
 
-export default class ConnectionListStorage {
+export default class ConnectionListLocalStorage {
   protected connections: ConnectionStoreItem[] = [];
   protected dict: Record<string, ConnectionStoreItem> = {};
 

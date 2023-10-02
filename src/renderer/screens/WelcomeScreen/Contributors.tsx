@@ -10,7 +10,7 @@ export interface ProjectContributor {
 }
 
 export default function Contributors() {
-  const { data } = useSWR<{
+  useSWR<{
     contributors: ProjectContributor[];
   }>('https://api.querymaster.io/v1/contributors', {
     revalidateIfStale: false,
@@ -21,8 +21,6 @@ export default function Contributors() {
     <div style={{ marginTop: 50 }}>
       <h3>Contributors</h3>
       <p>This project will not be possible without our valuable contributors</p>
-
-      <ContributorList contributors={data?.contributors ?? []} />
     </div>
   );
 }

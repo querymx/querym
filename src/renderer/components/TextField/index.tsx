@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, forwardRef } from 'react';
 import styles from './styles.module.scss';
 
 export interface TextFieldCommonProps {
@@ -12,45 +12,34 @@ export interface TextFieldCommonProps {
 }
 
 interface TextFieldProps extends TextFieldCommonProps {
-  multipleLine?: boolean;
   type?: 'text' | 'password';
   actionIcon?: ReactElement;
   actionClick?: () => void;
 }
 
-export default function TextField({
-  label,
-  value,
-  autoFocus,
-  type,
-  onChange,
-  placeholder,
-  actionIcon,
-  actionClick,
-  readOnly,
-  multipleLine,
-  onKeyDown,
-}: TextFieldProps) {
-  return (
-    <div className={styles.input}>
-      {label && <label>{label}</label>}
+const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
+  function TextField(
+    {
+      label,
+      value,
+      autoFocus,
+      type,
+      onChange,
+      placeholder,
+      actionIcon,
+      actionClick,
+      readOnly,
+      onKeyDown,
+    },
+    ref,
+  ) {
+    return (
+      <div className={styles.input}>
+        {label && <label>{label}</label>}
 
-      <div className={styles.content}>
-        {multipleLine ? (
-          <textarea
-            readOnly={readOnly}
-            onKeyDown={onKeyDown}
-            placeholder={placeholder}
-            autoFocus={autoFocus}
-            value={value}
-            onChange={(e) => {
-              if (onChange) {
-                onChange(e.currentTarget.value);
-              }
-            }}
-          />
-        ) : (
+        <div className={styles.content}>
           <input
+            ref={ref}
             readOnly={readOnly}
             onKeyDown={onKeyDown}
             placeholder={placeholder}
@@ -63,13 +52,15 @@ export default function TextField({
               }
             }}
           />
-        )}
-        {actionIcon && (
-          <div className={styles.action_icon} onClick={actionClick}>
-            {actionIcon}
-          </div>
-        )}
+          {actionIcon && (
+            <div className={styles.action_icon} onClick={actionClick}>
+              {actionIcon}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+
+export default TextField;

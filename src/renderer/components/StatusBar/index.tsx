@@ -98,7 +98,7 @@ export default function StatusBar() {
   return (
     <div className={styles.statusBarContainer}>
       <ul>
-        <li>QueryM v{pkg.version}</li>
+        <li>Querym v{pkg.version}</li>
         {!!connectionStatus?.version && <li>{connectionStatus?.version}</li>}
         {!!connectionStatus?.status && (
           <li>

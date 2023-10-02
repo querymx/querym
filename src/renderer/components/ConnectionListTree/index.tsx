@@ -2,7 +2,6 @@ import {
   ConnectionStoreItem,
   ConnectionStoreItemWithoutId,
 } from 'drivers/base/SQLLikeConnection';
-import ConnectionListStorage from 'libs/ConnectionListStorage';
 import {
   useState,
   useMemo,
@@ -20,9 +19,11 @@ import ConnectionToolbar from './ConnectionToolbar';
 import useConnectionContextMenu from './useConnectionContextMenu';
 import { useConnection } from 'renderer/App';
 import ConnectionIcon from '../ConnectionIcon';
+import IConnectionListStorage from 'libs/ConnectionListStorage/IConnectionListStorage';
+import ConnectionListLocalStorage from 'libs/ConnectionListStorage/ConnectionListLocalStorage';
 
 const ConnectionListContext = createContext<{
-  storage: ConnectionListStorage;
+  storage: IConnectionListStorage;
   refresh: () => void;
   finishEditing: () => void;
   showEditConnection: (initialValue: ConnectionStoreItemWithoutId) => void;
@@ -30,7 +31,7 @@ const ConnectionListContext = createContext<{
     React.SetStateAction<TreeViewItemData<ConnectionStoreItem> | undefined>
   >;
 }>({
-  storage: new ConnectionListStorage(),
+  storage: new ConnectionListLocalStorage(),
   refresh: NotImplementCallback,
   finishEditing: NotImplementCallback,
   showEditConnection: NotImplementCallback,
@@ -130,8 +131,11 @@ function ConnectionListTreeBody({
   );
 }
 
-export default function ConnectionListTree() {
-  const storage = useMemo(() => new ConnectionListStorage(), []);
+export default function ConnectionListTree({
+  storage,
+}: {
+  storage: IConnectionListStorage;
+}) {
   const [selectedItem, setSelectedItem] =
     useState<TreeViewItemData<ConnectionStoreItem>>();
   const [editingItem, setEditingItem] =

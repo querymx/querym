@@ -1,3 +1,32 @@
+.calloutBackground {
+  background-color: #4158D0;
+  background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+  padding: 40px;
+}
+
+.calloutContainer {
+  background: var(--color-surface);
+  max-width: 700px;
+  border-radius: 4px;
+  padding: 1rem;
+
+  font-size: 1rem;
+
+  h2 {
+    margin-bottom: 2rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    padding-left: 2rem;
+  }
+}
+
 .contributorList {
   margin-top: 1rem;
   list-style: none;

@@ -195,12 +195,12 @@
   },
   "build": {
     "protocols": {
-      "name": "QueryM",
+      "name": "Querym",
       "schemes": [
         "querymaster"
       ]
     },
-    "productName": "QueryM",
+    "productName": "Querym",
     "appId": "com.invisal.querymaster",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
