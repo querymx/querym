@@ -10,6 +10,7 @@ import PasswordField from 'renderer/components/PasswordField';
 import { useCallback, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import LinkButton from 'renderer/components/Button/LinkButton';
 
 function SetupAccountNotLogin() {
   return (
@@ -192,12 +193,20 @@ function SetupAccountDetail({ user }: { user: LoginUser }) {
 }
 
 export default function SetupAccountCallout() {
+  const { logout } = useAuth();
   const { user } = useCurrentUser();
 
   return (
     <div className={styles.calloutBackground}>
       <div className={styles.calloutContainer}>
-        {user ? <SetupAccountDetail user={user} /> : <SetupAccountNotLogin />}
+        <div>
+          {user ? <SetupAccountDetail user={user} /> : <SetupAccountNotLogin />}
+        </div>
+        {user && (
+          <div className={styles.footer}>
+            <LinkButton text="Logout" destructive onClick={logout} />
+          </div>
+        )}
       </div>
     </div>
   );
