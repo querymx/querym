@@ -21,8 +21,6 @@ export default function Contributors() {
     <div style={{ marginTop: 50 }}>
       <h3>Contributors</h3>
       <p>This project will not be possible without our valuable contributors</p>
-
-      <ContributorList contributors={data?.contributors ?? []} />
     </div>
   );
 }
