@@ -21,6 +21,8 @@ import { useConnection } from 'renderer/App';
 import ConnectionIcon from '../ConnectionIcon';
 import IConnectionListStorage from 'libs/ConnectionListStorage/IConnectionListStorage';
 import ConnectionListLocalStorage from 'libs/ConnectionListStorage/ConnectionListLocalStorage';
+import ConnectionListLoading from './ConnectionListLoading';
+import ConnectionListError from './ConnectionListError';
 
 const ConnectionListContext = createContext<{
   storage: IConnectionListStorage;
@@ -136,6 +138,8 @@ export default function ConnectionListTree({
 }: {
   storage: IConnectionListStorage;
 }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [selectedItem, setSelectedItem] =
     useState<TreeViewItemData<ConnectionStoreItem>>();
   const [editingItem, setEditingItem] =
@@ -145,8 +149,17 @@ export default function ConnectionListTree({
   );
 
   const onRefresh = useCallback(() => {
-    storage.loadAll().then(() => setConnectionList(storage.getAll()));
-  }, [storage, setConnectionList]);
+    setLoading(true);
+    setError(false);
+    storage
+      .loadAll()
+      .then(() => {
+        setConnectionList(storage.getAll());
+        setLoading(false);
+        setError(false);
+      })
+      .catch(() => setError(true));
+  }, [storage, setConnectionList, setLoading]);
 
   const onFinishEditing = useCallback(
     () => setEditingItem(undefined),
@@ -156,6 +169,25 @@ export default function ConnectionListTree({
   useEffect(() => {
     onRefresh();
   }, [onRefresh]);
+
+  const content = useMemo(() => {
+    if (error) return <ConnectionListError refresh={onRefresh} />;
+    if (loading) return <ConnectionListLoading />;
+    return (
+      <ConnectionListTreeBody
+        connectionList={connectionList}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
+      />
+    );
+  }, [
+    loading,
+    error,
+    onRefresh,
+    connectionList,
+    selectedItem,
+    setSelectedItem,
+  ]);
 
   return (
     <ConnectionListContext.Provider
@@ -171,11 +203,7 @@ export default function ConnectionListTree({
         <Layout.Fixed>
           <ConnectionToolbar />
         </Layout.Fixed>
-        <ConnectionListTreeBody
-          connectionList={connectionList}
-          selectedItem={selectedItem}
-          setSelectedItem={setSelectedItem}
-        />
+        {content}
       </Layout>
 
       {editingItem && <EditConnectionModal initialValue={editingItem} />}
