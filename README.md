@@ -1,9 +1,9 @@
-# QueryMaster - Yet Another Database GUI
+# Querym: Simplifying Database Management for Developers and Businesses
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
 
-Query Master is a free, open-source, and cross-platform GUI tool for databases. Although this project is relatively young, we are ambitious in our goal to create one of the best tools available. Currently, it only supports MySQL, but we plan to add support for other relational databases by 2024.
+Querym is a free, open-source, and cross-platform GUI tool designed to make database management accessible and efficient. While it's a relatively young project, our ambition is to create one of the best database management tools available. Currently, Querym offers robust support for MySQL, with plans to expand its compatibility to other relational databases by 2024.
 
 [Download Windows Version](https://apps.microsoft.com/store/detail/querymaster/9PBF90B3T7Z2?hl=en-us&gl=us) | [Download Mac Version](https://github.com/invisal/query-master/releases)
 
@@ -11,89 +11,109 @@ Query Master is a free, open-source, and cross-platform GUI tool for databases. 
 
 ![QueryMaster](https://i.ibb.co/6ybwWYy/animated2.gif)
 
-## Roadmap and Features
+## Features and Development Roadmap
 
-These are the features that we have either completed or plan to complete. Currently, we have finished approximately 20% of our initial roadmap.
+Here's an overview of Querym's features, including completed functionalities and those on our development roadmap. Currently, we have achieved approximately 20% of our initial roadmap.
 
-### Writing SQL
+### SQL Querying
 
-QueryMaster aims to provide the best experience for writing SQL, which includes the following features:
+Querym aims to provide an exceptional SQL writing experience with the following features:
 
-- Smart autocomplete
-    - ✅ Automatically completes database, table, and column names.
-    - ✅ Detects ENUM columns and provides auto-completion.
-    - ❌ Auto-completes aliased tables.
-    - ❌ Analyzes sub-queries and provides auto-completion for their columns.
-    - ✅ Provides hints and function usage.
-- Code formatter
-    - ✅ Beautifies your SQL code.
-    - ❌ Allows customization of the beautify style.
-- Support for variables
-    - ❌ Allows developers to bind values to variables, making queries more reusable.
+- **Smart Autocomplete**
+  - ✅ Automatically suggests database, table, and column names.
+  - ✅ Detects ENUM columns and offers auto-completion.
+  - ❌ Auto-completion for aliased tables (in progress).
+  - ❌ Analyzes sub-queries for column auto-completion (in progress).
+  - ✅ Provides hints and function usage.
+- **Code Formatter**
+  - ✅ Beautifies your SQL code.
+  - ❌ Allows customization of formatting style.
+- **Support for Variables**
+  - ❌ Allows developers to bind values to variables, enhancing query reusability.
 
-### Running Queries
+### Running and Managing Queries
 
-- Protection and Review
-    - ✅ QueryMaster offers three levels of protection mode. Review your SQL before running any query that can greatly impact your database.
-- Kill query
-    - ✅ Terminate the query before it finishes running. It is good for canceling long-running queries.
-- Multiple queries result
-    - ✅ Run multiple queries and see all of their results in separate tabs.
-- Saved Queries
-    - ✅ Save your queries with a name to use later.
-- Query History
-    - ❌ Record the browser queries that you used to run.
+Efficiently run and manage your queries with Querym:
 
-### Data Editor
+- **Protection and Review**
+  - ✅ Querym offers three levels of protection mode, allowing you to review SQL before executing potentially impactful queries.
+- **Kill Query**
+  - ✅ Terminate long-running queries when needed.
+- **Multiple Queries Result**
+  - ✅ Execute multiple queries and view results in separate tabs.
+- **Saved Queries**
+  - ✅ Save your frequently used queries for future use.
+- **Query History**
+  - ❌ Record and access your query history for reference (in progress).
 
-- ✅ Edit data within the data editor.
-- ✅ Edit data even if it is a result of an INNER JOIN.
-- ✅ Add rows.
-- ✅ Remove rows.
-- ✅ We provide a JSON editor.
-- ❌ Preview geometry data visually on a map.
+### Data Editing
+
+Edit and manage data effortlessly with Querym:
+
+- ✅ Edit data directly within the data editor.
+- ✅ Edit data even if it results from INNER JOIN operations.
+- ✅ Add and remove rows with ease.
+- ✅ JSON data editing supported.
+- ❌ Visual preview of geometry data on a map (in progress).
 - ✅ Preview changes before committing them.
-- ✅ You can discard any changes made.
+- ✅ Ability to discard any changes made.
 
 ### Export and Import Data
 
-- ✅ Export to CSV
-- ✅ Export to Microsoft Excel
-- ❌ Export to JSON
-- ❌ Export to SQL
-- ❌ Export to XML
-- ❌ Export to Clipboard
-- ❌ Import from CSV
-- ❌ Import from Excel
-- ❌ Import from SQL
+Effortlessly move data in and out of your database:
+
+- ✅ Export data to CSV.
+- ✅ Export data to Microsoft Excel.
+- ❌ Export data to JSON (in progress).
+- ❌ Export data to SQL (in progress).
+- ❌ Export data to XML (in progress).
+- ❌ Export to Clipboard (in progress).
+- ❌ Import data from CSV (in progress).
+- ❌ Import data from Excel (in progress).
+- ❌ Import data from SQL (in progress).
 
 ### Connection Management
 
-- ✅ Manage your connections in nested folders.
-- ✅ MySQL Support
-- ❌ SQLite Support
-- ❌ PostgreSQL Support
-- ❌ Oracle Support
-- ❌ Microsoft SQL Support
-- ❌ Cassandra 
+Efficiently organize and manage your database connections:
 
-### Editing Schema
+- ✅ Manage connections in nested folders.
+- ✅ Robust support for MySQL.
+- ❌ Support for SQLite (in progress).
+- ❌ Support for PostgreSQL (in progress).
+- ❌ Support for Oracle (in progress).
+- ❌ Support for Microsoft SQL (in progress).
+- ❌ Support for Cassandra (in progress).
 
-- ❌ Create and drop database
-- ❌ Create/Edit/Remove table
-- ❌ Create/Edit/Remove stored procedure
-- ❌ Create/Edit/Remove trigger
-- ❌ Create/Edit/Remove event
+### Schema Editing
 
-### Monitor and Management
+Perform essential database schema operations:
 
-- ❌ Manage users
-- ❌ Monitor and kill process
+- ❌ Create and drop databases.
+- ❌ Create, edit, and remove tables.
+- ❌ Create, edit, and remove stored procedures.
+- ❌ Create, edit, and remove triggers.
+- ❌ Create, edit, and remove events.
+
+### Monitoring and Management
+
+Keep an eye on database activities and manage processes:
+
+- ❌ Manage users (in progress).
+- ❌ Monitor and terminate processes (in progress).
 
 ### Visualization
-- ❌ Visualize data in a chart.
 
-### Cloud Feature
-- ❌ Add E2E password encryption
-- ❌ Store your connections in the cloud
-- ❌ Store your saved queries
+Explore data visually with charting features (in progress).
+
+### Cloud Integration
+
+Secure your connections and access them from the cloud (in progress).
+
+### Contribution 
+
+We hope to develop Querym into a powerful yet user-friendly database management tool, dedicated to simplifying the work of developers and addressing the data management needs of businesses. 
+
+You can help make Querym more useful by; 
+- [Fork](https://github.com/QueryMx/QueryM/fork) and work on your branch
+- [PR](https://github.com/QueryMx/QueryM/pulls) back to the main branch
+- [Open Issue](https://github.com/QueryMx/QueryM/issues) for any feature requests, ideas, or issue
