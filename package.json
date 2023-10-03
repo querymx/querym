@@ -270,8 +270,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "invisal",
-      "repo": "query-master"
+      "owner": "querymx",
+      "repo": "querym"
     }
   },
   "devEngines": {
