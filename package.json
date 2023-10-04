@@ -1,7 +1,7 @@
 {
   "name": "querym",
   "description": "just another database graphical client",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "keywords": [
     "database",
     "mysql",
@@ -241,11 +241,11 @@
       ]
     },
     "appx": {
-      "applicationId": "QueryM",
+      "applicationId": "Querym",
       "identityName": "12586QueryMaster.QueryMaster",
-      "displayName": "QueryM",
+      "displayName": "Querym",
       "publisher": "CN=CE087293-2717-47BA-A1C8-389DD9E965BB",
-      "publisherDisplayName": "QueryM"
+      "publisherDisplayName": "QueryMaster"
     },
     "win": {
       "target": [
