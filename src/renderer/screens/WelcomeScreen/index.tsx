@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
           <div>
             <ButtonGroup>
               <Button primary onClick={onGithubClicked}>
-                Github
+                GitHub
               </Button>
               <Button destructive onClick={onReportIssueClicked}>
                 Report Issue

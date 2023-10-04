@@ -17,7 +17,7 @@ function SetupAccountNotLogin() {
     <div>
       <h2>Setup Account</h2>
 
-      <p>Link with your Github account to share your work across devices.</p>
+      <p>Link with your GitHub account to share your work across devices.</p>
 
       <p>
         <strong>It is safe!</strong> All your database credientials are
@@ -49,7 +49,7 @@ function SetupAccountNotLogin() {
             </svg>
           }
         >
-          Connect with Github
+          Connect with GitHub
         </Button>
       </Stack>
     </div>
