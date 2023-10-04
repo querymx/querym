@@ -1,18 +1,36 @@
-name: Bug Report
-description: File a bug report
+name: 🐛 Bug Report
+description: Submit a bug report to help us improve
 title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out our bug report form 🙏
+
   - type: textarea
-    id: what-happened
+    id: reproduction-steps
     attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
+      label: 👟 Reproduction steps
+      description: How do you trigger this bug? Please walk us through it step by step.
+      placeholder: When I ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 👍 Expected behavior
+      description: What did you think would happen?
+      placeholder: It should ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 👎 Actual Behavior
+      description: What did actually happen? Add screenshots, if applicable.
+      placeholder: It actually ...
     validations:
       required: true

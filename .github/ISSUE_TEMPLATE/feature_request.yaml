@@ -1,20 +1,27 @@
-name: Feature Request
-description: Suggest an idea for this project
+name: 🚀 Feature
+description: Submit a proposal for a new feature
 title: "[Feature]: "
-labels: ["feature-request"]
+labels: ["feature"]
 body:
-  - type: textarea
-    id: problem
+  - type: markdown
     attributes:
-      label: Problem
-      description: Which problem is this feature request solving?
+      value: |
+        Thanks for taking the time to fill out our feature request form 🙏
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature description
+      description: A clear and concise description of what the feature is.
+      placeholder: You should add ...
     validations:
       required: true
 
   - type: textarea
-    id: solution
+    id: pitch
     attributes:
-      label: Solution
-      description: Describe the solution you'd like
+      label: 🎤 Pitch
+      description: Please explain why this feature should be implemented and how it would be used. Add examples, if applicable.
+      placeholder: In my use-case, ...
     validations:
       required: true
