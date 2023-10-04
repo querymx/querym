@@ -29,7 +29,7 @@ export default function RelationalDbConnectionEditor({
             value={port}
             onChange={(value) => {
               onChange({ ...config, port: Number(value) });
-              setPort(port);
+              setPort(value);
             }}
           />
         </div>
