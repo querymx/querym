@@ -1,0 +1,20 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["feature-request"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which problem is this feature request solving?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution
+      description: Describe the solution you'd like
+    validations:
+      required: true
