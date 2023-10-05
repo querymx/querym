@@ -60,6 +60,7 @@ class PgDialect implements QueryDialect {
 
 export class QueryBuilder {
   protected dialect: QueryDialect = new MySqlDialect();
+  protected dialectType: QueryDialetType;
   protected states: QueryStates = {
     type: 'select',
     where: [],
@@ -73,6 +74,8 @@ export class QueryBuilder {
     } else if (dialect === 'postgre') {
       this.dialect = new PgDialect();
     }
+
+    this.dialectType = dialect;
   }
 
   protected escapeIdentifier(id: string | QueryRaw) {
@@ -177,6 +180,22 @@ export class QueryBuilder {
     return { sql, binding };
   }
 
+  protected buildLimit(): [string, number[]] {
+    if (this.states.limit) {
+      if (this.states.offset) {
+        if (this.dialectType === 'postgre') {
+          return ['LIMIT ? OFFSET ?', [this.states.limit, this.states.offset]];
+        } else {
+          return ['LIMIT ?,?', [this.states.offset, this.states.limit]];
+        }
+      } else {
+        return ['LIMIT ?', [this.states.limit]];
+      }
+    }
+
+    return ['', []];
+  }
+
   toSQL(): { sql: string; binding: unknown[] } {
     if (this.states.type === 'update') {
       if (!this.states.table) throw 'no table specified';
@@ -229,18 +248,8 @@ export class QueryBuilder {
 
       binding = binding.concat(...whereBinding);
 
-      let limitPart: string | undefined = undefined;
-
-      if (this.states.limit) {
-        if (this.states.offset) {
-          binding.push(this.states.offset);
-          binding.push(this.states.limit);
-          limitPart = 'LIMIT ?,?';
-        } else {
-          binding.push(this.states.limit);
-          limitPart = 'LIMIT ?';
-        }
-      }
+      const [limitPart, limitBinding] = this.buildLimit();
+      binding = binding.concat(limitBinding);
 
       const sql =
         [
