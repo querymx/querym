@@ -10,7 +10,8 @@ import { useConnectionList } from '.';
 import { QueryDialetType } from 'libs/QueryBuilder';
 
 export default function useNewConnectionMenu() {
-  const { storage, showEditConnection } = useConnectionList();
+  const { storage, showEditConnection, setShowConnectionStringModal } =
+    useConnectionList();
 
   const newConnection = useCallback(
     (type: QueryDialetType, config: ConnectionStoreConfig) => {
@@ -57,9 +58,12 @@ export default function useNewConnectionMenu() {
           }),
       },
       { text: 'SQLite (coming soon)', disabled: true, separator: true },
-      { text: 'Import from Connection String' },
+      {
+        text: 'Import from Connection String',
+        onClick: () => setShowConnectionStringModal(true),
+      },
     ];
-  }, [newConnection]);
+  }, [newConnection, setShowConnectionStringModal]);
 
   return menu;
 }

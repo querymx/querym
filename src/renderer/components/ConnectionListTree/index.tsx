@@ -23,6 +23,7 @@ import IConnectionListStorage from 'libs/ConnectionListStorage/IConnectionListSt
 import ConnectionListLocalStorage from 'libs/ConnectionListStorage/ConnectionListLocalStorage';
 import ConnectionListLoading from './ConnectionListLoading';
 import ConnectionListError from './ConnectionListError';
+import ImportConnectionStringModal from './ImportConnectionStringModal';
 
 const ConnectionListContext = createContext<{
   storage: IConnectionListStorage;
@@ -32,12 +33,14 @@ const ConnectionListContext = createContext<{
   setSelectedItem: React.Dispatch<
     React.SetStateAction<TreeViewItemData<ConnectionStoreItem> | undefined>
   >;
+  setShowConnectionStringModal: (v: boolean) => void;
 }>({
   storage: new ConnectionListLocalStorage(),
   refresh: NotImplementCallback,
   finishEditing: NotImplementCallback,
   showEditConnection: NotImplementCallback,
   setSelectedItem: NotImplementCallback,
+  setShowConnectionStringModal: NotImplementCallback,
 });
 
 export function useConnectionList() {
@@ -147,6 +150,8 @@ export default function ConnectionListTree({
   const [connectionList, setConnectionList] = useState<ConnectionStoreItem[]>(
     [],
   );
+  const [showConnectionStringModal, setShowConnectionStringModal] =
+    useState(false);
 
   const onRefresh = useCallback(() => {
     setLoading(true);
@@ -197,6 +202,7 @@ export default function ConnectionListTree({
         finishEditing: onFinishEditing,
         showEditConnection: setEditingItem,
         setSelectedItem: setSelectedItem,
+        setShowConnectionStringModal,
       }}
     >
       <Layout>
@@ -207,6 +213,12 @@ export default function ConnectionListTree({
       </Layout>
 
       {editingItem && <EditConnectionModal initialValue={editingItem} />}
+      {!editingItem && showConnectionStringModal && (
+        <ImportConnectionStringModal
+          onClose={() => setShowConnectionStringModal(false)}
+          onConnection={setEditingItem}
+        />
+      )}
     </ConnectionListContext.Provider>
   );
 }

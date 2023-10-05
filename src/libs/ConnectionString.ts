@@ -1,10 +1,16 @@
 import {
-  ConnectionStoreConfig,
   ConnectionStoreItem,
+  ConnectionStoreItemWithoutId,
 } from 'drivers/base/SQLLikeConnection';
+import { QueryDialetType } from './QueryBuilder';
+
+function protocolToConnectionType(type: string): QueryDialetType {
+  if (type === 'postgresql') return 'postgre';
+  return 'mysql';
+}
 
 export default class ConnectionString {
-  static decode(connectionString: string): ConnectionStoreConfig {
+  static decode(connectionString: string): ConnectionStoreItemWithoutId {
     const protocol = connectionString.substring(
       0,
       connectionString.indexOf(':'),
@@ -13,12 +19,22 @@ export default class ConnectionString {
     const httpString = connectionString.replace(protocol, 'http');
     const url = new URL(httpString);
 
-    return {
+    const config = {
       database: url.pathname.replace('/', ''),
       port: Number(url.port),
       host: url.hostname,
       password: decodeURIComponent(url.password),
       user: url.username,
+    };
+
+    const now = Math.round(Date.now() / 1000);
+
+    return {
+      config,
+      createdAt: now,
+      lastUsedAt: now,
+      name: 'Unnamed',
+      type: protocolToConnectionType(protocol),
     };
   }
 
