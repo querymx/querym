@@ -23,6 +23,23 @@ export default class ConnectionString {
   }
 
   static encode(setting: ConnectionStoreItem): string {
-    return `${setting.type}://${setting.config.user}:${setting.config.password}@${setting.config.host}:${setting.config.port}/${setting.config.database}`;
+    let protocol: string = setting.type;
+    const params = new URLSearchParams();
+
+    if (setting.type === 'postgre') {
+      protocol = 'postgresql';
+    }
+
+    if (setting.config.ssl) {
+      params.set('ssl', 'true');
+    }
+
+    let paramsString = params.toString();
+    paramsString = paramsString ? '?' + paramsString : paramsString;
+
+    return (
+      `${protocol}://${setting.config.user}:${setting.config.password}@${setting.config.host}:${setting.config.port}/${setting.config.database}` +
+      paramsString
+    );
   }
 }

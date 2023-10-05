@@ -16,10 +16,5 @@ export default function Contributors() {
     revalidateOnFocus: false,
   });
 
-  return (
-    <div style={{ marginTop: 50 }}>
-      <h3>Contributors</h3>
-      <p>This project will not be possible without our valuable contributors</p>
-    </div>
-  );
+  return <div style={{ marginTop: 50 }}></div>;
 }

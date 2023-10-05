@@ -19,6 +19,7 @@ import StatusBar from './components/StatusBar';
 import { DeviceProvider } from './contexts/DeviceProvider';
 import Layout from './components/Layout';
 import AuthProvider from './contexts/AuthProvider';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ConnectionContext = createContext<{
   connect: (connectionConfig: ConnectionStoreItem) => void;
@@ -39,7 +40,7 @@ export default function App() {
     (connectionConfig: ConnectionStoreItem) => {
       setConfig(connectionConfig);
     },
-    [setConfig]
+    [setConfig],
   );
 
   const disconnectCallback = useCallback(() => {

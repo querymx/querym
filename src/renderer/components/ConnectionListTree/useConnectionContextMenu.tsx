@@ -3,6 +3,10 @@ import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import useNewConnectionMenu from './useNewConnectionMenu';
 import { ConnectionStoreItem } from 'drivers/base/SQLLikeConnection';
 import { useConnectionList } from '.';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import ConnectionString from 'libs/ConnectionString';
+import { toast } from 'react-toastify';
 
 export default function useConnectionContextMenu({
   selectedItem,
@@ -44,9 +48,28 @@ export default function useConnectionContextMenu({
         },
       },
       {
+        text: 'Copy Connection String',
+        icon: <FontAwesomeIcon icon={faCopy} color="#2980b9" />,
+        disabled: !selectedItem,
+        onClick: () => {
+          if (selectedItem) {
+            navigator.clipboard
+              .writeText(ConnectionString.encode(selectedItem))
+              .then(() => {
+                toast('Connection string copied', {
+                  position: 'bottom-center',
+                  progress: undefined,
+                  autoClose: 1000,
+                });
+              });
+          }
+        },
+      },
+      {
         text: 'Refresh',
         separator: true,
         onClick: refresh,
+        icon: <FontAwesomeIcon icon={faRefresh} color="#27ae60" />,
       },
       {
         text: 'New Connection',

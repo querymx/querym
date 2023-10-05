@@ -56,7 +56,8 @@ export default function useNewConnectionMenu() {
             user: 'postgres',
           }),
       },
-      { text: 'SQLite (coming soon)', disabled: true },
+      { text: 'SQLite (coming soon)', disabled: true, separator: true },
+      { text: 'Import from Connection String' },
     ];
   }, [newConnection]);
 

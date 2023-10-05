@@ -1,4 +1,5 @@
 import NotImplementCallback from 'libs/NotImplementCallback';
+import { ToastContainer } from 'react-toastify';
 import {
   PropsWithChildren,
   createContext,
@@ -33,10 +34,10 @@ export default function AppFeatureProvider({
   defaultTheme,
 }: PropsWithChildren<{ defaultTheme?: ThemeOption }>) {
   const [theme, setTheme] = useState<ThemeOption>(
-    (localStorage.getItem('theme') as ThemeOption) || defaultTheme || 'light'
+    (localStorage.getItem('theme') as ThemeOption) || defaultTheme || 'light',
   );
   const [enableDebug, setEnableDebug] = useState(
-    localStorage.getItem('debug') === '1' || false
+    localStorage.getItem('debug') === '1' || false,
   );
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export default function AppFeatureProvider({
       localStorage.setItem('theme', value);
       setTheme(value);
     },
-    [setTheme]
+    [setTheme],
   );
 
   const setEnableDebugCallback = useCallback(
@@ -62,7 +63,7 @@ export default function AppFeatureProvider({
       localStorage.setItem('debug', value ? '1' : '0');
       setEnableDebug(value);
     },
-    [setEnableDebug]
+    [setEnableDebug],
   );
 
   return (
@@ -75,6 +76,7 @@ export default function AppFeatureProvider({
       }}
     >
       {children}
+      <ToastContainer theme={theme} />
     </AppFeatureContext.Provider>
   );
 }

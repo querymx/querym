@@ -186,19 +186,19 @@ export class QueryBuilder {
 
       let binding: unknown[] = [];
       const commandPart = `UPDATE ${this.dialect?.escapeIdentifier(
-        this.states.table
+        this.states.table,
       )}`;
       const setPart: string[] = [];
 
       for (const [updateField, updateValue] of Object.entries(
-        this.states.update
+        this.states.update,
       )) {
         setPart.push(`${this.dialect?.escapeIdentifier(updateField)}=?`);
         binding.push(updateValue);
       }
 
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
-        this.states.where
+        this.states.where,
       );
       binding = binding.concat(...whereBinding);
 
@@ -224,7 +224,7 @@ export class QueryBuilder {
               .join(',');
 
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
-        this.states.where
+        this.states.where,
       );
 
       binding = binding.concat(...whereBinding);
@@ -253,7 +253,8 @@ export class QueryBuilder {
             ? 'ORDER BY ' +
               this.states.orderBy
                 .map(
-                  ({ name, order }) => `${this.escapeIdentifier(name)} ${order}`
+                  ({ name, order }) =>
+                    `${this.escapeIdentifier(name)} ${order}`,
                 )
                 .join(',')
             : undefined,
@@ -267,7 +268,7 @@ export class QueryBuilder {
       if (!this.states.table) throw 'no table specified';
 
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
-        this.states.where
+        this.states.where,
       );
 
       let binding: unknown[] = [];
