@@ -15,6 +15,10 @@
     "syntax": "ADDTIME(expr1,expr2)",
     "description": "<p>ADDTIME() adds expr2 to expr1 and returns the result. expr1 is a time or datetime expression, and expr2 is a time expression. Returns NULL if expr1or expr2 is NULL.</p>\n<pre><code>SELECT ADDTIME('01:00:00.999999', '02:00:00.999998');\n-&gt; '03:00:01.999997'\n</code></pre>"
   },
+  "asci": {
+    "syntax": "SELECT ASCII(str);",
+    "description": "<p>Returns the numeric value of the leftmost character of the string str. Returns 0 if str is the empty string. Returns NULL if str is NULL. ASCII() works for 8-bit characters.</p>\n<pre><code>SELECT ASCII('2');\n-&gt; 50\nSELECT ASCII(2);\n-&gt; 50\nSELECT ASCII('dx');\n-&gt; 100\n</code></pre>"
+  },
   "asin": {
     "syntax": "ASIN(X)",
     "description": "<p>Returns the arc sine of X, that is, the value whose sine is X. Returns NULL if X is not in the range -1 to 1, or if X is NULL.</p>"
@@ -26,6 +30,14 @@
   "atan2": {
     "syntax": "ATAN2(Y,X)",
     "description": "<p>Returns the arc tangent of the two variables X and Y. It is similar to calculating the arc tangent of Y / X, except that the signs of both arguments are used to determine the quadrant of the result. Returns NULL if X or Y is NULL.</p>\n<hr />\n<p><strong>Example:</strong></p>\n<pre><code>SELECT ATAN2(PI(),0);\n-&gt; 1.5707963267949\n</code></pre>"
+  },
+  "bin": {
+    "syntax": "BIN(N)",
+    "description": "<p>Returns a string representation of the binary value of N, where N is a longlong (BIGINT) number. This is equivalent to CONV(N,10,2). Returns NULL if N is NULL.</p>\n<pre><code>SELECT BIN(12);\n-&gt; '1100'\n</code></pre>"
+  },
+  "bit_length": {
+    "syntax": "BIT_LENGTH(str)",
+    "description": "<p>Returns the length of the string str in bits. Returns NULL if str is NULL.</p>\n<pre><code>SELECT BIT_LENGTH('text');\n-&gt; 32\n</code></pre>"
   },
   "ceil": {
     "syntax": "CEIL(X)",
@@ -75,10 +87,6 @@
     "syntax": "DATE(expr)",
     "description": "<p>Extracts the date part of the date or datetime expression expr. Returns NULL if expr is NULL.</p>\n<pre><code>SELECT DATE('2003-12-31 01:02:03');\n-&gt; '2003-12-31'\n</code></pre>"
   },
-  "datediff": {
-    "syntax": "DATEDIFF(expr1,expr2)",
-    "description": "<p>DATEDIFF() returns expr1 − expr2 expressed as a value in days from one date to the other. expr1 and expr2 are date or date-and-time expressions. Only the date parts of the values are used in the calculation.</p>\n<pre><code>SELECT DATEDIFF('2007-12-31 23:59:59','2007-12-30');\n-&gt; 1\n\nSELECT DATEDIFF('2010-11-30 23:59:59','2010-12-31');\n-&gt; -31\n</code></pre>\n<p>This function returns NULL if expr1 or expr2 is NULL.</p>"
-  },
   "date_add": {
     "syntax": "DATE_ADD(date,INTERVAL expr unit)",
     "description": "<p>These functions perform date arithmetic. The date argument specifies the starting date or datetime value. expr is an expression specifying the interval value to be added or subtracted from the starting date. expr is evaluated as a string; it may start with a - for negative intervals. unit is a keyword indicating the units in which the expression should be interpreted.</p>\n<pre><code>SELECT DATE_ADD('2018-05-01',INTERVAL 1 DAY);\n-&gt; '2018-05-02'\n</code></pre>"
@@ -90,6 +98,10 @@
   "date_sub": {
     "syntax": "DATE_SUB(date,INTERVAL expr unit)",
     "description": "<p>These functions perform date arithmetic. The date argument specifies the starting date or datetime value. expr is an expression specifying the interval value to be added or subtracted from the starting date. expr is evaluated as a string; it may start with a - for negative intervals. unit is a keyword indicating the units in which the expression should be interpreted.</p>\n<pre><code>SELECT DATE_SUB('2018-05-01',INTERVAL 1 YEAR);\n-&gt; '2017-05-01'\n</code></pre>"
+  },
+  "datediff": {
+    "syntax": "DATEDIFF(expr1,expr2)",
+    "description": "<p>DATEDIFF() returns expr1 − expr2 expressed as a value in days from one date to the other. expr1 and expr2 are date or date-and-time expressions. Only the date parts of the values are used in the calculation.</p>\n<pre><code>SELECT DATEDIFF('2007-12-31 23:59:59','2007-12-30');\n-&gt; 1\n\nSELECT DATEDIFF('2010-11-30 23:59:59','2010-12-31');\n-&gt; -31\n</code></pre>\n<p>This function returns NULL if expr1 or expr2 is NULL.</p>"
   },
   "day": {
     "syntax": "DAY(date)",
@@ -235,13 +247,13 @@
     "syntax": "ROUND(X), ROUND(X,D)",
     "description": "<p>Rounds the argument X to D decimal places. The rounding algorithm depends on the data type of X. D defaults to 0 if not specified. D can be negative to cause D digits left of the decimal point of the value X to become zero. The maximum absolute value for D is 30; any digits in excess of 30 (or -30) are truncated. If X or D is NULL, the function returns NULL.</p>\n<pre><code>SELECT ROUND(-1.23), ROUND(-1.58), ROUND(1.58);\n-&gt; -1, -2, 2\n\nSELECT ROUND(1.298, 1), ROUND(1.298, 0), ROUND(23.298, -1);\n-&gt; 1.3, 1, 20\n</code></pre>"
   },
-  "second": {
-    "syntax": "SECOND(time)",
-    "description": "<p>Returns the second for time, in the range 0 to 59, or NULL if time is NULL.</p>\n<pre><code>SELECT SECOND('10:05:03');\n-&gt; 3\n</code></pre>"
-  },
   "sec_to_time": {
     "syntax": "SEC_TO_TIME(seconds)",
     "description": "<p>Returns the seconds argument, converted to hours, minutes, and seconds, as a TIME value. The range of the result is constrained to that of the TIME data type. A warning occurs if the argument corresponds to a value outside that range.</p>\n<p>The function returns NULL if seconds is NULL.</p>\n<pre><code>SELECT SEC_TO_TIME(2378);\n-&gt; '00:39:38'\n\nSELECT SEC_TO_TIME(2378) + 0;\n-&gt; 3938\n</code></pre>"
+  },
+  "second": {
+    "syntax": "SECOND(time)",
+    "description": "<p>Returns the second for time, in the range 0 to 59, or NULL if time is NULL.</p>\n<pre><code>SELECT SECOND('10:05:03');\n-&gt; 3\n</code></pre>"
   },
   "sign": {
     "syntax": "SIGN(X)",
@@ -279,6 +291,14 @@
     "syntax": "TIME(expr)",
     "description": "<p>Extracts the time part of the time or datetime expression expr and returns it as a string. Returns NULL if expr is NULL.</p>\n<pre><code>SELECT TIME('2003-12-31 01:02:03');\n-&gt; '01:02:03'\n\nSELECT TIME('2003-12-31 01:02:03.000123');\n-&gt; '01:02:03.000123\n</code></pre>"
   },
+  "time_format": {
+    "syntax": "TIME_FORMAT(time,format)",
+    "description": "<p>This is used like the DATE<em>FORMAT() function, but the format string may contain format specifiers only for hours, minutes, seconds, and microseconds. Other specifiers produce a NULL or 0. TIME</em>FORMAT() returns NULL if time or format is NULL.</p>\n<p>If the time value contains an hour part that is greater than 23, the %H and %k hour format specifiers produce a value larger than the usual range of 0..23. The other hour format specifiers produce the hour value modulo 12.</p>\n<pre><code>SELECT TIME_FORMAT('100:00:00', '%H %k %h %I %l');\n -&gt; '100 100 04 04 4'\n</code></pre>"
+  },
+  "time_to_sec": {
+    "syntax": "TIME_TO_SEC(time)",
+    "description": "<p>Returns the time argument, converted to seconds. Returns NULL if time is NULL.</p>\n<pre><code>SELECT TIME_TO_SEC('22:23:00');\n-&gt; 80580\n\nSELECT TIME_TO_SEC('00:39:38');\n-&gt; 2378\n</code></pre>"
+  },
   "timediff": {
     "syntax": "TIMEDIFF(expr1,expr2)",
     "description": "<p>TIMEDIFF() returns expr1 − expr2 expressed as a time value. expr1 and expr2 are strings which are converted to TIME or DATETIME expressions; these must be of the same type following conversion. Returns NULL if expr1 or expr2 is NULL.</p>\n<p>The result returned by TIMEDIFF() is limited to the range allowed for TIME values. Alternatively, you can use either of the functions TIMESTAMPDIFF() and UNIX_TIMESTAMP(), both of which return integers.</p>\n<pre><code>SELECT TIMEDIFF('2000-01-01 00:00:00', '2000-01-01 00:00:00.000001');\n-&gt; '-00:00:00.000001'\n\nSELECT TIMEDIFF('2008-12-31 23:59:59.000001', '2008-12-30 01:01:01.000002');\n-&gt; '46:58:57.999999'\n</code></pre>"
@@ -294,14 +314,6 @@
   "timestampdiff": {
     "syntax": "TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2)",
     "description": "<p>Returns datetime<em>expr2 − datetime</em>expr1, where datetime<em>expr1 and datetime</em>expr2 are date or datetime expressions. One expression may be a date and the other a datetime; a date value is treated as a datetime having the time part '00:00:00' where necessary. The unit for the result (an integer) is given by the unit argument. The legal values for unit are the same as those listed in the description of the TIMESTAMPADD() function.</p>\n<pre><code>SELECT TIMESTAMPDIFF(MONTH,'2003-02-01','2003-05-01');\n-&gt; 3\n\nSELECT TIMESTAMPDIFF(YEAR,'2002-05-01','2001-01-01');\n-&gt; -1\n\nSELECT TIMESTAMPDIFF(MINUTE,'2003-02-01','2003-05-01 12:05:55');\n-&gt; 128885\n</code></pre>"
-  },
-  "time_format": {
-    "syntax": "TIME_FORMAT(time,format)",
-    "description": "<p>This is used like the DATE<em>FORMAT() function, but the format string may contain format specifiers only for hours, minutes, seconds, and microseconds. Other specifiers produce a NULL or 0. TIME</em>FORMAT() returns NULL if time or format is NULL.</p>\n<p>If the time value contains an hour part that is greater than 23, the %H and %k hour format specifiers produce a value larger than the usual range of 0..23. The other hour format specifiers produce the hour value modulo 12.</p>\n<pre><code>SELECT TIME_FORMAT('100:00:00', '%H %k %h %I %l');\n -&gt; '100 100 04 04 4'\n</code></pre>"
-  },
-  "time_to_sec": {
-    "syntax": "TIME_TO_SEC(time)",
-    "description": "<p>Returns the time argument, converted to seconds. Returns NULL if time is NULL.</p>\n<pre><code>SELECT TIME_TO_SEC('22:23:00');\n-&gt; 80580\n\nSELECT TIME_TO_SEC('00:39:38');\n-&gt; 2378\n</code></pre>"
   },
   "to_days": {
     "syntax": "TO_DAYS(date)",
