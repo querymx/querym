@@ -6,4 +6,5 @@ Returns the length of the string str, measured in bytes. A multibyte character c
 mysql> SELECT LENGTH('text');
         -> 4
 ```
-The Length() OpenGIS spatial function is named ST_Length() in MySQL.
+
+Note : The Length() OpenGIS spatial function is named ST_Length() in MySQL.

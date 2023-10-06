@@ -10,5 +10,3 @@ mysql> SELECT RPAD('hi',1,'?');
 ```
 
 his function is multibyte safe.
-        
-

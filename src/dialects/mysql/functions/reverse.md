@@ -6,5 +6,3 @@ mysql> SELECT REVERSE('abc');
         -> 'cba'
 ```
 This function is multibyte safe.
-        
-
