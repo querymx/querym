@@ -4,9 +4,9 @@ import {
   TableEditableContentProps,
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
-import { Decimal } from 'decimal.js';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
+import DecimalType from 'renderer/datatype/DecimalType';
 
 function TableCellDecimalEditor({
   value,
@@ -17,7 +17,7 @@ function TableCellDecimalEditor({
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
-      onExit(false, editValue);
+      onExit(false, new DecimalType(editValue));
     }
   }, [onExit, editValue]);
 
@@ -37,21 +37,14 @@ function TableCellDecimalContent({ value }: TableEditableContentProps) {
 }
 
 const TableCellDecimal = createTableCellType({
-  diff: (prev: string, current: string) => {
-    if (prev && current) {
-      const dprev = new Decimal(prev);
-      const dcur = new Decimal(current);
-      return !dprev.eq(dcur);
-    }
-    return prev !== current;
-  },
+  diff: (prev: DecimalType, current: DecimalType) => prev.diff(current),
   content: TableCellDecimalContent,
   editor: TableCellDecimalEditor,
-  onCopy: (value: string) => {
-    return value;
+  onCopy: (value: DecimalType) => {
+    return value.toString();
   },
   onPaste: (value: string) => {
-    return { accept: true, value };
+    return { accept: true, value: new DecimalType(value) };
   },
 });
 

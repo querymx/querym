@@ -1,3 +1,5 @@
+import BaseType from 'renderer/datatype/BaseType';
+
 export interface SqlStatement {
   sql: string;
   params?: Record<string, unknown>;

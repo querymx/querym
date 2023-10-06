@@ -17,10 +17,10 @@ export type BeforeEachEventCallback = (
   skipProtection?: boolean,
 ) => Promise<boolean>;
 
-export interface SqlStatementResult {
+export interface SqlStatementResult<ResultType = QueryResult> {
   statement: SqlStatement;
   time: number;
-  result: QueryResult;
+  result: ResultType;
 }
 
 interface SqlExecuteOption {

@@ -8,9 +8,10 @@ import { TableCellCustomTypeProps } from './createTableCellType';
 import TableCellOther from './TableCellOther';
 import TableCellString from './TableCellString';
 import TableCellDateString from './TableCellDateString';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface TableCellProps {
-  value: unknown;
+  value: BaseType;
   header: QueryResultHeader;
   row: number;
   col: number;

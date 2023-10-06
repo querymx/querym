@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QueryResult } from 'types/SqlResult';
+import { QueryResult, QueryTypedResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
 import ExportModal from '../ExportModal';
 import Toolbar from 'renderer/components/Toolbar';
@@ -14,7 +14,7 @@ import CommitChangeToolbarItem from './CommitChangeToolbarItem';
 interface QueryResultActionProps {
   result: QueryResult;
   resultAfterFilter: { data: Record<string, unknown>; rowIndex: number }[];
-  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  onResultChange: React.Dispatch<React.SetStateAction<QueryTypedResult>>;
   onSearchChange: (v: string) => void;
   onRequestRefetch: () => void;
   page: number;
@@ -45,7 +45,7 @@ export default function QueryResultAction({
       onSearchChange(search);
     },
     [onSearchChange, search],
-    1000
+    1000,
   );
 
   return (

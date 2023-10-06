@@ -1,28 +1,40 @@
 import BaseType from './BaseType';
+import deepEqual from 'deep-equal';
 
-export default class StringType implements BaseType<string> {
-  protected value?: string | null;
+export default class JsonType implements BaseType<object> {
+  protected value?: object | null;
 
-  constructor(value?: string | null) {
-    this.value = value;
+  constructor(value?: object | string | null) {
+    if (typeof value === 'object') this.value = value;
+    else if (typeof value === 'string') {
+      try {
+        this.value = JSON.parse(value);
+      } catch {
+        this.value = undefined;
+      }
+    } else {
+      this.value = value;
+    }
   }
 
-  diff(value: StringType): boolean {
+  diff(value: JsonType): boolean {
+    if (this.value && value.value) {
+      return !deepEqual(this.value, value.value);
+    }
     return this.value !== value.value;
   }
 
-  compare(value: StringType): number {
+  compare(value: JsonType): number {
+    if (this.value && value.value) {
+      return this.value.toString().localeCompare(value.value.toString());
+    }
+
     if (value.value === this.value) return 0;
     if (this.value === null) return -1;
     if (this.value === undefined) return -1;
     if (value.value === null) return 1;
     if (value.value === undefined) return 1;
-
-    if (value.value < this.value) {
-      return 1;
-    } else {
-      return -1;
-    }
+    return 0;
   }
 
   isDefault(): boolean {
@@ -47,7 +59,7 @@ export default class StringType implements BaseType<string> {
     return stringValue.includes(search);
   }
 
-  getValue() {
+  getValue(): object | null | undefined {
     return this.value;
   }
 }

@@ -1,3 +1,4 @@
+import BaseType from 'renderer/datatype/BaseType';
 import { TableColumnSchema } from './SqlSchema';
 
 export interface QueryResultHeaderType {
@@ -50,4 +51,8 @@ interface QueryResultCommon {
 export interface QueryResult<T = Record<string, unknown>>
   extends QueryResultCommon {
   rows: T[];
+}
+
+export interface QueryTypedResult extends QueryResultCommon {
+  rows: Record<string, BaseType>[];
 }

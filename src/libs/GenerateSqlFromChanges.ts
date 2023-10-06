@@ -1,4 +1,4 @@
-import { QueryResult, QueryResultHeader } from 'types/SqlResult';
+import { QueryResultHeader, QueryTypedResult } from 'types/SqlResult';
 import { DatabaseSchema } from 'types/SqlSchema';
 import {
   ResultChangeCollectorItem,
@@ -22,7 +22,7 @@ export interface TableEditableRule {
 
 export function getEditableRule(
   headers: QueryResultHeader[],
-  schema: DatabaseSchema
+  schema: DatabaseSchema,
 ): TableEditableRule {
   const result: UpdatableTableDict = {};
 
@@ -30,7 +30,7 @@ export function getEditableRule(
   const uniqueTableNames = new Set(
     headers
       .filter((header) => !!header.schema?.table)
-      .map((header) => header.schema?.table || '')
+      .map((header) => header.schema?.table || ''),
   );
 
   // For each tables, let check if we have enough column for update
@@ -48,7 +48,7 @@ export function getEditableRule(
         const columnIndex = headers.findIndex(
           (header) =>
             header.schema?.table === tableName &&
-            header?.schema?.column === tablePk
+            header?.schema?.column === tablePk,
         );
 
         if (columnIndex >= 0) {
@@ -79,8 +79,8 @@ export function getEditableRule(
 function buildWhere(
   tableName: string,
   rowIndex: number,
-  data: QueryResult,
-  updatable: UpdatableTableDict
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
 ): Record<string, unknown> {
   const rows = data.rows;
   const headers = data.headers;
@@ -88,15 +88,15 @@ function buildWhere(
   return updatable[tableName].reduce((a, b) => {
     return {
       ...a,
-      [b.columnNames]: rows[rowIndex][headers[b.columnNumber].name],
+      [b.columnNames]: rows[rowIndex][headers[b.columnNumber].name].getValue(),
     };
   }, {});
 }
 
 function buildRemovePlan(
   removeIndex: number,
-  data: QueryResult,
-  updatable: UpdatableTableDict
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
 ): SqlStatementPlan[] {
   // We will not remove if there is more than one table inside the result
   const entries = Object.entries(updatable);
@@ -115,14 +115,14 @@ function buildRemovePlan(
 
 function buildInsertPlan(
   changes: ResultChangeCollectorItem,
-  headers: QueryResultHeader[]
+  headers: QueryResultHeader[],
 ): SqlStatementPlan[] {
   const values: Record<string, unknown> = {};
 
   const uniqueTable = new Set(
     headers
       .filter((header) => header.schema)
-      .map((header) => header.schema?.table)
+      .map((header) => header.schema?.table),
   );
   if (uniqueTable.size > 1) return [];
 
@@ -135,8 +135,8 @@ function buildInsertPlan(
 
 function buildUpdatePlan(
   change: ResultChangeCollectorItem,
-  data: QueryResult,
-  updatable: UpdatableTableDict
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
 ): SqlStatementPlan[] {
   const changedTable: Record<string, SqlStatementPlan> = {};
   const headers = data.headers;
@@ -149,14 +149,14 @@ function buildUpdatePlan(
         if (changedTable[tableName]) {
           changedTable[tableName].values = {
             ...changedTable[tableName].values,
-            [header.name]: col.value,
+            [header.name]: col.value.getValue(),
           };
         } else {
           changedTable[tableName] = {
             table: tableName,
             type: 'update',
             values: {
-              [header.name]: col.value,
+              [header.name]: col.value.getValue(),
             },
             where: buildWhere(tableName, change.row, data, updatable),
           };
@@ -170,8 +170,8 @@ function buildUpdatePlan(
 
 export default function generateSqlFromChanges(
   schema: DatabaseSchema,
-  currentData: QueryResult,
-  changes: ResultChanges
+  currentData: QueryTypedResult,
+  changes: ResultChanges,
 ): SqlStatementPlan[] {
   const { updatableTables } = getEditableRule(currentData.headers, schema);
 
@@ -195,6 +195,8 @@ export default function generateSqlFromChanges(
   for (const change of changes.new) {
     plans = [...plans, ...buildInsertPlan(change, currentData.headers)];
   }
+
+  console.log(plans);
 
   return plans;
 }

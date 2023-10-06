@@ -5,11 +5,12 @@ import TableEditableCell, {
 } from './TableEditableCell';
 import { QueryResultHeader } from 'types/SqlResult';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
+import BaseType from 'renderer/datatype/BaseType';
 
-interface TableCellCustomTypeOptions<T> {
+interface TableCellCustomTypeOptions<T = unknown> {
   diff: (prev: T, current: T) => boolean;
-  editor?: React.FC<TableEditableEditorProps>;
-  content: React.FC<TableEditableContentProps>;
+  editor?: React.FC<TableEditableEditorProps<T>>;
+  content: React.FC<TableEditableContentProps<T>>;
   detachEditor?: boolean;
   onCopy?: (value: T) => string;
   onPaste?: (value: string) => { accept: boolean; value: T };
@@ -24,8 +25,8 @@ export interface TableCellCustomTypeProps<T> {
   header: QueryResultHeader;
 }
 
-export default function createTableCellType<T>(
-  options: TableCellCustomTypeOptions<T>
+export default function createTableCellType<T extends BaseType>(
+  options: TableCellCustomTypeOptions<T>,
 ): React.FC<TableCellCustomTypeProps<T>> {
   return function TableCellCustomType({
     row,
@@ -51,8 +52,10 @@ export default function createTableCellType<T>(
         diff={options.diff as any}
         row={row}
         col={col}
-        editor={options.editor}
-        content={options.content}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        editor={options.editor as any}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        content={options.content as any}
         readOnly={options.readOnly || readOnly}
         detactEditor={options.detachEditor}
         onCopy={options.onCopy}

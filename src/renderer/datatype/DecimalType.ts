@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import BaseType from './BaseType';
 
-export default class DecimalType implements BaseType {
+export default class DecimalType implements BaseType<string> {
   protected value?: Decimal | null;
 
   constructor(value?: string | null) {
@@ -40,6 +40,19 @@ export default class DecimalType implements BaseType {
   toString() {
     if (this.value === undefined) return '';
     if (this.value === null) return 'NULL';
+    return this.value.toString();
+  }
+
+  matched(search: string) {
+    if (this.value === null) return false;
+    if (this.value === undefined) return false;
+
+    const stringValue = this.value.toString().toLowerCase();
+    return stringValue.includes(search);
+  }
+
+  getValue(): string | null | undefined {
+    if (!this.value) return this.value;
     return this.value.toString();
   }
 }

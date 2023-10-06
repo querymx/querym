@@ -6,11 +6,11 @@ import {
   TableEditableContentProps,
 } from './TableEditableCell';
 import createTableCellType from './createTableCellType';
-import deepEqual from 'deep-equal';
 import Button from 'renderer/components/Button';
 import Modal from 'renderer/components/Modal';
 import useCodeEditorTheme from 'renderer/components/CodeEditor/useCodeEditorTheme';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
+import JsonType from 'renderer/datatype/JsonType';
 
 function TableCellJsonEditor({
   value,
@@ -49,7 +49,7 @@ function TableCellJsonEditor({
         <Button
           primary
           onClick={() => {
-            onExit(false, JSON.parse(editValue));
+            onExit(false, new JsonType(editValue));
           }}
         >
           Save
@@ -78,19 +78,15 @@ function TableCellJsonContent({ value }: TableEditableContentProps) {
 }
 
 const TableCellJson = createTableCellType({
-  diff: (prev: unknown, current: unknown) => !deepEqual(prev, current),
+  diff: (prev: JsonType, current: JsonType) => prev.diff(current),
   content: TableCellJsonContent,
   editor: TableCellJsonEditor,
   detachEditor: true,
-  onCopy: (value: string) => {
+  onCopy: (value: JsonType) => {
     return JSON.stringify(value);
   },
   onPaste: (value: string) => {
-    try {
-      return { accept: true, value: JSON.parse(value) };
-    } catch {
-      return { accept: false, value: undefined };
-    }
+    return { accept: true, value: new JsonType(value) };
   },
 });
 

@@ -7,11 +7,11 @@ import { useDialog } from 'renderer/contexts/DialogProvider';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
-import { QueryResult } from 'types/SqlResult';
+import { QueryTypedResult } from 'types/SqlResult';
 
 interface CommitChangeToolbarItemProps {
-  result: QueryResult;
-  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  result: QueryTypedResult;
+  onResultChange: React.Dispatch<React.SetStateAction<QueryTypedResult>>;
   onRequestRefetch: () => void;
 }
 
@@ -43,7 +43,7 @@ export default function CommitChangeToolbarItem({
         const plans = generateSqlFromChanges(
           currentDatabaseSchema,
           result,
-          collector.getChanges()
+          collector.getChanges(),
         );
 
         const rawSql = plans.map((plan) => ({

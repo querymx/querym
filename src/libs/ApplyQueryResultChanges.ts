@@ -1,10 +1,10 @@
-import { QueryResult } from 'types/SqlResult';
+import { QueryTypedResult } from 'types/SqlResult';
 import { ResultChangeCollectorItem } from './ResultChangeCollector';
 
 export default function applyQueryResultChanges(
-  result: QueryResult,
-  changes: ResultChangeCollectorItem[]
-): QueryResult {
+  result: QueryTypedResult,
+  changes: ResultChangeCollectorItem[],
+): QueryTypedResult {
   const newResult = { ...result };
   const headers = result.headers;
 

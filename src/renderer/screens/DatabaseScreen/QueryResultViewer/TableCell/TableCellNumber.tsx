@@ -6,6 +6,7 @@ import {
 import createTableCellType from './createTableCellType';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
+import NumberType from 'renderer/datatype/NumberType';
 
 function TableCellNumberEditor({
   value,
@@ -13,7 +14,9 @@ function TableCellNumberEditor({
   readOnly,
 }: TableEditableEditorProps) {
   const [editValue, setEditValue] = useState<string | null | undefined>(
-    value !== undefined && value !== null ? (value as number).toString() : value
+    value !== undefined && value !== null
+      ? (value as number).toString()
+      : value,
   );
 
   const onLostFocus = useCallback(() => {
@@ -22,7 +25,7 @@ function TableCellNumberEditor({
         false,
         editValue === null || editValue === undefined
           ? editValue
-          : Number(editValue)
+          : new NumberType(editValue),
       );
     }
   }, [onExit, editValue]);
@@ -43,14 +46,14 @@ function TableCellNumberContent({ value }: TableEditableContentProps) {
 }
 
 const TableCellNumber = createTableCellType({
-  diff: (prev: number, current: number) => prev !== current,
+  diff: (prev: NumberType, current: NumberType) => prev.diff(current),
   content: TableCellNumberContent,
   editor: TableCellNumberEditor,
-  onCopy: (value: number) => {
+  onCopy: (value: NumberType) => {
     return value.toString();
   },
   onPaste: (value: string) => {
-    return { accept: true, value: Number(value) };
+    return { accept: true, value: new NumberType(value) };
   },
 });
 

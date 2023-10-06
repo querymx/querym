@@ -12,8 +12,12 @@ import {
   QueryResult,
   QueryResultHeader,
   QueryResultHeaderType,
+  QueryTypedResult,
 } from 'types/SqlResult';
 import { parseEnumType } from 'libs/ParseColumnType';
+import StringType from 'renderer/datatype/StringType';
+import NumberType from 'renderer/datatype/NumberType';
+import DecimalType from 'renderer/datatype/DecimalType';
 
 interface MySqlDatabase {
   SCHEMA_NAME: string;
@@ -421,12 +425,13 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
   attachHeaders(
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
-  ): SqlStatementResult[] {
-    if (!schema) return statements;
+  ): SqlStatementResult<QueryTypedResult>[] {
+    console.log(statements);
+    if (!schema) return statements.map(this.attachType);
     const databaseList = schema.getSchema();
 
     return statements.map((statement) => {
-      return {
+      return this.attachType({
         ...statement,
         result: {
           ...statement.result,
@@ -434,7 +439,29 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
             mapDataType(findMatchColumn(databaseList, header)),
           ),
         },
-      };
+      });
     });
+  }
+
+  attachType(statements: SqlStatementResult) {
+    const headers = statements.result.headers;
+    const rows = statements.result.rows;
+
+    for (const header of headers) {
+      let typeClass:
+        | typeof StringType
+        | typeof NumberType
+        | typeof DecimalType = StringType;
+
+      if (header.type.type === 'number') typeClass = NumberType;
+      if (header.type.type === 'decimal') typeClass = DecimalType;
+
+      for (const row of rows) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        row[header.name] = new typeClass(row[header.name] as any);
+      }
+    }
+
+    return statements as unknown as SqlStatementResult<QueryTypedResult>;
   }
 }

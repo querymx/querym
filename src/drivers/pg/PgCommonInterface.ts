@@ -6,8 +6,15 @@ import {
 } from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryResult, QueryResultHeaderType } from 'types/SqlResult';
+import {
+  QueryResult,
+  QueryResultHeaderType,
+  QueryTypedResult,
+} from 'types/SqlResult';
 import { qb } from 'libs/QueryBuilder';
+import DecimalType from 'renderer/datatype/DecimalType';
+import NumberType from 'renderer/datatype/NumberType';
+import StringType from 'renderer/datatype/StringType';
 
 interface PgColumn {
   table_schema: string;
@@ -218,8 +225,8 @@ export default class PgCommonInterface extends SQLCommonInterface {
   attachHeaders(
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
-  ): SqlStatementResult[] {
-    if (!schema) return statements;
+  ): SqlStatementResult<QueryTypedResult>[] {
+    if (!schema) return statements.map(this.attachType);
 
     const result = statements.map((statement) => {
       const headers = statement.result.headers.map((header) => {
@@ -242,9 +249,34 @@ export default class PgCommonInterface extends SQLCommonInterface {
           ),
         };
       });
-      return { ...statement, result: { ...statement.result, headers } };
+      return this.attachType({
+        ...statement,
+        result: { ...statement.result, headers },
+      });
     });
 
     return result;
+  }
+
+  attachType(statements: SqlStatementResult) {
+    const headers = statements.result.headers;
+    const rows = statements.result.rows;
+
+    for (const header of headers) {
+      let typeClass:
+        | typeof StringType
+        | typeof NumberType
+        | typeof DecimalType = StringType;
+
+      if (header.type.type === 'number') typeClass = NumberType;
+      if (header.type.type === 'decimal') typeClass = DecimalType;
+
+      for (const row of rows) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        row[header.name] = new typeClass(row.value as any);
+      }
+    }
+
+    return statements as unknown as SqlStatementResult<QueryTypedResult>;
   }
 }
