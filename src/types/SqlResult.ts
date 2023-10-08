@@ -12,7 +12,8 @@ export interface QueryResultHeaderType {
     | 'json'
     | 'decimal'
     | 'other'
-    | 'enum';
+    | 'enum'
+    | 'point';
   enumValues?: string[];
 }
 
