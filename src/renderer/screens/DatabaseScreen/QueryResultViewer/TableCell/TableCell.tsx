@@ -9,6 +9,7 @@ import TableCellOther from './TableCellOther';
 import TableCellString from './TableCellString';
 import TableCellDateString from './TableCellDateString';
 import BaseType from 'renderer/datatype/BaseType';
+import TableCellPoint from './TableCellPoint';
 
 interface TableCellProps {
   value: BaseType;
@@ -36,6 +37,8 @@ function getComponentFromHeader(
     return TableCellEnum;
   } else if (['string'].includes(header.type.type)) {
     return TableCellString;
+  } else if (header.type.type === 'point') {
+    return TableCellPoint;
   }
 
   return TableCellOther;

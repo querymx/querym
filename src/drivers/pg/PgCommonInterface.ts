@@ -18,6 +18,7 @@ import NumberType from 'renderer/datatype/NumberType';
 import StringType from 'renderer/datatype/StringType';
 import JsonType from 'renderer/datatype/JsonType';
 import BaseType from 'renderer/datatype/BaseType';
+import PointType from 'renderer/datatype/PointType';
 
 interface PgColumn {
   table_schema: string;
@@ -46,11 +47,13 @@ function mapDataType(type?: DatabaseDataType): QueryResultHeaderType {
 
   // https://www.postgresql.org/docs/current/catalog-pg-type.html#CATALOG-TYPCATEGORY-TABLE
   const category = type.category.toUpperCase();
-  if (category === 'S') return { type: 'string' };
-  if (category === 'N') return { type: 'number' };
   if (['date'].includes(type.name)) return { type: 'string_date' };
   if (['time'].includes(type.name)) return { type: 'string_time' };
   if (['timestamp'].includes(type.name)) return { type: 'string_datetime' };
+  if (['point'].includes(type.name)) return { type: 'point' };
+  if (['regproc'].includes(type.name)) return { type: 'string' };
+  if (category === 'S') return { type: 'string' };
+  if (category === 'N') return { type: 'number' };
   return { type: 'other' };
 }
 
@@ -263,21 +266,31 @@ export default class PgCommonInterface extends SQLCommonInterface {
 
   protected getTypeClass(
     header: QueryResultHeader,
-  ):
-    | typeof NumberType
-    | typeof DecimalType
-    | typeof JsonType
-    | typeof StringType {
-    if (header.type.type === 'number') return NumberType;
-    if (header.type.type === 'decimal') return DecimalType;
-    if (header.type.type === 'json') return JsonType;
-    return StringType;
+  ): (value: unknown) => BaseType {
+    if (header.type.type === 'number')
+      return (value: unknown) => new NumberType(value as string);
+
+    if (header.type.type === 'decimal')
+      return (value: unknown) => new DecimalType(value as string);
+
+    if (header.type.type === 'json')
+      return (value) => new JsonType(value as object);
+
+    if (header.type.type === 'point')
+      return (value) => {
+        const typedValue = value as { x: string; y: string } | undefined | null;
+        if (!typedValue) return new PointType(typedValue);
+        return new PointType({
+          x: Number(typedValue.x),
+          y: Number(typedValue.y),
+        });
+      };
+
+    return (value: unknown) => new StringType(value as string);
   }
 
   createTypeValue(header: QueryResultHeader, value: unknown): BaseType {
-    const typeClass = this.getTypeClass(header);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new typeClass(value as any);
+    return this.getTypeClass(header)(value);
   }
 
   attachType(statements: SqlStatementResult) {
@@ -285,10 +298,9 @@ export default class PgCommonInterface extends SQLCommonInterface {
     const rows = statements.result.rows;
 
     for (const header of headers) {
-      const typeClass = this.getTypeClass(header);
+      const createType = this.getTypeClass(header);
       for (const row of rows) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        row[header.name] = new typeClass(row[header.name] as any);
+        row[header.name] = createType(row[header.name]);
       }
     }
 
