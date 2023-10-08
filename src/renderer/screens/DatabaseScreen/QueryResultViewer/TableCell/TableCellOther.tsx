@@ -13,7 +13,7 @@ function TableCellStringEditor({
   value,
   onExit,
   header,
-}: TableEditableEditorProps) {
+}: TableEditableEditorProps<StringType>) {
   const [editValue, setEditValue] = useState(
     getDisplayableFromDatabaseValue(value, header.columnDefinition),
   );
@@ -21,7 +21,7 @@ function TableCellStringEditor({
   const onLostFocus = useCallback(
     (v: string | null | undefined) => {
       if (onExit) {
-        onExit(true, v);
+        onExit(true, new StringType(v));
       }
     },
     [onExit],
@@ -51,6 +51,11 @@ const TableCellOther = createTableCellType({
   editor: TableCellStringEditor,
   diff: (prev: StringType, current: StringType) => prev.diff(current),
   content: TableCellStringContent,
+  onInsertValue: (value) => {
+    if (value === null || value === undefined || typeof value === 'string')
+      return new StringType(value);
+    return new StringType(null);
+  },
   onCopy: (value: StringType) => {
     return value.toString();
   },

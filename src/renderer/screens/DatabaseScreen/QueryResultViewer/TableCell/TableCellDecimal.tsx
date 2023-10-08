@@ -12,8 +12,8 @@ function TableCellDecimalEditor({
   value,
   onExit,
   readOnly,
-}: TableEditableEditorProps) {
-  const [editValue, setEditValue] = useState(value as string);
+}: TableEditableEditorProps<DecimalType>) {
+  const [editValue, setEditValue] = useState(value.toNullableString());
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
@@ -40,6 +40,11 @@ const TableCellDecimal = createTableCellType({
   diff: (prev: DecimalType, current: DecimalType) => prev.diff(current),
   content: TableCellDecimalContent,
   editor: TableCellDecimalEditor,
+  onInsertValue: (value) => {
+    if (value === null || value === undefined || typeof value === 'string')
+      return new DecimalType(value);
+    return new DecimalType(null);
+  },
   onCopy: (value: DecimalType) => {
     return value.toString();
   },

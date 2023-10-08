@@ -39,6 +39,12 @@ export default class StringType implements BaseType<string> {
     return this.value.toString();
   }
 
+  toNullableString() {
+    if (this.value === undefined) return undefined;
+    if (this.value === null) return null;
+    return this.value.toString();
+  }
+
   matched(search: string) {
     if (this.value === null) return false;
     if (this.value === undefined) return false;

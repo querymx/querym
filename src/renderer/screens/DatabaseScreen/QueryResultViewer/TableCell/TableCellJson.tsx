@@ -16,7 +16,7 @@ function TableCellJsonEditor({
   value,
   onExit,
   readOnly,
-}: TableEditableEditorProps) {
+}: TableEditableEditorProps<JsonType>) {
   const jsonStringAfterBeautify = useMemo(() => {
     return JSON.stringify(value, undefined, 2);
   }, [value]);
@@ -82,6 +82,11 @@ const TableCellJson = createTableCellType({
   content: TableCellJsonContent,
   editor: TableCellJsonEditor,
   detachEditor: true,
+  onInsertValue: (value) => {
+    if (value === null || value === undefined || typeof value === 'string')
+      return new JsonType(value);
+    return new JsonType(null);
+  },
   onCopy: (value: JsonType) => {
     return JSON.stringify(value);
   },

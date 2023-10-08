@@ -12,6 +12,7 @@ interface TableCellCustomTypeOptions<T = unknown> {
   editor?: React.FC<TableEditableEditorProps<T>>;
   content: React.FC<TableEditableContentProps<T>>;
   detachEditor?: boolean;
+  onInsertValue: (value: unknown) => T;
   onCopy?: (value: T) => string;
   onPaste?: (value: string) => { accept: boolean; value: T };
   readOnly?: boolean;
@@ -45,6 +46,7 @@ export default function createTableCellType<T extends BaseType>(
 
     return (
       <TableEditableCell
+        insertValue={options.onInsertValue}
         header={header}
         ref={ref}
         value={value}

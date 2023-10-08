@@ -10,6 +10,7 @@ import {
 import styles from './styles.module.css';
 import { QueryResultHeader } from 'types/SqlResult';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
+import BaseType from 'renderer/datatype/BaseType';
 
 export interface TableEditableCellHandler {
   discard: () => void;
@@ -23,7 +24,7 @@ export interface TableEditableEditorProps<T> {
   value: T;
   header: QueryResultHeader;
   readOnly?: boolean;
-  onExit: (discard: boolean, value: T) => void;
+  onExit: (discard: boolean, value?: T) => void;
 }
 
 export interface TableEditableContentProps<T = unknown> {
@@ -39,6 +40,7 @@ interface TableEditableCellProps<T = unknown> {
   row: number;
   col: number;
   value: unknown;
+  insertValue: (v: unknown) => BaseType;
   readOnly?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onCopy?: (value: any) => string;
@@ -60,6 +62,7 @@ function TableEditableCellWithRef<T = unknown>(
     onCopy,
     onPaste,
     header,
+    insertValue,
   }: TableEditableCellProps<T>,
   ref: React.ForwardedRef<TableEditableCellHandler>,
 ) {
@@ -112,13 +115,13 @@ function TableEditableCellWithRef<T = unknown>(
           setAfterValue(value);
           removeChange(row, col);
         },
-        insert: insertValueHandler,
+        insert: (v: unknown) => insertValueHandler(insertValue(v)),
         paste: pasteHandler,
         copy: copyHandler,
         setFocus,
       };
     },
-    [setAfterValue, value, row, col, setFocus],
+    [setAfterValue, insertValue, value, row, col, setFocus],
   );
 
   const hasChanged = useMemo(

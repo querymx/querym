@@ -12,21 +12,14 @@ function TableCellNumberEditor({
   value,
   onExit,
   readOnly,
-}: TableEditableEditorProps) {
+}: TableEditableEditorProps<NumberType>) {
   const [editValue, setEditValue] = useState<string | null | undefined>(
-    value !== undefined && value !== null
-      ? (value as number).toString()
-      : value,
+    value.toNullableString(),
   );
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
-      onExit(
-        false,
-        editValue === null || editValue === undefined
-          ? editValue
-          : new NumberType(editValue),
-      );
+      onExit(false, new NumberType(editValue));
     }
   }, [onExit, editValue]);
 
@@ -49,6 +42,16 @@ const TableCellNumber = createTableCellType({
   diff: (prev: NumberType, current: NumberType) => prev.diff(current),
   content: TableCellNumberContent,
   editor: TableCellNumberEditor,
+  onInsertValue: (value) => {
+    if (
+      value === null ||
+      value === undefined ||
+      typeof value === 'string' ||
+      typeof value === 'number'
+    )
+      return new NumberType(value);
+    return new NumberType(null);
+  },
   onCopy: (value: NumberType) => {
     return value.toString();
   },
