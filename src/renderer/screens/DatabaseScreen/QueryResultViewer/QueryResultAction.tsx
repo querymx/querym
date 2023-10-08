@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QueryResult, QueryTypedResult } from 'types/SqlResult';
+import { QueryTypedResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
 import ExportModal from '../ExportModal';
 import Toolbar from 'renderer/components/Toolbar';

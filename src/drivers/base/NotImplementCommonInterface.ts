@@ -1,7 +1,7 @@
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryResultHeader, QueryTypedResult } from 'types/SqlResult';
+import { QueryTypedResult } from 'types/SqlResult';
 import BaseType from 'renderer/datatype/BaseType';
 
 export default class NotImplementCommonInterface extends SQLCommonInterface {
