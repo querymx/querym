@@ -32,7 +32,7 @@ export interface TableEditableContentProps<T = unknown> {
   value: T;
 }
 
-interface TableEditableCellProps<T = unknown> {
+interface TableEditableCellProps<T = BaseType> {
   diff: (prev: unknown, current: unknown) => boolean;
   editor?: React.FC<TableEditableEditorProps<T>>;
   detactEditor?: boolean;
@@ -49,7 +49,7 @@ interface TableEditableCellProps<T = unknown> {
   header: QueryResultHeader;
 }
 
-function TableEditableCellWithRef<T = unknown>(
+function TableEditableCellWithRef<T = BaseType>(
   {
     diff,
     detactEditor,
@@ -76,7 +76,7 @@ function TableEditableCellWithRef<T = unknown>(
   const divRef = useRef<HTMLDivElement>(null);
 
   const insertValueHandler = useCallback(
-    (newValue: unknown) => {
+    (newValue: BaseType) => {
       if (readOnly) return;
 
       setAfterValue(newValue);
@@ -142,7 +142,7 @@ function TableEditableCellWithRef<T = unknown>(
   }, [setFocus, cellManager, onFocus, row, col]);
 
   const onExitEditMode = useCallback(
-    (discard: boolean, newValue: unknown) => {
+    (discard: boolean, newValue: BaseType) => {
       setOnEditMode(false);
       if (!discard) {
         setAfterValue(newValue);
@@ -196,7 +196,8 @@ function TableEditableCellWithRef<T = unknown>(
             <Editor
               header={header}
               value={afterValue as T}
-              onExit={onExitEditMode}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onExit={onExitEditMode as any}
               readOnly={readOnly}
             />
             <Content value={afterValue as T} header={header} />
@@ -205,7 +206,8 @@ function TableEditableCellWithRef<T = unknown>(
           <Editor
             header={header}
             value={afterValue as T}
-            onExit={onExitEditMode}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onExit={onExitEditMode as any}
             readOnly={readOnly}
           />
         )

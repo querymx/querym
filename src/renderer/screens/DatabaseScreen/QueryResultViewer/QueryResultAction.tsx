@@ -10,10 +10,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useDebounceEffect } from 'hooks/useDebounce';
 import CommitChangeToolbarItem from './CommitChangeToolbarItem';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface QueryResultActionProps {
-  result: QueryResult;
-  resultAfterFilter: { data: Record<string, unknown>; rowIndex: number }[];
+  result: QueryTypedResult;
+  resultAfterFilter: { data: Record<string, BaseType>; rowIndex: number }[];
   onResultChange: React.Dispatch<React.SetStateAction<QueryTypedResult>>;
   onSearchChange: (v: string) => void;
   onRequestRefetch: () => void;

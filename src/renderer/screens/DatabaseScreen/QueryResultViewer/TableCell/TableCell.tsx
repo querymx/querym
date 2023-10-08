@@ -32,13 +32,9 @@ function getComponentFromHeader(
     ['string_date', 'string_time', 'string_datetime'].includes(header.type.type)
   ) {
     return TableCellDateString;
+  } else if (header.type.type === 'enum') {
+    return TableCellEnum;
   } else if (['string'].includes(header.type.type)) {
-    if (header.columnDefinition) {
-      if (header.columnDefinition.dataType === 'enum') {
-        return TableCellEnum;
-      }
-    }
-
     return TableCellString;
   }
 

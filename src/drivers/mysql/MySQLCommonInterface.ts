@@ -19,6 +19,7 @@ import StringType from 'renderer/datatype/StringType';
 import NumberType from 'renderer/datatype/NumberType';
 import DecimalType from 'renderer/datatype/DecimalType';
 import JsonType from 'renderer/datatype/JsonType';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface MySqlDatabase {
   SCHEMA_NAME: string;
@@ -166,6 +167,8 @@ function mapDataType(header: QueryResultHeader): QueryResultHeader {
     ].includes(columnType)
   ) {
     type = { type: 'string_datetime' };
+  } else if (header.columnDefinition?.dataType === 'enum') {
+    type = { type: 'enum', enumValues: header.columnDefinition?.enumValues };
   }
 
   return {
@@ -427,7 +430,6 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
   ): SqlStatementResult<QueryTypedResult>[] {
-    console.log(statements);
     if (!schema) return statements.map(this.attachType);
     const databaseList = schema.getSchema();
 
@@ -444,21 +446,31 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
     });
   }
 
+  protected getTypeClass(
+    header: QueryResultHeader,
+  ):
+    | typeof NumberType
+    | typeof DecimalType
+    | typeof JsonType
+    | typeof StringType {
+    if (header.type.type === 'number') return NumberType;
+    if (header.type.type === 'decimal') return DecimalType;
+    if (header.type.type === 'json') return JsonType;
+    return StringType;
+  }
+
+  createTypeValue(header: QueryResultHeader, value: unknown): BaseType {
+    const typeClass = this.getTypeClass(header);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new typeClass(value as any);
+  }
+
   attachType(statements: SqlStatementResult) {
     const headers = statements.result.headers;
     const rows = statements.result.rows;
 
     for (const header of headers) {
-      let typeClass:
-        | typeof StringType
-        | typeof NumberType
-        | typeof JsonType
-        | typeof DecimalType = StringType;
-
-      if (header.type.type === 'number') typeClass = NumberType;
-      if (header.type.type === 'decimal') typeClass = DecimalType;
-      if (header.type.type === 'json') typeClass = JsonType;
-
+      const typeClass = this.getTypeClass(header);
       for (const row of rows) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         row[header.name] = new typeClass(row[header.name] as any);

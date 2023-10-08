@@ -1,7 +1,8 @@
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 import SQLCommonInterface from './SQLCommonInterface';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryTypedResult } from 'types/SqlResult';
+import { QueryResultHeader, QueryTypedResult } from 'types/SqlResult';
+import BaseType from 'renderer/datatype/BaseType';
 
 export default class NotImplementCommonInterface extends SQLCommonInterface {
   public FLAG_USE_STATEMENT = false;
@@ -23,6 +24,10 @@ export default class NotImplementCommonInterface extends SQLCommonInterface {
   }
 
   attachHeaders(): SqlStatementResult<QueryTypedResult>[] {
+    throw new Error('Not implemented');
+  }
+
+  createTypeValue(): BaseType<unknown> {
     throw new Error('Not implemented');
   }
 

@@ -11,7 +11,9 @@ export interface QueryResultHeaderType {
     | 'number'
     | 'json'
     | 'decimal'
-    | 'other';
+    | 'other'
+    | 'enum';
+  enumValues?: string[];
 }
 
 export interface QueryResultHeader {
@@ -29,8 +31,8 @@ export interface QueryResultHeader {
   };
 }
 
-export interface QueryResultWithIndex {
-  data: Record<string, unknown>;
+export interface QueryResultWithIndex<T = unknown> {
+  data: Record<string, T>;
   rowIndex: number;
 }
 

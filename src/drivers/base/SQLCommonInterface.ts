@@ -1,5 +1,6 @@
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryTypedResult } from 'types/SqlResult';
+import BaseType from 'renderer/datatype/BaseType';
+import { QueryResultHeader, QueryTypedResult } from 'types/SqlResult';
 import { DatabaseSchemas, TableDefinitionSchema } from 'types/SqlSchema';
 
 export default abstract class SQLCommonInterface {
@@ -26,4 +27,6 @@ export default abstract class SQLCommonInterface {
   abstract attachType(
     statement: SqlStatementResult,
   ): SqlStatementResult<QueryTypedResult>;
+
+  abstract createTypeValue(header: QueryResultHeader, value: unknown): BaseType;
 }
