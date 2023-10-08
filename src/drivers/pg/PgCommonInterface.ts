@@ -6,8 +6,18 @@ import {
 } from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryResult, QueryResultHeaderType } from 'types/SqlResult';
+import {
+  QueryResult,
+  QueryResultHeader,
+  QueryResultHeaderType,
+  QueryTypedResult,
+} from 'types/SqlResult';
 import { qb } from 'libs/QueryBuilder';
+import DecimalType from 'renderer/datatype/DecimalType';
+import NumberType from 'renderer/datatype/NumberType';
+import StringType from 'renderer/datatype/StringType';
+import JsonType from 'renderer/datatype/JsonType';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface PgColumn {
   table_schema: string;
@@ -218,8 +228,8 @@ export default class PgCommonInterface extends SQLCommonInterface {
   attachHeaders(
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
-  ): SqlStatementResult[] {
-    if (!schema) return statements;
+  ): SqlStatementResult<QueryTypedResult>[] {
+    if (!schema) return statements.map(this.attachType);
 
     const result = statements.map((statement) => {
       const headers = statement.result.headers.map((header) => {
@@ -242,9 +252,46 @@ export default class PgCommonInterface extends SQLCommonInterface {
           ),
         };
       });
-      return { ...statement, result: { ...statement.result, headers } };
+      return this.attachType({
+        ...statement,
+        result: { ...statement.result, headers },
+      });
     });
 
     return result;
+  }
+
+  protected getTypeClass(
+    header: QueryResultHeader,
+  ):
+    | typeof NumberType
+    | typeof DecimalType
+    | typeof JsonType
+    | typeof StringType {
+    if (header.type.type === 'number') return NumberType;
+    if (header.type.type === 'decimal') return DecimalType;
+    if (header.type.type === 'json') return JsonType;
+    return StringType;
+  }
+
+  createTypeValue(header: QueryResultHeader, value: unknown): BaseType {
+    const typeClass = this.getTypeClass(header);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new typeClass(value as any);
+  }
+
+  attachType(statements: SqlStatementResult) {
+    const headers = statements.result.headers;
+    const rows = statements.result.rows;
+
+    for (const header of headers) {
+      const typeClass = this.getTypeClass(header);
+      for (const row of rows) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        row[header.name] = new typeClass(row[header.name] as any);
+      }
+    }
+
+    return statements as unknown as SqlStatementResult<QueryTypedResult>;
   }
 }

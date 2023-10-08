@@ -6,24 +6,20 @@ import {
 import createTableCellType from './createTableCellType';
 import TableCellContent from 'renderer/components/ResizableTable/TableCellContent';
 import TableCellInput from 'renderer/components/ResizableTable/TableCellInput';
+import NumberType from 'renderer/datatype/NumberType';
 
 function TableCellNumberEditor({
   value,
   onExit,
   readOnly,
-}: TableEditableEditorProps) {
+}: TableEditableEditorProps<NumberType>) {
   const [editValue, setEditValue] = useState<string | null | undefined>(
-    value !== undefined && value !== null ? (value as number).toString() : value
+    value.toNullableString(),
   );
 
   const onLostFocus = useCallback(() => {
     if (onExit) {
-      onExit(
-        false,
-        editValue === null || editValue === undefined
-          ? editValue
-          : Number(editValue)
-      );
+      onExit(false, new NumberType(editValue));
     }
   }, [onExit, editValue]);
 
@@ -43,14 +39,24 @@ function TableCellNumberContent({ value }: TableEditableContentProps) {
 }
 
 const TableCellNumber = createTableCellType({
-  diff: (prev: number, current: number) => prev !== current,
+  diff: (prev: NumberType, current: NumberType) => prev.diff(current),
   content: TableCellNumberContent,
   editor: TableCellNumberEditor,
-  onCopy: (value: number) => {
+  onInsertValue: (value) => {
+    if (
+      value === null ||
+      value === undefined ||
+      typeof value === 'string' ||
+      typeof value === 'number'
+    )
+      return new NumberType(value);
+    return new NumberType(null);
+  },
+  onCopy: (value: NumberType) => {
     return value.toString();
   },
   onPaste: (value: string) => {
-    return { accept: true, value: Number(value) };
+    return { accept: true, value: new NumberType(value) };
   },
 });
 

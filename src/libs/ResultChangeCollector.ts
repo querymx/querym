@@ -1,11 +1,13 @@
+import BaseType from 'renderer/datatype/BaseType';
+
 export interface ResultChangeCollectorItem {
   row: number;
-  cols: { col: number; value: unknown }[];
+  cols: { col: number; value: BaseType }[];
 }
 
 export type ResultChangeEventHandler = (
   count: number,
-  revision: number
+  revision: number,
 ) => void;
 
 export interface ResultChanges {
@@ -20,7 +22,7 @@ export interface ResultChanges {
 export default class ResultChangeCollector {
   protected newRowCount = 0;
   protected removedRowIndex = new Set<number>();
-  protected changes: Record<string, Record<string, unknown>> = {};
+  protected changes: Record<string, Record<string, BaseType>> = {};
   protected onChangeListeners: ResultChangeEventHandler[] = [];
   protected revision = 0;
 
@@ -73,7 +75,7 @@ export default class ResultChangeCollector {
     this.triggerOnChange();
   }
 
-  createNewRow(initialData?: unknown[]) {
+  createNewRow(initialData?: BaseType[]) {
     const newId = -++this.newRowCount;
     if (initialData) {
       this.changes[newId] = {};
@@ -87,7 +89,7 @@ export default class ResultChangeCollector {
     return newId;
   }
 
-  addChange(rowNumber: number, cellNumber: number, value: unknown) {
+  addChange(rowNumber: number, cellNumber: number, value: BaseType) {
     if (!this.changes[rowNumber]) {
       this.changes[rowNumber] = {};
     }
@@ -106,7 +108,7 @@ export default class ResultChangeCollector {
   getChange<T>(
     rowNumber: number,
     cellNumber: number,
-    defaultValue: T | undefined | null = undefined
+    defaultValue: T | undefined | null = undefined,
   ) {
     if (this.changes[rowNumber] !== undefined) {
       if (this.changes[rowNumber][cellNumber] !== undefined) {

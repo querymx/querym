@@ -8,6 +8,7 @@ import {
   useContext,
   useMemo,
 } from 'react';
+import BaseType from 'renderer/datatype/BaseType';
 
 import { TableEditableCellHandler } from 'renderer/screens/DatabaseScreen/QueryResultViewer/TableCell/TableEditableCell';
 
@@ -67,7 +68,7 @@ export class TableCellManager {
 }
 
 const QueryResultChangeContext = createContext<{
-  setChange: (row: number, col: number, value: unknown) => void;
+  setChange: (row: number, col: number, value: BaseType) => void;
   removeChange: (row: number, col: number) => void;
   collector: ResultChangeCollector;
   clearChange: () => void;
@@ -89,17 +90,17 @@ export function EditableQueryResultProvider({ children }: PropsWithChildren) {
   const manager = useMemo(() => new TableCellManager(), []);
 
   const setChange = useCallback(
-    (row: number, col: number, value: unknown) => {
+    (row: number, col: number, value: BaseType) => {
       collector.addChange(row, col, value);
     },
-    [collector]
+    [collector],
   );
 
   const removeChange = useCallback(
     (row: number, col: number) => {
       collector.removeChange(row, col);
     },
-    [collector]
+    [collector],
   );
 
   const clearChange = useCallback(() => {

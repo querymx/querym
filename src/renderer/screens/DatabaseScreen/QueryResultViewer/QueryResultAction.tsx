@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QueryResult } from 'types/SqlResult';
+import { QueryTypedResult } from 'types/SqlResult';
 import styles from './styles.module.scss';
 import ExportModal from '../ExportModal';
 import Toolbar from 'renderer/components/Toolbar';
@@ -10,11 +10,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useDebounceEffect } from 'hooks/useDebounce';
 import CommitChangeToolbarItem from './CommitChangeToolbarItem';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface QueryResultActionProps {
-  result: QueryResult;
-  resultAfterFilter: { data: Record<string, unknown>; rowIndex: number }[];
-  onResultChange: React.Dispatch<React.SetStateAction<QueryResult>>;
+  result: QueryTypedResult;
+  resultAfterFilter: { data: Record<string, BaseType>; rowIndex: number }[];
+  onResultChange: React.Dispatch<React.SetStateAction<QueryTypedResult>>;
   onSearchChange: (v: string) => void;
   onRequestRefetch: () => void;
   page: number;
@@ -45,7 +46,7 @@ export default function QueryResultAction({
       onSearchChange(search);
     },
     [onSearchChange, search],
-    1000
+    1000,
   );
 
   return (

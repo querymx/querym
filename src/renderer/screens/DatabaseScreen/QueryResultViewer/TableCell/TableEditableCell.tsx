@@ -10,6 +10,7 @@ import {
 import styles from './styles.module.css';
 import { QueryResultHeader } from 'types/SqlResult';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
+import BaseType from 'renderer/datatype/BaseType';
 
 export interface TableEditableCellHandler {
   discard: () => void;
@@ -19,26 +20,27 @@ export interface TableEditableCellHandler {
   setFocus: (focused: boolean) => void;
 }
 
-export interface TableEditableEditorProps {
-  value: unknown;
+export interface TableEditableEditorProps<T> {
+  value: T;
   header: QueryResultHeader;
   readOnly?: boolean;
-  onExit: (discard: boolean, value: unknown) => void;
+  onExit: (discard: boolean, value?: T) => void;
 }
 
-export interface TableEditableContentProps {
+export interface TableEditableContentProps<T = unknown> {
   header: QueryResultHeader;
-  value: unknown;
+  value: T;
 }
 
-interface TableEditableCellProps {
+interface TableEditableCellProps<T = BaseType> {
   diff: (prev: unknown, current: unknown) => boolean;
-  editor?: React.FC<TableEditableEditorProps>;
+  editor?: React.FC<TableEditableEditorProps<T>>;
   detactEditor?: boolean;
-  content: React.FC<TableEditableContentProps>;
+  content: React.FC<TableEditableContentProps<T>>;
   row: number;
   col: number;
   value: unknown;
+  insertValue: (v: unknown) => BaseType;
   readOnly?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onCopy?: (value: any) => string;
@@ -47,10 +49,7 @@ interface TableEditableCellProps {
   header: QueryResultHeader;
 }
 
-const TableEditableCell = forwardRef<
-  TableEditableCellHandler,
-  TableEditableCellProps
->(function TableEditableCell(
+function TableEditableCellWithRef<T = BaseType>(
   {
     diff,
     detactEditor,
@@ -63,20 +62,21 @@ const TableEditableCell = forwardRef<
     onCopy,
     onPaste,
     header,
-  },
-  ref
+    insertValue,
+  }: TableEditableCellProps<T>,
+  ref: React.ForwardedRef<TableEditableCellHandler>,
 ) {
   const { cellManager, setChange, removeChange, collector } =
     useEditableResult();
   const [afterValue, setAfterValue] = useState(
-    collector.getChange(row, col, value)
+    collector.getChange(row, col, value),
   );
   const [onEditMode, setOnEditMode] = useState(false);
   const [onFocus, setFocus] = useState(false);
   const divRef = useRef<HTMLDivElement>(null);
 
   const insertValueHandler = useCallback(
-    (newValue: unknown) => {
+    (newValue: BaseType) => {
       if (readOnly) return;
 
       setAfterValue(newValue);
@@ -86,7 +86,7 @@ const TableEditableCell = forwardRef<
         removeChange(row, col);
       }
     },
-    [setAfterValue, setChange, diff, readOnly]
+    [setAfterValue, setChange, diff, readOnly],
   );
 
   const copyHandler = useCallback(() => {
@@ -115,18 +115,18 @@ const TableEditableCell = forwardRef<
           setAfterValue(value);
           removeChange(row, col);
         },
-        insert: insertValueHandler,
+        insert: (v: unknown) => insertValueHandler(insertValue(v)),
         paste: pasteHandler,
         copy: copyHandler,
         setFocus,
       };
     },
-    [setAfterValue, value, row, col, setFocus]
+    [setAfterValue, insertValue, value, row, col, setFocus],
   );
 
   const hasChanged = useMemo(
     () => diff(afterValue, value),
-    [afterValue, value, diff]
+    [afterValue, value, diff],
   );
 
   const onEnterEditMode = useCallback(() => {
@@ -142,7 +142,7 @@ const TableEditableCell = forwardRef<
   }, [setFocus, cellManager, onFocus, row, col]);
 
   const onExitEditMode = useCallback(
-    (discard: boolean, newValue: unknown) => {
+    (discard: boolean, newValue: BaseType) => {
       setOnEditMode(false);
       if (!discard) {
         setAfterValue(newValue);
@@ -154,7 +154,7 @@ const TableEditableCell = forwardRef<
         }
       }
     },
-    [setOnEditMode, setAfterValue, diff, value]
+    [setOnEditMode, setAfterValue, diff, value],
   );
 
   useEffect(() => {
@@ -195,25 +195,28 @@ const TableEditableCell = forwardRef<
           <>
             <Editor
               header={header}
-              value={afterValue}
-              onExit={onExitEditMode}
+              value={afterValue as T}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onExit={onExitEditMode as any}
               readOnly={readOnly}
             />
-            <Content value={afterValue} header={header} />
+            <Content value={afterValue as T} header={header} />
           </>
         ) : (
           <Editor
             header={header}
-            value={afterValue}
-            onExit={onExitEditMode}
+            value={afterValue as T}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onExit={onExitEditMode as any}
             readOnly={readOnly}
           />
         )
       ) : (
-        <Content value={afterValue} header={header} />
+        <Content value={afterValue as T} header={header} />
       )}
     </div>
   );
-});
+}
 
+const TableEditableCell = forwardRef(TableEditableCellWithRef);
 export default TableEditableCell;

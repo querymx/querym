@@ -8,9 +8,10 @@ import { TableCellCustomTypeProps } from './createTableCellType';
 import TableCellOther from './TableCellOther';
 import TableCellString from './TableCellString';
 import TableCellDateString from './TableCellDateString';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface TableCellProps {
-  value: unknown;
+  value: BaseType;
   header: QueryResultHeader;
   row: number;
   col: number;
@@ -31,13 +32,9 @@ function getComponentFromHeader(
     ['string_date', 'string_time', 'string_datetime'].includes(header.type.type)
   ) {
     return TableCellDateString;
+  } else if (header.type.type === 'enum') {
+    return TableCellEnum;
   } else if (['string'].includes(header.type.type)) {
-    if (header.columnDefinition) {
-      if (header.columnDefinition.dataType === 'enum') {
-        return TableCellEnum;
-      }
-    }
-
     return TableCellString;
   }
 

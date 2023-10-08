@@ -21,6 +21,7 @@ import { EditorState } from '@codemirror/state';
 import { useSavedQueryPubSub } from './SavedQueryProvider';
 import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
 import { useCurrentTab } from 'renderer/components/WindowTab';
+import { QueryTypedResult } from 'types/SqlResult';
 
 export type EnumSchema = Array<{
   table: string;
@@ -46,7 +47,9 @@ export default function QueryWindow({
 
   const [loading, setLoading] = useState(false);
   const [queryKeyCounter, setQueryKeyCounter] = useState(0);
-  const [result, setResult] = useState<SqlStatementResult[]>([]);
+  const [result, setResult] = useState<SqlStatementResult<QueryTypedResult>[]>(
+    [],
+  );
   const { publish } = useSavedQueryPubSub();
 
   const { runner, common } = useSqlExecute();
@@ -73,7 +76,7 @@ export default function QueryWindow({
           setCode(
             format(codeFromRef, {
               language: dialect === 'mysql' ? 'mysql' : 'postgresql',
-            })
+            }),
           );
         },
         separator: true,
@@ -84,7 +87,7 @@ export default function QueryWindow({
         onClick: () => {
           if (viewState) {
             window.navigator.clipboard.writeText(
-              viewState.sliceDoc(selectFrom, selectTo)
+              viewState.sliceDoc(selectFrom, selectTo),
             );
             view.dispatch({
               changes: { from: selectFrom, to: selectTo, insert: '' },
@@ -100,7 +103,7 @@ export default function QueryWindow({
         onClick: () => {
           if (viewState) {
             window.navigator.clipboard.writeText(
-              viewState.sliceDoc(selectFrom, selectTo)
+              viewState.sliceDoc(selectFrom, selectTo),
             );
             view.focus();
           }
@@ -151,7 +154,7 @@ export default function QueryWindow({
           {
             onStart: () => setLoading(true),
             skipProtection,
-          }
+          },
         )
         .then((r) => {
           setResult(common.attachHeaders(r, schema));
@@ -166,7 +169,7 @@ export default function QueryWindow({
           setLoading(false);
         });
     },
-    [runner, setResult, schema, setLoading, saveWindowTabHistory, common]
+    [runner, setResult, schema, setLoading, saveWindowTabHistory, common],
   );
 
   const onRun = useCallback(
@@ -174,7 +177,7 @@ export default function QueryWindow({
       if (!editorRef.current || sqlCode === '') return;
       executeSql(sqlCode);
     },
-    [executeSql, editorRef]
+    [executeSql, editorRef],
   );
 
   useEffect(() => {

@@ -2,9 +2,10 @@ import WindowTab from 'renderer/components/WindowTab';
 import QueryResultViewer from './QueryResultViewer';
 import { useMemo, useState, memo } from 'react';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
+import { QueryTypedResult } from 'types/SqlResult';
 
 interface QueryMultipleResultViewerProps {
-  value: SqlStatementResult[];
+  value: SqlStatementResult<QueryTypedResult>[];
 }
 
 export default memo(function QueryMultipleResultViewer({

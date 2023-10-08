@@ -12,8 +12,14 @@ import {
   QueryResult,
   QueryResultHeader,
   QueryResultHeaderType,
+  QueryTypedResult,
 } from 'types/SqlResult';
 import { parseEnumType } from 'libs/ParseColumnType';
+import StringType from 'renderer/datatype/StringType';
+import NumberType from 'renderer/datatype/NumberType';
+import DecimalType from 'renderer/datatype/DecimalType';
+import JsonType from 'renderer/datatype/JsonType';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface MySqlDatabase {
   SCHEMA_NAME: string;
@@ -161,6 +167,8 @@ function mapDataType(header: QueryResultHeader): QueryResultHeader {
     ].includes(columnType)
   ) {
     type = { type: 'string_datetime' };
+  } else if (header.columnDefinition?.dataType === 'enum') {
+    type = { type: 'enum', enumValues: header.columnDefinition?.enumValues };
   }
 
   return {
@@ -421,12 +429,12 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
   attachHeaders(
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
-  ): SqlStatementResult[] {
-    if (!schema) return statements;
+  ): SqlStatementResult<QueryTypedResult>[] {
+    if (!schema) return statements.map(this.attachType);
     const databaseList = schema.getSchema();
 
     return statements.map((statement) => {
-      return {
+      return this.attachType({
         ...statement,
         result: {
           ...statement.result,
@@ -434,7 +442,41 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
             mapDataType(findMatchColumn(databaseList, header)),
           ),
         },
-      };
+      });
     });
+  }
+
+  protected getTypeClass(
+    header: QueryResultHeader,
+  ):
+    | typeof NumberType
+    | typeof DecimalType
+    | typeof JsonType
+    | typeof StringType {
+    if (header.type.type === 'number') return NumberType;
+    if (header.type.type === 'decimal') return DecimalType;
+    if (header.type.type === 'json') return JsonType;
+    return StringType;
+  }
+
+  createTypeValue(header: QueryResultHeader, value: unknown): BaseType {
+    const typeClass = this.getTypeClass(header);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new typeClass(value as any);
+  }
+
+  attachType(statements: SqlStatementResult) {
+    const headers = statements.result.headers;
+    const rows = statements.result.rows;
+
+    for (const header of headers) {
+      const typeClass = this.getTypeClass(header);
+      for (const row of rows) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        row[header.name] = new typeClass(row[header.name] as any);
+      }
+    }
+
+    return statements as unknown as SqlStatementResult<QueryTypedResult>;
   }
 }
