@@ -18,7 +18,7 @@ function TableCellJsonEditor({
   readOnly,
 }: TableEditableEditorProps<JsonType>) {
   const jsonStringAfterBeautify = useMemo(() => {
-    return JSON.stringify(value, undefined, 2);
+    return value.toNullableString() ?? '';
   }, [value]);
 
   const [editValue, setEditValue] = useState(jsonStringAfterBeautify);

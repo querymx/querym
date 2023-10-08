@@ -15,6 +15,7 @@ import { qb } from 'libs/QueryBuilder';
 import DecimalType from 'renderer/datatype/DecimalType';
 import NumberType from 'renderer/datatype/NumberType';
 import StringType from 'renderer/datatype/StringType';
+import JsonType from 'renderer/datatype/JsonType';
 
 interface PgColumn {
   table_schema: string;
@@ -266,14 +267,16 @@ export default class PgCommonInterface extends SQLCommonInterface {
       let typeClass:
         | typeof StringType
         | typeof NumberType
+        | typeof JsonType
         | typeof DecimalType = StringType;
 
       if (header.type.type === 'number') typeClass = NumberType;
       if (header.type.type === 'decimal') typeClass = DecimalType;
+      if (header.type.type === 'json') typeClass = JsonType;
 
       for (const row of rows) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        row[header.name] = new typeClass(row.value as any);
+        row[header.name] = new typeClass(row[header.name] as any);
       }
     }
 

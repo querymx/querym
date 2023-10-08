@@ -18,6 +18,7 @@ import { parseEnumType } from 'libs/ParseColumnType';
 import StringType from 'renderer/datatype/StringType';
 import NumberType from 'renderer/datatype/NumberType';
 import DecimalType from 'renderer/datatype/DecimalType';
+import JsonType from 'renderer/datatype/JsonType';
 
 interface MySqlDatabase {
   SCHEMA_NAME: string;
@@ -451,10 +452,12 @@ export default class MySQLCommonInterface extends SQLCommonInterface {
       let typeClass:
         | typeof StringType
         | typeof NumberType
+        | typeof JsonType
         | typeof DecimalType = StringType;
 
       if (header.type.type === 'number') typeClass = NumberType;
       if (header.type.type === 'decimal') typeClass = DecimalType;
+      if (header.type.type === 'json') typeClass = JsonType;
 
       for (const row of rows) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

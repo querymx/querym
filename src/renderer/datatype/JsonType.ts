@@ -48,13 +48,17 @@ export default class JsonType implements BaseType<object> {
   toString() {
     if (this.value === undefined) return '';
     if (this.value === null) return 'NULL';
-    return this.value.toString();
+    return JSON.stringify(this.value, undefined, 2);
   }
 
   toNullableString() {
     if (this.value === undefined) return undefined;
     if (this.value === null) return null;
-    return this.value.toString();
+    return JSON.stringify(this.value, undefined, 2);
+  }
+
+  toSQL(): unknown {
+    return this.toNullableString();
   }
 
   matched(search: string) {

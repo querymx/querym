@@ -49,6 +49,10 @@ export default class DecimalType implements BaseType<string> {
     return this.value.toString();
   }
 
+  toSQL(): unknown {
+    return this.toNullableString();
+  }
+
   matched(search: string) {
     if (this.value === null) return false;
     if (this.value === undefined) return false;

@@ -5,6 +5,7 @@ import {
   ResultChanges,
 } from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface TablePk {
   columnNames: string;
@@ -81,14 +82,14 @@ function buildWhere(
   rowIndex: number,
   data: QueryTypedResult,
   updatable: UpdatableTableDict,
-): Record<string, unknown> {
+): Record<string, BaseType> {
   const rows = data.rows;
   const headers = data.headers;
 
   return updatable[tableName].reduce((a, b) => {
     return {
       ...a,
-      [b.columnNames]: rows[rowIndex][headers[b.columnNumber].name].getValue(),
+      [b.columnNames]: rows[rowIndex][headers[b.columnNumber].name],
     };
   }, {});
 }
@@ -117,7 +118,7 @@ function buildInsertPlan(
   changes: ResultChangeCollectorItem,
   headers: QueryResultHeader[],
 ): SqlStatementPlan[] {
-  const values: Record<string, unknown> = {};
+  const values: Record<string, BaseType> = {};
 
   const uniqueTable = new Set(
     headers
@@ -149,14 +150,14 @@ function buildUpdatePlan(
         if (changedTable[tableName]) {
           changedTable[tableName].values = {
             ...changedTable[tableName].values,
-            [header.name]: col.value.getValue(),
+            [header.name]: col.value,
           };
         } else {
           changedTable[tableName] = {
             table: tableName,
             type: 'update',
             values: {
-              [header.name]: col.value.getValue(),
+              [header.name]: col.value,
             },
             where: buildWhere(tableName, change.row, data, updatable),
           };

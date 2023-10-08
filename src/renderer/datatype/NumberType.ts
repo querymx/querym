@@ -39,6 +39,10 @@ export default class NumberType implements BaseType<number> {
     return this.value.toString();
   }
 
+  toSQL(): unknown {
+    return this.value;
+  }
+
   matched(search: string) {
     if (this.value === null) return false;
     if (this.value === undefined) return false;
