@@ -9,6 +9,7 @@ import { getDisplayableFromDatabaseRows } from '../../../../libs/TransformResult
 import BaseType from 'renderer/datatype/BaseType';
 import SQLCommonInterface from 'drivers/base/SQLCommonInterface';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
+import { QueryDialetType, qb } from 'libs/QueryBuilder';
 
 interface DataTableContextMenuDeps {
   collector: ResultChangeCollector;
@@ -19,6 +20,7 @@ interface DataTableContextMenuDeps {
   headers: QueryResultHeader[];
   rules: TableEditableRule;
   setSelectedRowsIndex: React.Dispatch<React.SetStateAction<number[]>>;
+  dialect: QueryDialetType;
 }
 
 function dataToArray(
@@ -52,6 +54,7 @@ export default function useDataTableContextMenu({
   headers,
   rules,
   setSelectedRowsIndex,
+  dialect,
 }: DataTableContextMenuDeps) {
   const { common } = useSqlExecute();
 
@@ -107,6 +110,35 @@ export default function useDataTableContextMenu({
       window.navigator.clipboard.writeText(markdownString.join('\n'));
     }
 
+    function onCopyInsertSQL() {
+      const selectedRows = selectedRowsIndex.map(
+        (rowIndex) => data[rowIndex].data,
+      );
+
+      const tableList = Array.from(
+        new Set(headers.map((header) => header.schema?.table).filter(Boolean)),
+      );
+
+      const tableName =
+        (tableList.length === 1 ? tableList[0] : 'Unknown') ?? 'Unknown';
+
+      const lines = selectedRows
+        .map((row) => {
+          return qb(dialect)
+            .table(tableName)
+            .insert(
+              Object.keys(row).reduce<Record<string, unknown>>((a, b) => {
+                a[b] = row[b].toSQL(dialect);
+                return a;
+              }, {}),
+            )
+            .toRawSQL();
+        })
+        .join(';\n');
+
+      window.navigator.clipboard.writeText(lines);
+    }
+
     const lastSelectedRow =
       selectedRowsIndex.length > 0
         ? data[selectedRowsIndex[selectedRowsIndex.length - 1]]
@@ -127,7 +159,7 @@ export default function useDataTableContextMenu({
           { text: 'As CSV', disabled: true },
           { text: 'As JSON', onClick: onCopyAsJson },
           { text: 'As Markdown', onClick: onCopyAsMarkdown },
-          { text: 'As SQL', disabled: true },
+          { text: 'As SQL Insert', onClick: onCopyInsertSQL },
         ],
       },
       {
@@ -215,5 +247,6 @@ export default function useDataTableContextMenu({
     data,
     rules,
     common,
+    dialect,
   ]);
 }
