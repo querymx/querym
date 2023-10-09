@@ -67,8 +67,6 @@ function AuthProviderBody({
 
   const [isValidMasterPassword, setValidMasterPassword] = useState(false);
 
-  console.log('ss', data, masterPassword);
-
   useEffect(() => {
     if (!masterPassword) {
       setValidMasterPassword(false);

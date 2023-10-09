@@ -19,6 +19,7 @@ import {
   faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
+import BaseType from 'renderer/datatype/BaseType';
 
 export interface QuertResultTableSortedHeader {
   by: 'ASC' | 'DESC';
@@ -27,7 +28,7 @@ export interface QuertResultTableSortedHeader {
 
 interface QueryResultTableProps {
   headers: QueryResultHeader[];
-  result: QueryResultWithIndex[];
+  result: QueryResultWithIndex<BaseType>[];
   onSortHeader?: (header: QuertResultTableSortedHeader) => void;
   onSortReset?: () => void;
   sortedHeader?: QuertResultTableSortedHeader;
@@ -45,7 +46,7 @@ function QueryResultTable({
   >();
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector, cellManager } = useEditableResult();
-  const { schema, currentDatabase } = useSchema();
+  const { schema, currentDatabase, dialect } = useSchema();
 
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
   const [removeRowsIndex, setRemoveRowsIndex] = useState<number[]>([]);
@@ -71,7 +72,7 @@ function QueryResultTable({
     setSelectedRowsIndex(selectedRows);
   };
 
-  const data: { data: Record<string, unknown>; rowIndex: number }[] =
+  const data: { data: Record<string, BaseType>; rowIndex: number }[] =
     useMemo(() => {
       const newRows = new Array(newRowCount)
         .fill(false)
@@ -111,6 +112,7 @@ function QueryResultTable({
     headers,
     rules,
     setSelectedRowsIndex,
+    dialect,
   });
 
   const headerMemo = useMemo(() => {
@@ -125,7 +127,7 @@ function QueryResultTable({
         const maxLength = Math.max(
           ...result.slice(0, 100).map(({ data: row }) => {
             if (typeof row[header.name] === 'string')
-              return (row[header.name] as string).length;
+              return row[header.name].toString().length;
             return 10;
           }),
         );

@@ -6,8 +6,19 @@ import {
 } from 'types/SqlSchema';
 import SQLCommonInterface from './../base/SQLCommonInterface';
 import { SqlRunnerManager, SqlStatementResult } from 'libs/SqlRunnerManager';
-import { QueryResult, QueryResultHeaderType } from 'types/SqlResult';
+import {
+  QueryResult,
+  QueryResultHeader,
+  QueryResultHeaderType,
+  QueryTypedResult,
+} from 'types/SqlResult';
 import { qb } from 'libs/QueryBuilder';
+import DecimalType from 'renderer/datatype/DecimalType';
+import NumberType from 'renderer/datatype/NumberType';
+import StringType from 'renderer/datatype/StringType';
+import JsonType from 'renderer/datatype/JsonType';
+import BaseType from 'renderer/datatype/BaseType';
+import PointType from 'renderer/datatype/PointType';
 
 interface PgColumn {
   table_schema: string;
@@ -36,11 +47,13 @@ function mapDataType(type?: DatabaseDataType): QueryResultHeaderType {
 
   // https://www.postgresql.org/docs/current/catalog-pg-type.html#CATALOG-TYPCATEGORY-TABLE
   const category = type.category.toUpperCase();
-  if (category === 'S') return { type: 'string' };
-  if (category === 'N') return { type: 'number' };
   if (['date'].includes(type.name)) return { type: 'string_date' };
   if (['time'].includes(type.name)) return { type: 'string_time' };
   if (['timestamp'].includes(type.name)) return { type: 'string_datetime' };
+  if (['point'].includes(type.name)) return { type: 'point' };
+  if (['regproc'].includes(type.name)) return { type: 'string' };
+  if (category === 'S') return { type: 'string' };
+  if (category === 'N') return { type: 'number' };
   return { type: 'other' };
 }
 
@@ -218,8 +231,8 @@ export default class PgCommonInterface extends SQLCommonInterface {
   attachHeaders(
     statements: SqlStatementResult[],
     schema: DatabaseSchemas | undefined,
-  ): SqlStatementResult[] {
-    if (!schema) return statements;
+  ): SqlStatementResult<QueryTypedResult>[] {
+    if (!schema) return statements.map(this.attachType);
 
     const result = statements.map((statement) => {
       const headers = statement.result.headers.map((header) => {
@@ -242,9 +255,55 @@ export default class PgCommonInterface extends SQLCommonInterface {
           ),
         };
       });
-      return { ...statement, result: { ...statement.result, headers } };
+      return this.attachType({
+        ...statement,
+        result: { ...statement.result, headers },
+      });
     });
 
     return result;
+  }
+
+  protected getTypeClass(
+    header: QueryResultHeader,
+  ): (value: unknown) => BaseType {
+    if (header.type.type === 'number')
+      return (value: unknown) => new NumberType(value as string);
+
+    if (header.type.type === 'decimal')
+      return (value: unknown) => new DecimalType(value as string);
+
+    if (header.type.type === 'json')
+      return (value) => new JsonType(value as object);
+
+    if (header.type.type === 'point')
+      return (value) => {
+        const typedValue = value as { x: string; y: string } | undefined | null;
+        if (!typedValue) return new PointType(typedValue);
+        return new PointType({
+          x: Number(typedValue.x),
+          y: Number(typedValue.y),
+        });
+      };
+
+    return (value: unknown) => new StringType(value as string);
+  }
+
+  createTypeValue(header: QueryResultHeader, value: unknown): BaseType {
+    return this.getTypeClass(header)(value);
+  }
+
+  attachType(statements: SqlStatementResult) {
+    const headers = statements.result.headers;
+    const rows = statements.result.rows;
+
+    for (const header of headers) {
+      const createType = this.getTypeClass(header);
+      for (const row of rows) {
+        row[header.name] = createType(row[header.name]);
+      }
+    }
+
+    return statements as unknown as SqlStatementResult<QueryTypedResult>;
   }
 }

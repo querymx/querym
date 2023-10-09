@@ -25,6 +25,7 @@ import QueryResultLoading from '../QueryResultViewer/QueryResultLoading';
 import { useDialog } from 'renderer/contexts/DialogProvider';
 import CommitChangeToolbarItem from '../QueryResultViewer/CommitChangeToolbarItem';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface TableDataViewerProps {
   databaseName: string;
@@ -45,8 +46,8 @@ function TableDataViewerBody({
   setSortedHeader,
   setPage,
 }: {
-  result: QueryResult<Record<string, unknown>>;
-  setResult: Dispatch<SetStateAction<QueryResult<Record<string, unknown>>>>;
+  result: QueryResult<Record<string, BaseType>>;
+  setResult: Dispatch<SetStateAction<QueryResult<Record<string, BaseType>>>>;
   totalRows: number | null;
   page: number;
   refresh: () => void;
@@ -56,7 +57,7 @@ function TableDataViewerBody({
   >;
   setPage: Dispatch<SetStateAction<number>>;
 }) {
-  const data = useMemo<QueryResultWithIndex[]>(
+  const data = useMemo<QueryResultWithIndex<BaseType>[]>(
     () =>
       result.rows.map((row, idx) => ({
         rowIndex: idx,
@@ -139,7 +140,7 @@ export default function TableDataViewer({
 }: TableDataViewerProps) {
   const { schema, dialect } = useSchema();
   const { runner, common } = useSqlExecute();
-  const [result, setResult] = useState<QueryResult<Record<string, unknown>>>();
+  const [result, setResult] = useState<QueryResult<Record<string, BaseType>>>();
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [totalRows, setTotalRows] = useState<number | null>(null);
   const { showErrorDialog } = useDialog();
@@ -208,7 +209,7 @@ export default function TableDataViewer({
       result={result}
       setResult={
         setResult as Dispatch<
-          SetStateAction<QueryResult<Record<string, unknown>>>
+          SetStateAction<QueryResult<Record<string, BaseType>>>
         >
       }
       totalRows={totalRows}

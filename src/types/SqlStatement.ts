@@ -1,3 +1,5 @@
+import BaseType from 'renderer/datatype/BaseType';
+
 export interface SqlStatement {
   sql: string;
   params?: Record<string, unknown>;
@@ -10,6 +12,6 @@ export interface SqlStatement {
 export interface SqlStatementPlan {
   type: 'insert' | 'delete' | 'update';
   table: string;
-  values?: Record<string, unknown>;
-  where?: Record<string, unknown>;
+  values?: Record<string, BaseType>;
+  where?: Record<string, BaseType>;
 }

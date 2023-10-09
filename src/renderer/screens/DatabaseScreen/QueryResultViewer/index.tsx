@@ -8,11 +8,12 @@ import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { useSchema } from 'renderer/contexts/SchemaProvider';
 import { SqlStatementResult } from 'libs/SqlRunnerManager';
 import { EditableQueryResultProvider } from 'renderer/contexts/EditableQueryResultProvider';
+import { QueryTypedResult } from 'types/SqlResult';
 
 function QueryResultViewer({
   statementResult,
 }: {
-  statementResult: SqlStatementResult;
+  statementResult: SqlStatementResult<QueryTypedResult>;
 }) {
   const { statement, result } = statementResult;
   const { runner, common } = useSqlExecute();
@@ -57,10 +58,7 @@ function QueryResultViewer({
       rows = rows.filter((row) => {
         const values = Object.values(row.data);
         for (const value of values) {
-          if (typeof value === 'string' || typeof value === 'number') {
-            const stringValue = value.toString().toLowerCase();
-            if (stringValue.includes(searchValue)) return true;
-          }
+          if (value.matched(searchValue)) return true;
         }
         return false;
       });
@@ -68,18 +66,9 @@ function QueryResultViewer({
 
     if (sortedHeader) {
       rows.sort((a, b) => {
-        if (
-          a.data[sortedHeader.header.name] == b.data[sortedHeader.header.name]
-        )
-          return 0;
-        if (
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (a.data[sortedHeader.header.name] as any) >
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (b.data[sortedHeader.header.name] as any)
-        )
-          return 1;
-        return -1;
+        return a.data[sortedHeader.header.name].compare(
+          b.data[sortedHeader.header.name],
+        );
       });
 
       if (sortedHeader.by === 'DESC') rows.reverse();

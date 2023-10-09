@@ -6,30 +6,39 @@ import { useContextMenu } from 'renderer/contexts/ContextMenuProvider';
 import { TableCellManager } from 'renderer/contexts/EditableQueryResultProvider';
 import { QueryResultHeader, QueryResultWithIndex } from 'types/SqlResult';
 import { getDisplayableFromDatabaseRows } from '../../../../libs/TransformResult';
+import BaseType from 'renderer/datatype/BaseType';
+import SQLCommonInterface from 'drivers/base/SQLCommonInterface';
+import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
+import { QueryDialetType, qb } from 'libs/QueryBuilder';
 
 interface DataTableContextMenuDeps {
   collector: ResultChangeCollector;
   cellManager: TableCellManager;
   selectedRowsIndex: number[];
   newRowCount: number;
-  data: QueryResultWithIndex[];
+  data: QueryResultWithIndex<BaseType>[];
   headers: QueryResultHeader[];
   rules: TableEditableRule;
   setSelectedRowsIndex: React.Dispatch<React.SetStateAction<number[]>>;
+  dialect: QueryDialetType;
 }
 
 function dataToArray(
-  data: QueryResultWithIndex,
+  common: SQLCommonInterface,
+  data: QueryResultWithIndex<BaseType>,
   headers: QueryResultHeader[],
-  rules?: TableEditableRule
-): unknown[] {
+  rules?: TableEditableRule,
+): BaseType[] {
   const result = new Array(headers.length).fill(true).map((_, idx) => {
     return data.data[headers[idx].name];
   });
 
   if (rules?.insertablePk) {
     for (let i = 0; i < rules.insertablePk.length; i++) {
-      result[rules.insertablePk[i].columnNumber] = undefined;
+      result[rules.insertablePk[i].columnNumber] = common.createTypeValue(
+        headers[rules.insertablePk[i].columnNumber],
+        undefined,
+      );
     }
   }
 
@@ -45,17 +54,25 @@ export default function useDataTableContextMenu({
   headers,
   rules,
   setSelectedRowsIndex,
+  dialect,
 }: DataTableContextMenuDeps) {
+  const { common } = useSqlExecute();
+
   return useContextMenu(() => {
     const selectedCell = cellManager.getFocusCell();
 
     function onCopyAsExcel() {
-      const selectedRows = selectedRowsIndex.map((rowIndex) => data[rowIndex].data);
-      const displayableRows = getDisplayableFromDatabaseRows(selectedRows, headers);
+      const selectedRows = selectedRowsIndex.map(
+        (rowIndex) => data[rowIndex].data,
+      );
+      const displayableRows = getDisplayableFromDatabaseRows(
+        selectedRows,
+        headers,
+      );
       const headerNames = headers.map((header) => header.name).join('\t');
       const excelString = [headerNames];
       excelString.push(
-        ...displayableRows.map((row) => Object.values(row).join('\t'))
+        ...displayableRows.map((row) => Object.values(row).join('\t')),
       );
 
       window.navigator.clipboard.writeText(excelString.join('\n'));
@@ -66,22 +83,60 @@ export default function useDataTableContextMenu({
         JSON.stringify(
           selectedRowsIndex.map((rowIndex) => data[rowIndex].data),
           undefined,
-          2
-        )
+          2,
+        ),
       );
     }
 
     function onCopyAsMarkdown() {
-      const selectedRows = selectedRowsIndex.map((rowIndex) => data[rowIndex].data);
-      const displayableRows = getDisplayableFromDatabaseRows(selectedRows, headers);
+      const selectedRows = selectedRowsIndex.map(
+        (rowIndex) => data[rowIndex].data,
+      );
+      const displayableRows = getDisplayableFromDatabaseRows(
+        selectedRows,
+        headers,
+      );
       const headerNames = headers.map((header) => header.name);
       const markdownString = [headerNames.join(' | ')];
-      markdownString.push(new Array(headerNames.length).fill('---').join(' | '));
       markdownString.push(
-        ...displayableRows.map((row) => headerNames.map((header) => row[header]).join(' | '))
+        new Array(headerNames.length).fill('---').join(' | '),
+      );
+      markdownString.push(
+        ...displayableRows.map((row) =>
+          headerNames.map((header) => row[header]).join(' | '),
+        ),
       );
 
       window.navigator.clipboard.writeText(markdownString.join('\n'));
+    }
+
+    function onCopyInsertSQL() {
+      const selectedRows = selectedRowsIndex.map(
+        (rowIndex) => data[rowIndex].data,
+      );
+
+      const tableList = Array.from(
+        new Set(headers.map((header) => header.schema?.table).filter(Boolean)),
+      );
+
+      const tableName =
+        (tableList.length === 1 ? tableList[0] : 'Unknown') ?? 'Unknown';
+
+      const lines = selectedRows
+        .map((row) => {
+          return qb(dialect)
+            .table(tableName)
+            .insert(
+              Object.keys(row).reduce<Record<string, unknown>>((a, b) => {
+                a[b] = row[b].toSQL(dialect);
+                return a;
+              }, {}),
+            )
+            .toRawSQL();
+        })
+        .join(';\n');
+
+      window.navigator.clipboard.writeText(lines);
     }
 
     const lastSelectedRow =
@@ -104,7 +159,7 @@ export default function useDataTableContextMenu({
           { text: 'As CSV', disabled: true },
           { text: 'As JSON', onClick: onCopyAsJson },
           { text: 'As Markdown', onClick: onCopyAsMarkdown },
-          { text: 'As SQL', disabled: true },
+          { text: 'As SQL Insert', onClick: onCopyInsertSQL },
         ],
       },
       {
@@ -128,7 +183,7 @@ export default function useDataTableContextMenu({
         onClick: () => {
           if (lastSelectedRow) {
             collector.createNewRow(
-              dataToArray(lastSelectedRow, headers, rules)
+              dataToArray(common, lastSelectedRow, headers, rules),
             );
           }
         },
@@ -139,7 +194,9 @@ export default function useDataTableContextMenu({
         disabled: !lastSelectedRow,
         onClick: () => {
           if (lastSelectedRow) {
-            collector.createNewRow(dataToArray(lastSelectedRow, headers));
+            collector.createNewRow(
+              dataToArray(common, lastSelectedRow, headers),
+            );
           }
         },
         icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
@@ -189,5 +246,7 @@ export default function useDataTableContextMenu({
     selectedRowsIndex,
     data,
     rules,
+    common,
+    dialect,
   ]);
 }

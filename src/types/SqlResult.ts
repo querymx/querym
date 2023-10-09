@@ -1,3 +1,4 @@
+import BaseType from 'renderer/datatype/BaseType';
 import { TableColumnSchema } from './SqlSchema';
 
 export interface QueryResultHeaderType {
@@ -10,7 +11,10 @@ export interface QueryResultHeaderType {
     | 'number'
     | 'json'
     | 'decimal'
-    | 'other';
+    | 'other'
+    | 'enum'
+    | 'point';
+  enumValues?: string[];
 }
 
 export interface QueryResultHeader {
@@ -28,8 +32,8 @@ export interface QueryResultHeader {
   };
 }
 
-export interface QueryResultWithIndex {
-  data: Record<string, unknown>;
+export interface QueryResultWithIndex<T = unknown> {
+  data: Record<string, T>;
   rowIndex: number;
 }
 
@@ -50,4 +54,8 @@ interface QueryResultCommon {
 export interface QueryResult<T = Record<string, unknown>>
   extends QueryResultCommon {
   rows: T[];
+}
+
+export interface QueryTypedResult extends QueryResultCommon {
+  rows: Record<string, BaseType>[];
 }

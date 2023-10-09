@@ -1,10 +1,11 @@
-import { QueryResult, QueryResultHeader } from 'types/SqlResult';
+import { QueryResultHeader, QueryTypedResult } from 'types/SqlResult';
 import { DatabaseSchema } from 'types/SqlSchema';
 import {
   ResultChangeCollectorItem,
   ResultChanges,
 } from './ResultChangeCollector';
 import { SqlStatementPlan } from 'types/SqlStatement';
+import BaseType from 'renderer/datatype/BaseType';
 
 interface TablePk {
   columnNames: string;
@@ -22,7 +23,7 @@ export interface TableEditableRule {
 
 export function getEditableRule(
   headers: QueryResultHeader[],
-  schema: DatabaseSchema
+  schema: DatabaseSchema,
 ): TableEditableRule {
   const result: UpdatableTableDict = {};
 
@@ -30,7 +31,7 @@ export function getEditableRule(
   const uniqueTableNames = new Set(
     headers
       .filter((header) => !!header.schema?.table)
-      .map((header) => header.schema?.table || '')
+      .map((header) => header.schema?.table || ''),
   );
 
   // For each tables, let check if we have enough column for update
@@ -48,7 +49,7 @@ export function getEditableRule(
         const columnIndex = headers.findIndex(
           (header) =>
             header.schema?.table === tableName &&
-            header?.schema?.column === tablePk
+            header?.schema?.column === tablePk,
         );
 
         if (columnIndex >= 0) {
@@ -79,9 +80,9 @@ export function getEditableRule(
 function buildWhere(
   tableName: string,
   rowIndex: number,
-  data: QueryResult,
-  updatable: UpdatableTableDict
-): Record<string, unknown> {
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
+): Record<string, BaseType> {
   const rows = data.rows;
   const headers = data.headers;
 
@@ -95,8 +96,8 @@ function buildWhere(
 
 function buildRemovePlan(
   removeIndex: number,
-  data: QueryResult,
-  updatable: UpdatableTableDict
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
 ): SqlStatementPlan[] {
   // We will not remove if there is more than one table inside the result
   const entries = Object.entries(updatable);
@@ -115,14 +116,14 @@ function buildRemovePlan(
 
 function buildInsertPlan(
   changes: ResultChangeCollectorItem,
-  headers: QueryResultHeader[]
+  headers: QueryResultHeader[],
 ): SqlStatementPlan[] {
-  const values: Record<string, unknown> = {};
+  const values: Record<string, BaseType> = {};
 
   const uniqueTable = new Set(
     headers
       .filter((header) => header.schema)
-      .map((header) => header.schema?.table)
+      .map((header) => header.schema?.table),
   );
   if (uniqueTable.size > 1) return [];
 
@@ -135,8 +136,8 @@ function buildInsertPlan(
 
 function buildUpdatePlan(
   change: ResultChangeCollectorItem,
-  data: QueryResult,
-  updatable: UpdatableTableDict
+  data: QueryTypedResult,
+  updatable: UpdatableTableDict,
 ): SqlStatementPlan[] {
   const changedTable: Record<string, SqlStatementPlan> = {};
   const headers = data.headers;
@@ -170,8 +171,8 @@ function buildUpdatePlan(
 
 export default function generateSqlFromChanges(
   schema: DatabaseSchema,
-  currentData: QueryResult,
-  changes: ResultChanges
+  currentData: QueryTypedResult,
+  changes: ResultChanges,
 ): SqlStatementPlan[] {
   const { updatableTables } = getEditableRule(currentData.headers, schema);
 
