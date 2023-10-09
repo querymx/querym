@@ -53,8 +53,6 @@ function QueryResultViewer({
       };
     });
 
-    console.log(rows);
-
     if (search) {
       const searchValue = search.toLowerCase();
       rows = rows.filter((row) => {

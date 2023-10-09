@@ -197,7 +197,5 @@ export default function generateSqlFromChanges(
     plans = [...plans, ...buildInsertPlan(change, currentData.headers)];
   }
 
-  console.log(plans);
-
   return plans;
 }

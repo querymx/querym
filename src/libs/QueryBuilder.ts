@@ -2,10 +2,16 @@ import SqlString from 'sqlstring';
 
 export type QueryDialetType = 'mysql' | 'postgre';
 
-interface QueryRaw {
-  __typename: 'query_raw';
-  raw: string;
-  binding?: unknown[];
+class QueryRaw {
+  protected raw: string;
+
+  constructor(raw: string) {
+    this.raw = raw;
+  }
+
+  getRaw() {
+    return this.raw;
+  }
 }
 
 interface QueryWhere {
@@ -21,8 +27,8 @@ interface QueryWhere {
 interface QueryStates {
   table?: string;
   type: 'select' | 'update' | 'insert' | 'delete';
-  insert?: Record<string, unknown>;
-  update?: Record<string, unknown>;
+  insert?: Record<string, unknown | QueryRaw>;
+  update?: Record<string, unknown | QueryRaw>;
   where: QueryWhere[];
   select: (string | QueryRaw)[];
   limit?: number;
@@ -83,14 +89,11 @@ export class QueryBuilder {
       return this.dialect.escapeIdentifier(id);
     }
 
-    return id.raw;
+    return id.getRaw();
   }
 
-  raw(str: string): QueryRaw {
-    return {
-      __typename: 'query_raw',
-      raw: str,
-    };
+  static raw(str: string): QueryRaw {
+    return new QueryRaw(str);
   }
 
   escapeId(name: string) {
@@ -212,8 +215,16 @@ export class QueryBuilder {
       for (const [updateField, updateValue] of Object.entries(
         this.states.update,
       )) {
-        setPart.push(`${this.dialect?.escapeIdentifier(updateField)}=?`);
-        binding.push(updateValue);
+        if (updateValue instanceof QueryRaw) {
+          setPart.push(
+            `${this.dialect?.escapeIdentifier(
+              updateField,
+            )}=${updateValue.getRaw()}`,
+          );
+        } else {
+          setPart.push(`${this.dialect?.escapeIdentifier(updateField)}=?`);
+          binding.push(updateValue);
+        }
       }
 
       const { sql: whereSql, binding: whereBinding } = this.buildWhere(
@@ -300,11 +311,18 @@ export class QueryBuilder {
 
       if (this.states.insert) {
         const binding: unknown[] = [];
+        const values: string[] = [];
         const fields: string[] = [];
 
         for (const [field, value] of Object.entries(this.states.insert)) {
-          binding.push(value);
-          fields.push(field);
+          if (value instanceof QueryRaw) {
+            fields.push(field);
+            values.push(value.getRaw());
+          } else {
+            binding.push(value);
+            fields.push(field);
+            values.push('?');
+          }
         }
 
         const sql =
@@ -316,7 +334,7 @@ export class QueryBuilder {
                 .map((field) => this.dialect.escapeIdentifier(field))
                 .join(', ') +
               ')',
-            'VALUES(' + new Array(binding.length).fill('?').join(', ') + ')',
+            'VALUES(' + values.join(', ') + ')',
           ].join(' ') + ';';
 
         return { sql, binding };
