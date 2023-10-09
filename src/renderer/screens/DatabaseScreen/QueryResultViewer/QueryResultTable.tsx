@@ -46,7 +46,7 @@ function QueryResultTable({
   >();
   const [newRowCount, setNewRowCount] = useState(0);
   const { collector, cellManager } = useEditableResult();
-  const { schema, currentDatabase } = useSchema();
+  const { schema, currentDatabase, dialect } = useSchema();
 
   const [selectedRowsIndex, setSelectedRowsIndex] = useState<number[]>([]);
   const [removeRowsIndex, setRemoveRowsIndex] = useState<number[]>([]);
@@ -112,6 +112,7 @@ function QueryResultTable({
     headers,
     rules,
     setSelectedRowsIndex,
+    dialect,
   });
 
   const headerMemo = useMemo(() => {

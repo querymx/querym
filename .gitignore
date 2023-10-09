@@ -33,3 +33,4 @@ configs.json
 query-master-data/
 
 .env
+yarn.lock
