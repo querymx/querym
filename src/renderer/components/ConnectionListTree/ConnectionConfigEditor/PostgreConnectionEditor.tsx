@@ -9,19 +9,11 @@ export default function PostgreConnectionEditor({
   config: ConnectionStoreConfig;
   onChange: (value: ConnectionStoreConfig) => void;
 }) {
+  console.log(config);
+
   return (
     <Stack vertical>
       <RelationalDbConnectionEditor config={config} onChange={onChange} />
-      <label>
-        <input
-          type="checkbox"
-          checked={config?.ssl}
-          onChange={(e) =>
-            onChange({ ...config, ssl: e.currentTarget.checked })
-          }
-        />
-        &nbsp;Over SSL
-      </label>
     </Stack>
   );
 }

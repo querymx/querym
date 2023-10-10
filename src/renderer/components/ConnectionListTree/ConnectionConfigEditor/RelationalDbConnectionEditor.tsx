@@ -3,6 +3,7 @@ import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';
 import PasswordField from 'renderer/components/PasswordField';
 import { useState } from 'react';
+import CertificatePicker from './CertificatePicker';
 
 export default function RelationalDbConnectionEditor({
   config,
@@ -51,6 +52,11 @@ export default function RelationalDbConnectionEditor({
           />
         </div>
       </Stack>
+
+      <CertificatePicker
+        value={config?.ssl}
+        onChange={(value) => onChange({ ...config, ssl: value })}
+      />
 
       <TextField
         label="Database"

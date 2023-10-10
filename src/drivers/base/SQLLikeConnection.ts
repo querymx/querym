@@ -13,13 +13,21 @@ export interface MySqlConnectionConfig {
   port: number;
 }
 
+export type ConnectionSslOption =
+  | boolean
+  | {
+      ca?: string;
+      cert?: string;
+      key?: string;
+    };
+
 export interface PgConnectionConfig {
   database: string;
   user: string;
   password: string;
   host: string;
   port: number;
-  ssl?: boolean;
+  ssl?: ConnectionSslOption;
 }
 
 export interface SqliteConnectionConfig {

@@ -3,7 +3,9 @@ import {
   dialog,
   SaveDialogSyncOptions,
   shell,
+  OpenDialogOptions,
 } from 'electron';
+import fs from 'fs';
 import saveCsvFile from '../../libs/SaveCSVFile';
 import saveExcelFile from '../../libs/SaveExcelFile';
 import CommunicateHandler from './../CommunicateHandler';
@@ -15,15 +17,23 @@ CommunicateHandler.handle(
       return dialog.showMessageBoxSync(window, options);
     }
     return 0;
-  }
+  },
 )
+  .handle('show-open-dialog', ([options]: [OpenDialogOptions], { window }) => {
+    if (window) {
+      return dialog.showOpenDialog(window, options);
+    }
+  })
+  .handle('read-file', ([fileName]: [string]) => {
+    return fs.readFileSync(fileName);
+  })
   .handle(
     'show-save-dialog',
     ([options]: [SaveDialogSyncOptions], { window }) => {
       if (window) {
         return dialog.showSaveDialogSync(window, options);
       }
-    }
+    },
   )
   .handle('save-csv-file', ([fileName, records]: [string, object[]]) => {
     saveCsvFile(fileName, records);
