@@ -1,6 +1,6 @@
 import { ConnectionStoreConfig } from 'drivers/base/SQLLikeConnection';
 import MySQLConnectionEditor from './MySQLConnectionEditor';
-import PostgreConnectionEditor from './PostgreConnectionEditor copy';
+import PostgreConnectionEditor from './PostgreConnectionEditor';
 
 export default function ConnectionConfigEditor({
   type,

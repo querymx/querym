@@ -8,6 +8,8 @@ import {
   MessageBoxSyncOptions,
   MenuItemConstructorOptions,
   SaveDialogSyncOptions,
+  OpenDialogOptions,
+  OpenDialogReturnValue,
 } from 'electron';
 import {
   ProgressInfo,
@@ -60,6 +62,14 @@ const electronHandler = {
     options: SaveDialogSyncOptions,
   ): Promise<string | undefined> =>
     ipcRenderer.invoke('show-save-dialog', [options]),
+
+  showOpenDialog: (
+    options: OpenDialogOptions,
+  ): Promise<OpenDialogReturnValue> =>
+    ipcRenderer.invoke('show-open-dialog', [options]),
+
+  readFile: (fileName: string): Promise<Buffer> =>
+    ipcRenderer.invoke('read-file', [fileName]),
 
   showFileInFolder: (fileName: string) =>
     ipcRenderer.invoke('show-item-in-folder', [fileName]),

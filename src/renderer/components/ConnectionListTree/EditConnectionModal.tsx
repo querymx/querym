@@ -19,7 +19,7 @@ export default function EditConnectionModal({
     storage
       .save(value)
       .then((newItem) => {
-        refresh();
+        refresh(true);
         finishEditing();
         setSelectedItem({ id: newItem.id, data: newItem });
       })

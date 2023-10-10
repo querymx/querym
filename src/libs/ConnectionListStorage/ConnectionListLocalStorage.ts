@@ -25,7 +25,7 @@ export default class ConnectionListLocalStorage {
   }
 
   getAll(): ConnectionStoreItem[] {
-    return this.connections;
+    return [...this.connections];
   }
 
   async save(
@@ -41,10 +41,18 @@ export default class ConnectionListLocalStorage {
     this.dict[newData.id] = newData;
     db.table('connections').put(newData);
 
+    const found = this.connections.findIndex((conn) => conn.id === newData.id);
+    if (found >= 0) {
+      this.connections[found] = newData;
+    } else {
+      this.connections.push(newData);
+    }
+
     return newData;
   }
 
   async remove(id: string) {
+    this.connections = this.connections.filter((conn) => conn.id !== id);
     delete this.dict[id];
     db.table('connections').delete(id);
   }

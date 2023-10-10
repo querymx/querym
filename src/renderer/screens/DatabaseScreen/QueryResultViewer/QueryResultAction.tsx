@@ -8,7 +8,7 @@ import {
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { useDebounceEffect } from 'hooks/useDebounce';
+import { useDebounceEffect } from 'renderer/hooks/useDebounce';
 import CommitChangeToolbarItem from './CommitChangeToolbarItem';
 import BaseType from 'renderer/datatype/BaseType';
 

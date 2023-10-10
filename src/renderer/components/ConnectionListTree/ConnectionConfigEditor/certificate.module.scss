@@ -1,0 +1,48 @@
+.container {
+  h3 {
+    font-size: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 10px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+
+  > div {
+    background: var(--color-input-border);
+    padding: 10px;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.icon {
+  border-left: 1px solid var(--color-surface);
+}
+
+.button.provided {
+  > div {
+    background: #27ae60;
+    color: #fff;
+  }
+}
+
+.close {
+  background: #e74c3c !important;
+  color: #fff !important;
+}

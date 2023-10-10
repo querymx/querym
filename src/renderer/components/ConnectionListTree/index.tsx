@@ -24,10 +24,11 @@ import ConnectionListLocalStorage from 'libs/ConnectionListStorage/ConnectionLis
 import ConnectionListLoading from './ConnectionListLoading';
 import ConnectionListError from './ConnectionListError';
 import ImportConnectionStringModal from './ImportConnectionStringModal';
+import ConnectionString from 'libs/ConnectionString';
 
 const ConnectionListContext = createContext<{
   storage: IConnectionListStorage;
-  refresh: () => void;
+  refresh: (withoutRefetch?: boolean) => void;
   finishEditing: () => void;
   showEditConnection: (initialValue: ConnectionStoreItemWithoutId) => void;
   setSelectedItem: React.Dispatch<
@@ -66,7 +67,7 @@ function ConnectionListTreeBody({
     (config: ConnectionStoreItem) => {
       connect(config);
       storage.updateLastUsed(config.id);
-      refresh();
+      refresh(true);
     },
     [storage, refresh, connect],
   );
@@ -90,6 +91,7 @@ function ConnectionListTreeBody({
               data: connection,
               icon: <ConnectionIcon dialect={connection.type} />,
               text: connection.name,
+              subtitle: ConnectionString.encodeShort(connection),
             };
           },
         ),
@@ -103,6 +105,7 @@ function ConnectionListTreeBody({
               id: connection.id,
               data: connection,
               icon: <ConnectionIcon dialect={connection.type} />,
+              subtitle: ConnectionString.encodeShort(connection),
               text: connection.name,
             };
           },
@@ -153,18 +156,25 @@ export default function ConnectionListTree({
   const [showConnectionStringModal, setShowConnectionStringModal] =
     useState(false);
 
-  const onRefresh = useCallback(() => {
-    setLoading(true);
-    setError(false);
-    storage
-      .loadAll()
-      .then(() => {
+  const onRefresh = useCallback(
+    (withoutRefetch = false) => {
+      if (withoutRefetch) {
         setConnectionList(storage.getAll());
-        setLoading(false);
+      } else {
+        setLoading(true);
         setError(false);
-      })
-      .catch(() => setError(true));
-  }, [storage, setConnectionList, setLoading]);
+        storage
+          .loadAll()
+          .then(() => {
+            setConnectionList(storage.getAll());
+            setLoading(false);
+            setError(false);
+          })
+          .catch(() => setError(true));
+      }
+    },
+    [storage, setConnectionList, setLoading],
+  );
 
   const onFinishEditing = useCallback(
     () => setEditingItem(undefined),

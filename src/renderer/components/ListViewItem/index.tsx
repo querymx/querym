@@ -12,6 +12,7 @@ import { useAppFeature } from 'renderer/contexts/AppFeatureProvider';
 
 interface ListViewItemProps {
   text: string;
+  subtitle?: string;
   draggable?: boolean;
   highlight?: string;
   icon?: ReactElement;
@@ -23,7 +24,7 @@ interface ListViewItemProps {
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop?: (
     e: React.DragEvent<HTMLDivElement>,
-    position: 'top' | 'bottom'
+    position: 'top' | 'bottom',
   ) => void;
   onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
 
@@ -46,6 +47,7 @@ function encodeStringToHTML(s: string) {
 
 export default function ListViewItem({
   text,
+  subtitle,
   highlight,
   icon,
   selected,
@@ -69,6 +71,7 @@ export default function ListViewItem({
   const { theme } = useAppFeature();
   const [renameDraftValue, setRenameDraftValue] = useState('');
   const [dropSide, setDropSide] = useState<'none' | 'top' | 'bottom'>('none');
+  const large = !!subtitle;
   const ref = useRef(null);
 
   useEffect(() => {
@@ -79,7 +82,7 @@ export default function ListViewItem({
     (value: string | null) => {
       if (onRenamed) onRenamed(value);
     },
-    [onRenamed]
+    [onRenamed],
   );
 
   const finalText = useMemo(() => {
@@ -88,12 +91,12 @@ export default function ListViewItem({
       const santizedText = encodeStringToHTML(text || '');
       const regex = new RegExp(
         '(' + highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')',
-        'i'
+        'i',
       );
 
       return santizedText.replace(
         regex,
-        `<mark style="padding: 0; background-color: #047bf8; color: white">$1</mark>`
+        `<mark style="padding: 0; background-color: #047bf8; color: white">$1</mark>`,
       );
     } else {
       return encodeStringToHTML(text || '');
@@ -107,6 +110,7 @@ export default function ListViewItem({
         styles.item,
         selected ? styles.selected : styles.hover,
         changed ? styles.changed : undefined,
+        large ? styles.large : undefined,
         dropSide === 'bottom' ? styles.dropBottom : undefined,
         dropSide === 'top' ? styles.dropTop : undefined,
       ]
@@ -162,31 +166,34 @@ export default function ListViewItem({
           </div>
         ))}
       {icon && <div className={styles.icon}>{icon}</div>}
-      {renaming ? (
-        <div className={styles.text}>
-          <input
-            autoFocus
-            onBlur={() => {
-              onRenameDone(renameDraftValue);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+      <div>
+        {renaming ? (
+          <div className={styles.text}>
+            <input
+              autoFocus
+              onBlur={() => {
                 onRenameDone(renameDraftValue);
-              } else if (e.key === 'Escape') {
-                onRenameDone(null);
-              }
-            }}
-            type="text"
-            value={renameDraftValue}
-            onChange={(e) => setRenameDraftValue(e.currentTarget.value)}
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onRenameDone(renameDraftValue);
+                } else if (e.key === 'Escape') {
+                  onRenameDone(null);
+                }
+              }}
+              type="text"
+              value={renameDraftValue}
+              onChange={(e) => setRenameDraftValue(e.currentTarget.value)}
+            />
+          </div>
+        ) : (
+          <div
+            className={styles.text}
+            dangerouslySetInnerHTML={{ __html: finalText }}
           />
-        </div>
-      ) : (
-        <div
-          className={styles.text}
-          dangerouslySetInnerHTML={{ __html: finalText }}
-        />
-      )}
+        )}
+        {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
+      </div>
     </div>
   );
 }

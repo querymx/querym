@@ -6,6 +6,10 @@
   padding-left: 10px;
 }
 
+.item.large {
+  height: 48px;
+}
+
 .dropBottom {
   &::after {
     content: '';
@@ -40,7 +44,7 @@
 
 .hover {
   &:hover {
-    background: var(--color-list-hover)
+    background: var(--color-list-hover);
   }
 }
 
@@ -59,6 +63,18 @@
     outline: none;
     width: 100%;
   }
+}
+
+.subtitle {
+  line-height: 20px;
+  margin-top: -5px;
+  padding-left: 5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  overflow: hidden;
+  font-size: 0.9rem;
+  opacity: 0.7;
 }
 
 .icon {
@@ -114,5 +130,19 @@
     height: 1px;
     border-top: 1px solid var(--color-list-line-guide);
     width: 10px;
+  }
+}
+
+.large {
+  .depth {
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 24px;
+      height: 1px;
+      border-top: 1px solid var(--color-list-line-guide);
+      width: 10px;
+    }
   }
 }

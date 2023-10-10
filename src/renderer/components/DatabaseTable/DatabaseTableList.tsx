@@ -15,7 +15,7 @@ import Layout from '../Layout';
 import DatabaseSelection from './DatabaseSelection';
 import ListViewEmptyState from '../ListView/ListViewEmptyState';
 import TextField from '../TextField';
-import { useDebounce } from 'hooks/useDebounce';
+import { useDebounce } from 'renderer/hooks/useDebounce';
 import TableDataViewer from 'renderer/screens/DatabaseScreen/TableDataViewer';
 import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 import { buildSchemaTree } from './buildTableTree';
@@ -61,11 +61,11 @@ export default function DatabaseTableList() {
               name={name}
             />
           ),
-          { icon: <FontAwesomeIcon icon={faTableCells} color="#9b59b6" /> }
+          { icon: <FontAwesomeIcon icon={faTableCells} color="#9b59b6" /> },
         );
       }
     },
-    [currentDatabase]
+    [currentDatabase],
   );
 
   const { handleContextMenu } = useContextMenu(() => {
@@ -100,7 +100,7 @@ export default function DatabaseTableList() {
                   />
                 );
               },
-              { icon: <FontAwesomeIcon icon={faTableList} color="#3498db" /> }
+              { icon: <FontAwesomeIcon icon={faTableList} color="#3498db" /> },
             );
           },
         },
