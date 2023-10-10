@@ -7,7 +7,6 @@ import {
   useContext,
   useState,
 } from 'react';
-import { db } from 'renderer/db';
 
 const DatabaseSettingContext = createContext<{
   setting?: ConnectionStoreItem;
@@ -27,15 +26,14 @@ export function DatabaseSettingProvider({
   setting,
 }: PropsWithChildren<{ setting: ConnectionStoreItem }>) {
   const [protectionLevel, setProductionLevel] = useState(
-    setting.protectionLevel === undefined ? 1 : setting.protectionLevel
+    setting.protectionLevel === undefined ? 1 : setting.protectionLevel,
   );
 
   const setProductionLevelCallback = useCallback(
     (level: number) => {
       setProductionLevel(level);
-      db.table('database_config').put({ ...setting, protectionLevel: level });
     },
-    [setProductionLevel]
+    [setProductionLevel],
   );
 
   return (

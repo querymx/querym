@@ -137,7 +137,7 @@ Toolbar.ContextMenu = function ToolbarContextMenu({
         <span>{text}</span>
       </li>
     );
-  }, []);
+  }, [text]);
 
   return <AttachedContextMenu items={items} activator={activator} />;
 };
