@@ -58,4 +58,13 @@ export default class ConnectionString {
       paramsString
     );
   }
+
+  static encodeShort(setting: ConnectionStoreItem): string {
+    return [
+      setting.config.host + ':' + setting.config.port,
+      setting.config?.database ? `(${setting.config?.database})` : undefined,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }
 }

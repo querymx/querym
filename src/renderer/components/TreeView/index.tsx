@@ -7,6 +7,7 @@ let GLOBAL_TREE_DRAG_ITEM: unknown;
 export interface TreeViewItemData<T> {
   id: string;
   text?: string;
+  subtitle?: string;
   icon?: ReactElement;
   data?: T;
   children?: TreeViewItemData<T>[];
@@ -17,7 +18,7 @@ interface TreeViewCommonProps<T> {
   onDragItem?: (
     from: TreeViewItemData<T>,
     to: TreeViewItemData<T>,
-    side: 'bottom' | 'top'
+    side: 'bottom' | 'top',
   ) => void;
   onCollapsedChange?: (value?: string[]) => void;
   onSelectChange?: (value?: TreeViewItemData<T>) => void;
@@ -99,13 +100,14 @@ function TreeViewItem<T>(props: TreeViewItemProps<T>) {
               onDragItem(
                 GLOBAL_TREE_DRAG_ITEM as TreeViewItemData<T>,
                 item,
-                side
+                side,
               );
             }
           }
         }}
         key={item.id}
         text={item.text || ''}
+        subtitle={item.subtitle}
         icon={item.icon}
         depth={depth}
         onDoubleClick={() => {
@@ -126,8 +128,8 @@ function TreeViewItem<T>(props: TreeViewItemProps<T>) {
             if (isCollapsed) {
               onCollapsedChange(
                 collapsedKeys?.filter(
-                  (collapsedKey) => collapsedKey !== item.id
-                )
+                  (collapsedKey) => collapsedKey !== item.id,
+                ),
               );
             } else {
               onCollapsedChange([...(collapsedKeys || []), item.id]);
@@ -173,7 +175,7 @@ export default function TreeView<T>(props: TreeViewProps<T>) {
         }
       }
     },
-    [onSelectChange, onBeforeSelectChange]
+    [onSelectChange, onBeforeSelectChange],
   );
 
   return (
