@@ -61,7 +61,7 @@ export default class ConnectionListRemoteStorage {
   }
 
   getAll(): ConnectionStoreItem[] {
-    return this.connections;
+    return [...this.connections];
   }
 
   async save(
@@ -79,6 +79,13 @@ export default class ConnectionListRemoteStorage {
 
     const newData = { ...data, id: r.id };
     this.dict[newData.id] = newData;
+
+    const found = this.connections.findIndex((conn) => conn.id === newData.id);
+    if (found >= 0) {
+      this.connections[found] = newData;
+    } else {
+      this.connections.push(newData);
+    }
 
     return newData;
   }

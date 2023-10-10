@@ -30,7 +30,7 @@ export default function useConnectionContextMenu({
       if (buttonIndex !== 0) return;
 
       storage.remove(selectedItem.id);
-      refresh();
+      refresh(true);
       setSelectedItem(undefined);
     }
   }, [selectedItem, storage, setSelectedItem]);
@@ -68,7 +68,7 @@ export default function useConnectionContextMenu({
       {
         text: 'Refresh',
         separator: true,
-        onClick: refresh,
+        onClick: () => refresh(),
         icon: <FontAwesomeIcon icon={faRefresh} color="#27ae60" />,
       },
       {
