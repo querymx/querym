@@ -1,4 +1,4 @@
-# Querym: Simplifying Database Management for Developers and Businesses
+# Querym: Universal Database GUI Client
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
