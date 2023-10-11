@@ -122,7 +122,7 @@
     "@storybook/react": "^7.3.2",
     "@storybook/react-webpack5": "^7.3.2",
     "@storybook/testing-library": "^0.2.0",
-    "@svgr/webpack": "^6.5.1",
+    "@svgr/webpack": "^8.1.0",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
