@@ -79,7 +79,7 @@ Efficiently organize and manage your database connections:
 - ✅ Manage connections in nested folders.
 - ✅ Robust support for MySQL.
 - ❌ Support for SQLite (in progress).
-- ❌ Support for PostgreSQL (in progress).
+- ✅ Support for PostgreSQL (in progress).
 - ❌ Support for Oracle (in progress).
 - ❌ Support for Microsoft SQL (in progress).
 - ❌ Support for Cassandra (in progress).
@@ -103,11 +103,11 @@ Keep an eye on database activities and manage processes:
 
 ### Visualization
 
-Explore data visually with charting features (in progress).
+- ❌ Explore data visually with charting features (in progress).
 
 ### Cloud Integration
 
-Secure your connections and access them from the cloud (in progress).
+- ✅ Secure your connections and access them from the cloud
 
 ### Contribution 
 
