@@ -172,6 +172,7 @@ function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
 
 function SetupAccountChangePassword({ onClose }: { onClose: () => void }) {
   const { api, setMasterPassword: setPersistentPassword } = useAuth();
+  const { refetch } = useCurrentUser();
   const [oldMasterPassword, setOldMasterPassword] = useState('');
   const [confirmMasterPassword, setConfirmMasterPassword] = useState('');
   const [masterPassword, setMasterPassword] = useState('');
@@ -195,6 +196,7 @@ function SetupAccountChangePassword({ onClose }: { onClose: () => void }) {
       .then((resp) => {
         if (resp.status) {
           setPersistentPassword(masterPassword);
+          refetch();
           onClose();
         } else {
           setError(resp.error?.message ?? '');
@@ -208,6 +210,7 @@ function SetupAccountChangePassword({ onClose }: { onClose: () => void }) {
     confirmMasterPassword,
     onClose,
     setLoading,
+    refetch,
   ]);
 
   return (
@@ -221,8 +224,7 @@ function SetupAccountChangePassword({ onClose }: { onClose: () => void }) {
       {loading && (
         <p>
           <FontAwesomeIcon icon={faSpinner} spin />
-          &nbps;
-          <span>Changing password...</span>
+          <span>&nbsp;Changing password...</span>
         </p>
       )}
 
