@@ -9,8 +9,9 @@ import {
 import PasswordField from 'renderer/components/PasswordField';
 import { useCallback, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import LinkButton from 'renderer/components/Button/LinkButton';
+import ButtonGroup from 'renderer/components/ButtonGroup';
 
 function SetupAccountNotLogin() {
   return (
@@ -93,23 +94,25 @@ function SetupAccountNewMasterKey({ user }: { user: LoginUser }) {
 
       <SetupMasterPasswordInstruction />
 
-      <PasswordField
-        autoFocus
-        placeholder="Master password"
-        value={password}
-        onChange={setPassword}
-      />
-      <p></p>
-      <PasswordField
-        autoFocus
-        placeholder="Confirm master password"
-        value={confirmed}
-        onChange={setConfirmed}
-      />
-      <p></p>
-      <Button primary onClick={onSetupPassword}>
-        Setup Master Password
-      </Button>
+      <Stack vertical spacing="sm">
+        <PasswordField
+          autoFocus
+          placeholder="Master password"
+          value={password}
+          onChange={setPassword}
+        />
+
+        <PasswordField
+          autoFocus
+          placeholder="Confirm master password"
+          value={confirmed}
+          onChange={setConfirmed}
+        />
+
+        <Button primary onClick={onSetupPassword}>
+          Setup Master Password
+        </Button>
+      </Stack>
     </div>
   );
 }
@@ -153,6 +156,11 @@ function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
         placeholder="Master password"
         value={password}
         onChange={setPassword}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            onCheckMasterPassword();
+          }
+        }}
       />
       <p></p>
       <Button primary onClick={onCheckMasterPassword}>
@@ -162,7 +170,106 @@ function SetupAccountExistingMasterKey({ user }: { user: LoginUser }) {
   );
 }
 
+function SetupAccountChangePassword({ onClose }: { onClose: () => void }) {
+  const { api, setMasterPassword: setPersistentPassword } = useAuth();
+  const [oldMasterPassword, setOldMasterPassword] = useState('');
+  const [confirmMasterPassword, setConfirmMasterPassword] = useState('');
+  const [masterPassword, setMasterPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const onChangePassword = useCallback(() => {
+    if (!masterPassword) {
+      setError('Please enter valid master password.');
+      return;
+    }
+
+    if (confirmMasterPassword !== masterPassword) {
+      setError('The password is not matched');
+      return;
+    }
+
+    setLoading(true);
+    api
+      .updateMasterPassword(masterPassword, oldMasterPassword)
+      .then((resp) => {
+        if (resp.status) {
+          setPersistentPassword(masterPassword);
+          onClose();
+        } else {
+          setError(resp.error?.message ?? '');
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [
+    setPersistentPassword,
+    oldMasterPassword,
+    confirmMasterPassword,
+    onClose,
+    setLoading,
+  ]);
+
+  return (
+    <div>
+      {error && (
+        <p style={{ color: 'var(--color-critical)' }}>
+          <strong>Error</strong>: {error}
+        </p>
+      )}
+
+      {loading && (
+        <p>
+          <FontAwesomeIcon icon={faSpinner} spin />
+          &nbps;
+          <span>Changing password...</span>
+        </p>
+      )}
+
+      <Stack vertical spacing="sm">
+        <PasswordField
+          autoFocus
+          placeholder="Old master password"
+          value={oldMasterPassword}
+          onChange={setOldMasterPassword}
+        />
+
+        <PasswordField
+          placeholder="New Master password"
+          value={masterPassword}
+          onChange={setMasterPassword}
+        />
+
+        <PasswordField
+          placeholder="Confirm master password"
+          value={confirmMasterPassword}
+          onChange={setConfirmMasterPassword}
+        />
+
+        <ButtonGroup>
+          <Button primary onClick={onChangePassword} disabled={loading}>
+            Change Password
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
+        </ButtonGroup>
+      </Stack>
+    </div>
+  );
+}
+
 function SetupAccountComplete({ user }: { user: LoginUser }) {
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
+  if (showChangePassword) {
+    return (
+      <SetupAccountChangePassword
+        onClose={() => {
+          setShowChangePassword(false);
+        }}
+      />
+    );
+  }
+
   return (
     <Stack>
       <div>
@@ -175,6 +282,15 @@ function SetupAccountComplete({ user }: { user: LoginUser }) {
       <div>
         <h2 style={{ marginBottom: '0.5rem' }}>Welcome, {user.name}</h2>
         <p>Your account is secured with your master password.</p>
+
+        <ul>
+          <li>
+            <LinkButton
+              text="Change new master password"
+              onClick={() => setShowChangePassword(true)}
+            />
+          </li>
+        </ul>
       </div>
     </Stack>
   );
