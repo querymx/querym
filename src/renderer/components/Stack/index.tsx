@@ -6,7 +6,7 @@ interface StackProps {
   center?: boolean;
   full?: boolean;
   padding?: boolean;
-  spacing?: 'none' | 'md';
+  spacing?: 'none' | 'sm' | 'md';
 }
 
 export default memo(function Stack({
@@ -23,7 +23,11 @@ export default memo(function Stack({
     vertical ? styles.vertical : undefined,
     full ? styles.full : undefined,
     padding ? styles.padding : undefined,
-    spacing === 'none' ? styles.spaceNone : undefined,
+    spacing === 'none'
+      ? styles.spaceNone
+      : spacing === 'sm'
+      ? styles.spaceSmall
+      : undefined,
   ]
     .filter(Boolean)
     .join(' ');

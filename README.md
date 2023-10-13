@@ -1,4 +1,4 @@
-# Querym: Simplifying Database Management for Developers and Businesses
+# Querym: Universal Database GUI Client
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=invisal_query-master&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=invisal_query-master)
@@ -79,7 +79,7 @@ Efficiently organize and manage your database connections:
 - ✅ Manage connections in nested folders.
 - ✅ Robust support for MySQL.
 - ❌ Support for SQLite (in progress).
-- ❌ Support for PostgreSQL (in progress).
+- ✅ Support for PostgreSQL (in progress).
 - ❌ Support for Oracle (in progress).
 - ❌ Support for Microsoft SQL (in progress).
 - ❌ Support for Cassandra (in progress).
@@ -103,11 +103,11 @@ Keep an eye on database activities and manage processes:
 
 ### Visualization
 
-Explore data visually with charting features (in progress).
+- ❌ Explore data visually with charting features (in progress).
 
 ### Cloud Integration
 
-Secure your connections and access them from the cloud (in progress).
+- ✅ Secure your connections and access them from the cloud
 
 ### Contribution 
 

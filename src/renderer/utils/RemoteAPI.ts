@@ -34,9 +34,14 @@ export default class RemoteAPI {
     oldMasterPassword?: string,
   ) {
     return (
-      await this.client.post('/v1/user/master_key', {
+      await this.client.post<{
+        status: boolean;
+        error?: {
+          message?: string;
+        };
+      }>('/v1/user/master_key', {
         masterkey: newMasterPassword,
-        oldMasterPassword: oldMasterPassword,
+        old_masterkey: oldMasterPassword,
       })
     ).data;
   }
