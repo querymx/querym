@@ -397,24 +397,36 @@ let parser = parser$1.configure({
         }),
     ],
 });
-/// Represents an SQL dialect.
+/**
+Represents an SQL dialect.
+*/
 class SQLDialect {
     constructor(
-    /// @internal
+    /**
+    @internal
+    */
     dialect, 
-    /// The language for this dialect.
+    /**
+    The language for this dialect.
+    */
     language, 
-    /// The spec used to define this dialect.
+    /**
+    The spec used to define this dialect.
+    */
     spec) {
         this.dialect = dialect;
         this.language = language;
         this.spec = spec;
     }
-    /// Returns the language for this dialect as an extension.
+    /**
+    Returns the language for this dialect as an extension.
+    */
     get extension() {
         return this.language.extension;
     }
-    /// Define a new dialect.
+    /**
+    Define a new dialect.
+    */
     static define(spec) {
         let d = dialect(spec, spec.keywords, spec.types, spec.builtin);
         let language$1 = language.LRLanguage.define({
@@ -430,29 +442,39 @@ class SQLDialect {
         return new SQLDialect(d, language$1, spec);
     }
 }
-/// Returns a completion source that provides keyword completion for
-/// the given SQL dialect.
+/**
+Returns a completion source that provides keyword completion for
+the given SQL dialect.
+*/
 function keywordCompletionSource(dialect, upperCase = false) {
     return completeKeywords(dialect.dialect.words, upperCase);
 }
-/// FIXME remove on 1.0 @internal
+/**
+FIXME remove on 1.0 @internal
+*/
 function keywordCompletion(dialect, upperCase = false) {
     return dialect.language.data.of({
         autocomplete: keywordCompletionSource(dialect, upperCase),
     });
 }
-/// SQL language support for the given SQL dialect, with keyword
-/// completion, and, if provided, schema-based completion as extra
-/// extensions.
+/**
+SQL language support for the given SQL dialect, with keyword
+completion, and, if provided, schema-based completion as extra
+extensions.
+*/
 function sql(config = {}) {
     let lang = config.dialect || StandardSQL;
     return new language.LanguageSupport(lang.language, [
         keywordCompletion(lang, !!config.upperCaseKeywords),
     ]);
 }
-/// The standard SQL dialect.
+/**
+The standard SQL dialect.
+*/
 const StandardSQL = SQLDialect.define({});
-/// Dialect for [PostgreSQL](https://www.postgresql.org).
+/**
+Dialect for [PostgreSQL](https://www.postgresql.org).
+*/
 const PostgreSQL = SQLDialect.define({
     charSetCasts: true,
     doubleDollarQuotedStrings: true,
@@ -467,7 +489,9 @@ const MySQLKeywords = 'accessible algorithm analyze asensitive authors auto_incr
 const MySQLTypes = SQLTypes +
     'bool blob long longblob longtext medium mediumblob mediumint mediumtext tinyblob tinyint tinytext text bigint int1 int2 int3 int4 int8 float4 float8 varbinary varcharacter precision datetime unsigned signed';
 const MySQLBuiltin = 'charset clear edit ego help nopager notee nowarning pager print prompt quit rehash source status system tee';
-/// [MySQL](https://dev.mysql.com/) dialect.
+/**
+[MySQL](https://dev.mysql.com/) dialect.
+*/
 const MySQL = SQLDialect.define({
     operatorChars: '*+-%<>!=&|^',
     charSetCasts: true,
@@ -481,8 +505,10 @@ const MySQL = SQLDialect.define({
     types: MySQLTypes,
     builtin: MySQLBuiltin,
 });
-/// Variant of [`MySQL`](#lang-sql.MySQL) for
-/// [MariaDB](https://mariadb.org/).
+/**
+Variant of [`MySQL`](https://codemirror.net/6/docs/ref/#lang-sql.MySQL) for
+[MariaDB](https://mariadb.org/).
+*/
 const MariaSQL = SQLDialect.define({
     operatorChars: '*+-%<>!=&|^',
     charSetCasts: true,
@@ -498,8 +524,10 @@ const MariaSQL = SQLDialect.define({
     types: MySQLTypes,
     builtin: MySQLBuiltin,
 });
-/// SQL dialect for Microsoft [SQL
-/// Server](https://www.microsoft.com/en-us/sql-server).
+/**
+SQL dialect for Microsoft [SQL
+Server](https://www.microsoft.com/en-us/sql-server).
+*/
 const MSSQL = SQLDialect.define({
     keywords: SQLKeywords +
         'trigger proc view index for add constraint key primary foreign collate clustered nonclustered declare exec go if use index holdlock nolock nowait paglock pivot readcommitted readcommittedlock readpast readuncommitted repeatableread rowlock serializable snapshot tablock tablockx unpivot updlock with',
@@ -509,7 +537,9 @@ const MSSQL = SQLDialect.define({
     operatorChars: '*+-%<>!=^&|/',
     specialVar: '@',
 });
-/// [SQLite](https://sqlite.org/) dialect.
+/**
+[SQLite](https://sqlite.org/) dialect.
+*/
 const SQLite = SQLDialect.define({
     keywords: SQLKeywords +
         'abort analyze attach autoincrement conflict database detach exclusive fail glob ignore index indexed instead isnull notnull offset plan pragma query raise regexp reindex rename replace temp vacuum virtual',
@@ -520,14 +550,18 @@ const SQLite = SQLDialect.define({
     identifierQuotes: '`"',
     specialVar: '@:?$',
 });
-/// Dialect for [Cassandra](https://cassandra.apache.org/)'s SQL-ish query language.
+/**
+Dialect for [Cassandra](https://cassandra.apache.org/)'s SQL-ish query language.
+*/
 const Cassandra = SQLDialect.define({
     keywords: 'add all allow alter and any apply as asc authorize batch begin by clustering columnfamily compact consistency count create custom delete desc distinct drop each_quorum exists filtering from grant if in index insert into key keyspace keyspaces level limit local_one local_quorum modify nan norecursive nosuperuser not of on one order password permission permissions primary quorum rename revoke schema select set storage superuser table three to token truncate ttl two type unlogged update use user users using values where with writetime infinity NaN',
     types: SQLTypes +
         'ascii bigint blob counter frozen inet list map static text timeuuid tuple uuid varint',
     slashComments: true,
 });
-/// [PL/SQL](https://en.wikipedia.org/wiki/PL/SQL) dialect.
+/**
+[PL/SQL](https://en.wikipedia.org/wiki/PL/SQL) dialect.
+*/
 const PLSQL = SQLDialect.define({
     keywords: SQLKeywords +
         'abort accept access add all alter and any arraylen as asc assert assign at attributes audit authorization avg base_table begin between binary_integer body by case cast char_base check close cluster clusters colauth column comment commit compress connected constant constraint crash create current currval cursor data_base database dba deallocate debugoff debugon declare default definition delay delete desc digits dispose distinct do drop else elseif elsif enable end entry exception exception_init exchange exclusive exists external fast fetch file for force form from function generic goto grant group having identified if immediate in increment index indexes indicator initial initrans insert interface intersect into is key level library like limited local lock log logging loop master maxextents maxtrans member minextents minus mislabel mode modify multiset new next no noaudit nocompress nologging noparallel not nowait number_base of off offline on online only option or order out package parallel partition pctfree pctincrease pctused pls_integer positive positiven pragma primary prior private privileges procedure public raise range raw rebuild record ref references refresh rename replace resource restrict return returning returns reverse revoke rollback row rowid rowlabel rownum rows run savepoint schema segment select separate set share snapshot some space split sql start statement storage subtype successful synonym tabauth table tables tablespace task terminate then to trigger truncate type union unique unlimited unrecoverable unusable update use using validate value values variable view views when whenever where while with work',
