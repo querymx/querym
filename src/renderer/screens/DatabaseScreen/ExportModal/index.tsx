@@ -1,6 +1,7 @@
 import {
   faFileExcel,
   faFileCsv,
+  faFileText,
   faCircleCheck,
   faTimesCircle,
   faSpinner,
@@ -16,18 +17,35 @@ import Stack from 'renderer/components/Stack';
 import TextField from 'renderer/components/TextField';
 import { QueryResult } from 'types/SqlResult';
 
+function combineExportOptionText(name: string, extensions: string[]): string {
+  const ext = extensions.map(x => `*.${x}`).join(", ");
+  return `${name} (${ext})`
+}
+
 const EXPORT_OPTIONS = [
   {
-    text: 'Excel (*.xlsx)',
+    name: 'Excel',
     icon: <FontAwesomeIcon color="#27ae60" icon={faFileExcel} />,
     value: 'excel',
+    extensions: ['xlsx'],
   },
   {
-    text: 'Comma Separated Value (*.csv)',
+    name: 'Comma Separated Value',
     icon: <FontAwesomeIcon color="#e67e22" icon={faFileCsv} />,
     value: 'csv',
+    extensions: ['csv'],
   },
-];
+  {
+    name: 'JSON',
+    icon: <FontAwesomeIcon color="#2f2f2c" icon={faFileText} />,
+    value: 'json',
+    extensions: ['json'],
+  }
+].map((item) => ({...item, text: combineExportOptionText(item.name, item.extensions) }));
+
+const EXPORT_OPTIONS_FILE_FILTERS = Object.fromEntries(
+  EXPORT_OPTIONS.map(({ value, extensions, name }) => [value, { extensions, name }])
+);
 
 interface ExportModalProps {
   data: QueryResult;
@@ -43,20 +61,10 @@ function ExportModalConfig({
   const [fileName, setFileName] = useState('');
 
   const onBrowseFileClicked = useCallback(() => {
+    const filter = EXPORT_OPTIONS_FILE_FILTERS[format];
+    if (!filter) return;
     window.electron
-      .showSaveDialog({
-        filters: [
-          format === 'excel'
-            ? {
-                name: 'Excel',
-                extensions: ['xlsx'],
-              }
-            : {
-                name: 'CSV',
-                extensions: ['csv'],
-              },
-        ],
-      })
+      .showSaveDialog({ filters: [filter] })
       .then((value) => setFileName(value ?? ''));
   }, [format]);
 
@@ -205,6 +213,17 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
       } else if (format === 'csv') {
         window.electron
           .saveCsvFile(
+            fileName,
+            getDisplayableFromDatabaseRows(data.rows, data.headers)
+          )
+          .then(() => setStage('SUCCESS'))
+          .catch((e) => {
+            console.error(e);
+            setStage('ERROR');
+          });
+      } else if (format === "json") {
+        window.electron
+          .saveJsonFile(
             fileName,
             getDisplayableFromDatabaseRows(data.rows, data.headers)
           )

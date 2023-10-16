@@ -6,6 +6,7 @@ import {
   OpenDialogOptions,
 } from 'electron';
 import fs from 'fs';
+import saveJsonFile from '../../libs/SaveJSONFile';
 import saveCsvFile from '../../libs/SaveCSVFile';
 import saveExcelFile from '../../libs/SaveExcelFile';
 import CommunicateHandler from './../CommunicateHandler';
@@ -35,6 +36,9 @@ CommunicateHandler.handle(
       }
     },
   )
+  .handle('save-json-file', ([fileName, records]: [string, object[]]) => {
+    saveJsonFile(fileName, records);
+  })
   .handle('save-csv-file', ([fileName, records]: [string, object[]]) => {
     saveCsvFile(fileName, records);
   })

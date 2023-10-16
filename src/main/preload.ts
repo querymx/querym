@@ -74,6 +74,9 @@ const electronHandler = {
   showFileInFolder: (fileName: string) =>
     ipcRenderer.invoke('show-item-in-folder', [fileName]),
 
+  saveJsonFile: (fileName: string, records: object[]) =>
+    ipcRenderer.invoke('save-json-file', [fileName, records]),
+
   saveCsvFile: (fileName: string, records: object[]) =>
     ipcRenderer.invoke('save-csv-file', [fileName, records]),
 
