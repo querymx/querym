@@ -37,6 +37,14 @@ function getCursorTooltips(
         arrow: true,
         create: () => {
           const dom = document.createElement('div');
+          dom.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            const link = target.closest('a');
+            if (link) {
+              e.preventDefault();
+              window.electron.openExternal(link.href);
+            }
+          });
           dom.className = 'cm-tooltip-cursor';
           dom.innerHTML = `
             <div style="max-width:700px;">
@@ -81,6 +89,14 @@ const functionTooltipBaseTheme = EditorView.baseTheme({
     '& .cm-tooltip-arrow:after': {
       borderTopColor: 'transparent',
     },
+  },
+  '.code-tooltip a': {
+    color: 'white',
+    textDecoration: 'underline',
+  },
+  '.code-tooltip a:hover': {
+    color: 'white',
+    textDecoration: 'none',
   },
 });
 
