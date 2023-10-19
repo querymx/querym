@@ -59,4 +59,15 @@ export default class KeyMatcher {
       .filter(Boolean)
       .join(' + ');
   }
+
+  toCodeMirrorKey() {
+    const isMac = navigator.userAgent.toLowerCase().indexOf('mac') > -1;
+    return [
+      this.key.ctrl ? (isMac ? 'Cmd' : 'Ctrl') : undefined,
+      this.key.shift ? 'Shift' : undefined,
+      this.key?.key,
+    ]
+      .filter(Boolean)
+      .join('-');
+  }
 }
