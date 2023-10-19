@@ -1,6 +1,7 @@
 interface KeyMatcherProps {
   ctrl?: boolean;
   key?: string;
+  shift?: boolean;
 }
 
 export default class KeyMatcher {
@@ -8,6 +9,21 @@ export default class KeyMatcher {
 
   constructor(props: KeyMatcherProps) {
     this.key = props;
+  }
+
+  static capture(e: KeyboardEvent | React.KeyboardEvent) {
+    const isCtrlKey = e.ctrlKey || e.metaKey;
+
+    let key: string | undefined = e.key;
+
+    if (key === 'Shift') key = undefined;
+    if (key === 'Control') key = undefined;
+
+    return new KeyMatcher({
+      ctrl: isCtrlKey,
+      shift: e.shiftKey,
+      key,
+    });
   }
 
   match(e: KeyboardEvent | React.KeyboardEvent<HTMLDivElement>) {
@@ -22,13 +38,22 @@ export default class KeyMatcher {
       isMatched = false;
     }
 
+    if (this.key.shift && !e.shiftKey) {
+      isMatched = false;
+    }
+
     return isMatched;
+  }
+
+  toJson(): KeyMatcherProps {
+    return { ...this.key };
   }
 
   toString() {
     const isMac = navigator.userAgent.toLowerCase().indexOf('mac') > -1;
     return [
       this.key.ctrl ? (isMac ? '⌘' : 'Ctrl') : undefined,
+      this.key.shift ? 'Shift' : undefined,
       this.key?.key?.toUpperCase(),
     ]
       .filter(Boolean)

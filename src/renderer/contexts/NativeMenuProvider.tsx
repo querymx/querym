@@ -1,6 +1,10 @@
 import { PropsWithChildren } from 'react';
 import useNativeMenu from 'renderer/hooks/useNativeMenu';
 import { useAppFeature } from './AppFeatureProvider';
+import {
+  EVENT_OPEN_SETTING_SCREEN,
+  publishEvent,
+} from 'renderer/hooks/usePublishEvent';
 
 export default function NativeMenuProvider({ children }: PropsWithChildren) {
   const { theme, enableDebug, setTheme, setEnableDebug } = useAppFeature();
@@ -10,6 +14,13 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
       {
         label: 'File',
         submenu: [
+          {
+            label: 'Setting',
+            id: 'setting',
+            click: () => {
+              publishEvent(EVENT_OPEN_SETTING_SCREEN);
+            },
+          },
           {
             label: 'Close',
             role: 'close',
@@ -82,7 +93,7 @@ export default function NativeMenuProvider({ children }: PropsWithChildren) {
         ],
       },
     ],
-    [theme, enableDebug, setTheme, setEnableDebug]
+    [theme, enableDebug, setTheme, setEnableDebug],
   );
 
   return <>{children}</>;
