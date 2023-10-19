@@ -9,6 +9,7 @@ export interface TextFieldCommonProps {
   autoFocus?: boolean;
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onBlur?: () => void;
 }
 
 interface TextFieldProps extends TextFieldCommonProps {
@@ -30,6 +31,7 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       actionClick,
       readOnly,
       onKeyDown,
+      onBlur,
     },
     ref,
   ) {
@@ -42,6 +44,7 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             ref={ref}
             readOnly={readOnly}
             onKeyDown={onKeyDown}
+            onBlur={onBlur}
             placeholder={placeholder}
             type={type || 'text'}
             autoFocus={autoFocus}

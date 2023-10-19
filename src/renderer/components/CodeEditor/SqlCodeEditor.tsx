@@ -29,6 +29,7 @@ import { functionTooltip } from './functionTooltips';
 import { MySQLDialect, MySQLTooltips } from 'dialects/MySQLDialect';
 import { QueryDialetType } from 'libs/QueryBuilder';
 import { PgDialect, PgTooltips } from 'dialects/PgDialect copy';
+import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
@@ -36,9 +37,10 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
     currentDatabase?: string;
     dialect: QueryDialetType;
   },
-  ref: Ref<ReactCodeMirrorRef>
+  ref: Ref<ReactCodeMirrorRef>,
 ) {
   const { schema, currentDatabase, ...codeMirrorProps } = props;
+  const { binding } = useKeybinding();
   const theme = useCodeEditorTheme();
 
   const customAutoComplete = useCallback(
@@ -47,16 +49,16 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         context,
         tree,
         schema?.getSchema(),
-        currentDatabase
+        currentDatabase,
       );
     },
-    [schema, currentDatabase]
+    [schema, currentDatabase],
   );
 
   const tableNameHighlightPlugin = useMemo(() => {
     if (schema && currentDatabase) {
       return createSQLTableNameHighlightPlugin(
-        Object.keys(schema.getTableList(currentDatabase))
+        Object.keys(schema.getTableList(currentDatabase)),
       );
     }
     return createSQLTableNameHighlightPlugin([]);
@@ -64,6 +66,44 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
 
   const dialect = props.dialect === 'mysql' ? MySQLDialect : PgDialect;
   const tooltips = props.dialect === 'mysql' ? MySQLTooltips : PgTooltips;
+
+  const keyExtension = useMemo(() => {
+    return keymap.of([
+      // Prevent the default behavior if it matches any of
+      // these key binding. The reason is because the default
+      // key binding for run is Ctrl + Enter. It is weird if
+      // press Ctrl + Enter, will run and also insert newline
+      // at the same time.
+      ...[
+        binding['run-current-query'],
+        binding['run-query'],
+        binding['save-query'],
+      ].map((binding) => ({
+        key: binding.toCodeMirrorKey(),
+        preventDefault: true,
+        run: () => true,
+      })),
+      {
+        key: 'Tab',
+        preventDefault: true,
+        run: (target) => {
+          if (completionStatus(target.state) === 'active') {
+            acceptCompletion(target);
+          } else {
+            insertTab(target);
+          }
+          return true;
+        },
+      },
+      {
+        key: 'Ctrl-Space',
+        mac: 'Cmd-i',
+        preventDefault: true,
+        run: startCompletion,
+      },
+      ...defaultKeymap,
+    ]);
+  }, [binding]);
 
   return (
     <CodeMirror
@@ -78,27 +118,7 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
         drawSelection: false,
       }}
       extensions={[
-        keymap.of([
-          {
-            key: 'Tab',
-            preventDefault: true,
-            run: (target) => {
-              if (completionStatus(target.state) === 'active') {
-                acceptCompletion(target);
-              } else {
-                insertTab(target);
-              }
-              return true;
-            },
-          },
-          {
-            key: 'Ctrl-Space',
-            mac: 'Cmd-i',
-            preventDefault: true,
-            run: startCompletion,
-          },
-          ...defaultKeymap,
-        ]),
+        keyExtension,
         sql({
           dialect,
         }),

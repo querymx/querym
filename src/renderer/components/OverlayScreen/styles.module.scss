@@ -1,0 +1,35 @@
+.overlay {
+  position: fixed;
+  z-index: 100;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  background: var(--color-surface);
+  display: flex;
+  justify-content: center;
+}
+
+.overlayHeader {
+  position: relative;
+}
+
+.overlayClose {
+  width: 30px;
+  height: 30px;
+  top: 30px;
+  right: 30px;
+  position: sticky;
+  cursor: pointer;
+
+  img {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.overlayBody {
+  max-width: 800px;
+  flex-grow: 1;
+  padding: 30px;
+}

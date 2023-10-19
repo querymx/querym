@@ -20,6 +20,8 @@ import { DeviceProvider } from './contexts/DeviceProvider';
 import Layout from './components/Layout';
 import AuthProvider from './contexts/AuthProvider';
 import 'react-toastify/dist/ReactToastify.css';
+import SettingScreen from './screens/SettingScreen/SettingScreen';
+import { KeyBindingProvider } from './contexts/KeyBindingProvider';
 
 const ConnectionContext = createContext<{
   connect: (connectionConfig: ConnectionStoreItem) => void;
@@ -57,40 +59,43 @@ export default function App() {
   return (
     <DeviceProvider>
       <AppFeatureContext>
-        <ConnectionContext.Provider
-          value={{ connect: connectCallback, disconnect: disconnectCallback }}
-        >
-          <AuthProvider>
-            <ContextMenuProvider>
-              <DialogProvider>
-                <NativeMenuProvider>
-                  <SqlExecuteProvider>
-                    <div
-                      style={{
-                        width: '100vw',
-                        height: '100vh',
-                        paddingBottom: 26,
-                      }}
-                    >
-                      <Layout>
-                        <Layout.Grow>
-                          {config ? (
-                            <DatabaseScreen config={config} />
-                          ) : (
-                            <HomeScreen />
-                          )}
-                        </Layout.Grow>
-                      </Layout>
-                      <Layout.Fixed>
-                        <StatusBar />
-                      </Layout.Fixed>
-                    </div>
-                  </SqlExecuteProvider>
-                </NativeMenuProvider>
-              </DialogProvider>
-            </ContextMenuProvider>
-          </AuthProvider>
-        </ConnectionContext.Provider>
+        <KeyBindingProvider>
+          <ConnectionContext.Provider
+            value={{ connect: connectCallback, disconnect: disconnectCallback }}
+          >
+            <AuthProvider>
+              <ContextMenuProvider>
+                <DialogProvider>
+                  <NativeMenuProvider>
+                    <SqlExecuteProvider>
+                      <div
+                        style={{
+                          width: '100vw',
+                          height: '100vh',
+                          paddingBottom: 26,
+                        }}
+                      >
+                        <Layout>
+                          <Layout.Grow>
+                            {config ? (
+                              <DatabaseScreen config={config} />
+                            ) : (
+                              <HomeScreen />
+                            )}
+                          </Layout.Grow>
+                        </Layout>
+                        <Layout.Fixed>
+                          <StatusBar />
+                        </Layout.Fixed>
+                      </div>
+                      <SettingScreen />
+                    </SqlExecuteProvider>
+                  </NativeMenuProvider>
+                </DialogProvider>
+              </ContextMenuProvider>
+            </AuthProvider>
+          </ConnectionContext.Provider>
+        </KeyBindingProvider>
       </AppFeatureContext>
     </DeviceProvider>
   );
