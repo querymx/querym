@@ -66,13 +66,12 @@ function TableCellJsonEditor({
   );
 }
 
-function TableCellJsonContent({ value }: TableEditableContentProps) {
+function TableCellJsonContent({ value }: TableEditableContentProps<JsonType>) {
   return (
     <TableCellContent
-      value={value}
+      value={value.toNullableString()}
       badge="json"
       mono
-      displayString={value ? JSON.stringify(value) : undefined}
     />
   );
 }
@@ -88,7 +87,7 @@ const TableCellJson = createTableCellType({
     return new JsonType(null);
   },
   onCopy: (value: JsonType) => {
-    return JSON.stringify(value);
+    return value.toString();
   },
   onPaste: (value: string) => {
     return { accept: true, value: new JsonType(value) };

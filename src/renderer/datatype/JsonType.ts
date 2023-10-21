@@ -1,8 +1,8 @@
 import BaseType from './BaseType';
 import deepEqual from 'deep-equal';
 
-export default class JsonType implements BaseType<object> {
-  protected value?: object | null;
+export default class JsonType implements BaseType<object | string> {
+  protected value?: object | string | null;
 
   constructor(value?: object | string | null) {
     if (typeof value === 'object') this.value = value;
@@ -10,7 +10,7 @@ export default class JsonType implements BaseType<object> {
       try {
         this.value = JSON.parse(value);
       } catch {
-        this.value = undefined;
+        this.value = value;
       }
     } else {
       this.value = value;
@@ -69,7 +69,7 @@ export default class JsonType implements BaseType<object> {
     return stringValue.includes(search);
   }
 
-  getValue(): object | null | undefined {
+  getValue(): object| string | null | undefined {
     return this.value;
   }
 }
