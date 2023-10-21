@@ -223,8 +223,9 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
           });
       } else if (format === "json") {
         window.electron
-          .saveJsonFile(
+          .saveStructuredTextFile(
             fileName,
+            format,
             getDisplayableFromDatabaseRows(data.rows, data.headers)
           )
           .then(() => setStage('SUCCESS'))

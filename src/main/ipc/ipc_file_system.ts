@@ -6,10 +6,10 @@ import {
   OpenDialogOptions,
 } from 'electron';
 import fs from 'fs';
-import saveJsonFile from '../../libs/SaveJSONFile';
 import saveCsvFile from '../../libs/SaveCSVFile';
 import saveExcelFile from '../../libs/SaveExcelFile';
 import CommunicateHandler from './../CommunicateHandler';
+import saveStructuredTextFile, { SupportedStructuredFileType } from '../../libs/StructuredTextFile';
 
 CommunicateHandler.handle(
   'show-message-box',
@@ -36,8 +36,8 @@ CommunicateHandler.handle(
       }
     },
   )
-  .handle('save-json-file', ([fileName, records]: [string, object[]]) => {
-    saveJsonFile(fileName, records);
+  .handle('save-structured-text-file', ([fileName, type, records]: [string, string, object[]]) => {
+    saveStructuredTextFile(fileName, type as SupportedStructuredFileType, records);
   })
   .handle('save-csv-file', ([fileName, records]: [string, object[]]) => {
     saveCsvFile(fileName, records);
