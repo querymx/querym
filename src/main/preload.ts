@@ -16,6 +16,7 @@ import {
   UpdateDownloadedEvent,
   UpdateInfo,
 } from 'electron-updater';
+import { SupportedStructuredFileType } from 'libs/StructuredTextFile.js';
 
 export type Channels = 'ipc-example' | 'create-connection';
 
@@ -74,8 +75,8 @@ const electronHandler = {
   showFileInFolder: (fileName: string) =>
     ipcRenderer.invoke('show-item-in-folder', [fileName]),
 
-  saveJsonFile: (fileName: string, records: object[]) =>
-    ipcRenderer.invoke('save-json-file', [fileName, records]),
+  saveStructuredTextFile: (fileName: string, type: SupportedStructuredFileType, records: object[]) =>
+    ipcRenderer.invoke('save-structured-text-file', [fileName, type, records]),
 
   saveCsvFile: (fileName: string, records: object[]) =>
     ipcRenderer.invoke('save-csv-file', [fileName, records]),

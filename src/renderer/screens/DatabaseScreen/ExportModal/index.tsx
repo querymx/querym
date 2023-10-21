@@ -8,6 +8,7 @@ import {
   faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { SupportedStructuredFileType } from 'libs/StructuredTextFile';
 import { getDisplayableFromDatabaseRows } from 'libs/TransformResult';
 import { useCallback, useState } from 'react';
 import Button from 'renderer/components/Button';
@@ -225,7 +226,7 @@ export default function ExportModal({ data, onClose }: ExportModalProps) {
         window.electron
           .saveStructuredTextFile(
             fileName,
-            format,
+            format as SupportedStructuredFileType,
             getDisplayableFromDatabaseRows(data.rows, data.headers)
           )
           .then(() => setStage('SUCCESS'))
