@@ -44,9 +44,16 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   const { binding } = useKeybinding();
   const theme = useCodeEditorTheme();
 
+  const dialect = props.dialect === 'mysql' ? MySQLDialect : PgDialect;
+  const tooltips = props.dialect === 'mysql' ? MySQLTooltips : PgTooltips;
+
   const schemaTree = useMemo(() => {
-    return SchemaCompletionTree.build(schema?.getSchema(), currentDatabase);
-  }, [schema, currentDatabase]);
+    return SchemaCompletionTree.build(
+      schema?.getSchema(),
+      currentDatabase,
+      dialect.spec,
+    );
+  }, [schema, currentDatabase, dialect]);
 
   const customAutoComplete = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
@@ -69,9 +76,6 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
     }
     return createSQLTableNameHighlightPlugin([]);
   }, [schema, currentDatabase]);
-
-  const dialect = props.dialect === 'mysql' ? MySQLDialect : PgDialect;
-  const tooltips = props.dialect === 'mysql' ? MySQLTooltips : PgTooltips;
 
   const keyExtension = useMemo(() => {
     return keymap.of([

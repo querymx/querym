@@ -1,4 +1,5 @@
 import { Completion } from '@codemirror/autocomplete';
+import { SQLDialectSpec } from 'language/dist';
 import {
   DatabaseSchema,
   DatabaseSchemaList,
@@ -39,9 +40,21 @@ function buildDatabaseCompletionTree(
   return root;
 }
 
+function escapeConflictedId(
+  dialect: SQLDialectSpec,
+  label: string,
+  keywords: Record<string, boolean>,
+): string {
+  if (keywords[label.toLowerCase()])
+    return `${dialect.identifierQuotes}${label}${dialect.identifierQuotes}`;
+  return label;
+}
+
 function buildCompletionTree(
   schema: DatabaseSchemaList | undefined,
   currentDatabase: string | undefined,
+  dialect: SQLDialectSpec,
+  keywords: Record<string, boolean>,
 ): SchemaCompletionTree {
   const root: SchemaCompletionTree = new SchemaCompletionTree();
   if (!schema) return root;
@@ -51,6 +64,7 @@ function buildCompletionTree(
     for (const table of Object.values(schema[currentDatabase].tables)) {
       root.addOption(table.name, {
         label: table.name,
+        apply: escapeConflictedId(dialect, table.name, keywords),
         type: 'table',
         detail: 'table',
         boost: 1,
@@ -63,6 +77,7 @@ function buildCompletionTree(
   for (const database of Object.values(schema)) {
     root.addOption(database.name, {
       label: database.name,
+      apply: escapeConflictedId(dialect, database.name, keywords),
       type: 'property',
       detail: 'database',
     });
@@ -75,12 +90,27 @@ function buildCompletionTree(
 export default class SchemaCompletionTree {
   protected options: Record<string, Completion> = {};
   protected child: Record<string, SchemaCompletionTree> = {};
+  protected keywords: Record<string, boolean> = {};
 
   static build(
     schema: DatabaseSchemaList | undefined,
     currentDatabase: string | undefined,
+    dialect: SQLDialectSpec,
   ) {
-    return buildCompletionTree(schema, currentDatabase);
+    const keywords = (dialect.keywords + ' ' + dialect.builtin)
+      .split(' ')
+      .filter(Boolean)
+      .map((s) => s.toLowerCase());
+
+    const keywordDict = keywords.reduce(
+      (a, keyword) => {
+        a[keyword] = true;
+        return a;
+      },
+      {} as Record<string, boolean>,
+    );
+
+    return buildCompletionTree(schema, currentDatabase, dialect, keywordDict);
   }
 
   getLength() {
