@@ -79,12 +79,18 @@ export default function useDataTableContextMenu({
     }
 
     function onCopyAsJson() {
-      window.navigator.clipboard.writeText(
-        JSON.stringify(
-          selectedRowsIndex.map((rowIndex) => data[rowIndex].data),
-          undefined,
-          2,
+      const jsonFriendly = selectedRowsIndex.map((rowIndex) =>
+        Object.entries(data[rowIndex].data).reduce(
+          (acc, [colName, colValue]) => {
+            acc[colName] = colValue.toNullableString();
+            return acc;
+          },
+          {} as Record<string, unknown>,
         ),
+      );
+
+      window.navigator.clipboard.writeText(
+        JSON.stringify(jsonFriendly, undefined, 2),
       );
     }
 
