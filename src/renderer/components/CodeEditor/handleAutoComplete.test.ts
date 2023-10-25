@@ -7,13 +7,14 @@ import {
 import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
 import { MySQL, genericCompletion } from './../../../language/dist';
 import { DatabaseSchemaList } from 'types/SqlSchema';
+import SchemaCompletionTree from './SchemaCompletionTree';
 
 function get(
   doc: string,
   {
     schema,
     currentDatabase,
-  }: { schema: DatabaseSchemaList; currentDatabase?: string }
+  }: { schema: DatabaseSchemaList; currentDatabase?: string },
 ) {
   const cur = doc.indexOf('|'),
     dialect = MySQL;
@@ -26,14 +27,20 @@ function get(
       dialect,
       dialect.language.data.of({
         autocomplete: genericCompletion((context, tree) =>
-          handleCustomSqlAutoComplete(context, tree, schema, currentDatabase)
+          handleCustomSqlAutoComplete(
+            context,
+            tree,
+            SchemaCompletionTree.build(schema, currentDatabase),
+            schema,
+            currentDatabase,
+          ),
         ),
       }),
     ],
   });
 
   const result = state.languageDataAt<CompletionSource>('autocomplete', cur)[0](
-    new CompletionContext(state, cur, false)
+    new CompletionContext(state, cur, false),
   );
   return result as CompletionResult | null;
 }
@@ -45,7 +52,7 @@ function str(result: CompletionResult | null) {
         .slice()
         .sort(
           (a, b) =>
-            (b.boost || 0) - (a.boost || 0) || (a.label < b.label ? -1 : 1)
+            (b.boost || 0) - (a.boost || 0) || (a.label < b.label ? -1 : 1),
         )
         .map((o) => o.apply || o.label)
         .join(', ');
@@ -105,7 +112,7 @@ const schema1: DatabaseSchemaList = {
             dataType: 'varchar',
             nullable: false,
             schemaName: '',
-            tableName: ''
+            tableName: '',
           },
           name: {
             name: 'description',
@@ -114,7 +121,7 @@ const schema1: DatabaseSchemaList = {
             dataType: 'varchar',
             nullable: false,
             schemaName: '',
-            tableName: ''
+            tableName: '',
           },
           product_type: {
             name: 'product_type',
@@ -124,7 +131,7 @@ const schema1: DatabaseSchemaList = {
             enumValues: ['HOME', 'BOOK', 'FASHION'],
             nullable: false,
             schemaName: '',
-            tableName: ''
+            tableName: '',
           },
         },
       },
@@ -135,21 +142,33 @@ const schema1: DatabaseSchemaList = {
 describe('SQL completion', () => {
   it('completes table names', () => {
     expect(
-      str(get('select u|', { schema: schema1, currentDatabase: 'foo' }))
+      str(get('select u|', { schema: schema1, currentDatabase: 'foo' })),
     ).toBe('products, users, foo');
   });
 
   it('completes column based on the FROM table', () => {
     expect(
       str(
-        get('select n| from users', { schema: schema1, currentDatabase: 'foo' })
-      )
+        get('select n| from users', {
+          schema: schema1,
+          currentDatabase: 'foo',
+        }),
+      ),
     ).toBe('address, id, name, products, users, foo');
+
+    expect(
+      str(
+        get('select users.|, name from users', {
+          schema: schema1,
+          currentDatabase: 'foo',
+        }),
+      ),
+    ).toBe('address, id, name');
   });
 
   it('completes column after specified table with .', () => {
     expect(
-      str(get('select users.|', { schema: schema1, currentDatabase: 'foo' }))
+      str(get('select users.|', { schema: schema1, currentDatabase: 'foo' })),
     ).toBe('address, id, name');
   });
 
@@ -159,8 +178,8 @@ describe('SQL completion', () => {
         get("select * from products where product_type = 'H|'", {
           schema: schema1,
           currentDatabase: 'foo',
-        })
-      )
+        }),
+      ),
     ).toBe('BOOK, FASHION, HOME');
   });
 });

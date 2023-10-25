@@ -21,7 +21,7 @@ function buildTableCompletionTree(table: TableSchema): SchemaCompletionTree {
 }
 
 function buildDatabaseCompletionTree(
-  database: DatabaseSchema
+  database: DatabaseSchema,
 ): SchemaCompletionTree {
   const root = new SchemaCompletionTree();
 
@@ -41,7 +41,7 @@ function buildDatabaseCompletionTree(
 
 function buildCompletionTree(
   schema: DatabaseSchemaList | undefined,
-  currentDatabase: string | undefined
+  currentDatabase: string | undefined,
 ): SchemaCompletionTree {
   const root: SchemaCompletionTree = new SchemaCompletionTree();
   if (!schema) return root;
@@ -78,9 +78,13 @@ export default class SchemaCompletionTree {
 
   static build(
     schema: DatabaseSchemaList | undefined,
-    currentDatabase: string | undefined
+    currentDatabase: string | undefined,
   ) {
     return buildCompletionTree(schema, currentDatabase);
+  }
+
+  getLength() {
+    return Object.keys(this.options).length;
   }
 
   addOption(name: string, complete: Completion) {

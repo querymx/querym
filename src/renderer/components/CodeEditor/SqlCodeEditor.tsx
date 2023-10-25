@@ -30,6 +30,7 @@ import { MySQLDialect, MySQLTooltips } from 'dialects/MySQLDialect';
 import { QueryDialetType } from 'libs/QueryBuilder';
 import { PgDialect, PgTooltips } from 'dialects/PgDialect copy';
 import { useKeybinding } from 'renderer/contexts/KeyBindingProvider';
+import SchemaCompletionTree from './SchemaCompletionTree';
 
 const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   props: ReactCodeMirrorProps & {
@@ -43,16 +44,21 @@ const SqlCodeEditor = forwardRef(function SqlCodeEditor(
   const { binding } = useKeybinding();
   const theme = useCodeEditorTheme();
 
+  const schemaTree = useMemo(() => {
+    return SchemaCompletionTree.build(schema?.getSchema(), currentDatabase);
+  }, [schema, currentDatabase]);
+
   const customAutoComplete = useCallback(
     (context: CompletionContext, tree: SyntaxNode): CompletionResult | null => {
       return handleCustomSqlAutoComplete(
         context,
         tree,
+        schemaTree,
         schema?.getSchema(),
         currentDatabase,
       );
     },
-    [schema, currentDatabase],
+    [schema, schemaTree, currentDatabase],
   );
 
   const tableNameHighlightPlugin = useMemo(() => {
