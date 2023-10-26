@@ -32,7 +32,7 @@ function getIdentifierParentPath(
 
   while (prev) {
     if (prev.type.name !== '.') {
-      const currentStr = getNodeString(context, prev);
+      const currentStr = getNodeString(context, prev).trim();
       if (currentStr[currentStr.length - 1] !== '.') break;
     } else {
       prev = prev.prevSibling;
@@ -46,7 +46,7 @@ function getIdentifierParentPath(
     )
       break;
 
-    result.push(getNodeString(context, prev).replaceAll('.', ''));
+    result.push(getNodeString(context, prev).trim().replaceAll('.', ''));
     prev = prev.prevSibling;
   }
 
@@ -174,6 +174,8 @@ export default function handleCustomSqlAutoComplete(
   if (tree.type.name === 'Parens' || tree.type.name === 'Statement') {
     tree = SqlCompletionHelper.resolveInner(tree, context.pos) || tree;
   }
+
+  console.log(tree);
 
   const currentSelectedTableNames = SqlCompletionHelper.fromTables(
     context,

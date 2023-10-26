@@ -6,12 +6,17 @@ import {
   TableSchema,
 } from 'types/SqlSchema';
 
-function buildTableCompletionTree(table: TableSchema): SchemaCompletionTree {
+function buildTableCompletionTree(
+  table: TableSchema,
+  dialect: SQLDialectSpec,
+  keywords: Record<string, boolean>,
+): SchemaCompletionTree {
   const root = new SchemaCompletionTree();
 
   for (const col of Object.values(table.columns)) {
     root.addOption(col.name, {
       label: col.name,
+      apply: escapeConflictedId(dialect, col.name, keywords),
       type: 'property',
       detail: col.dataType,
       boost: 3,
@@ -23,6 +28,8 @@ function buildTableCompletionTree(table: TableSchema): SchemaCompletionTree {
 
 function buildDatabaseCompletionTree(
   database: DatabaseSchema,
+  dialect: SQLDialectSpec,
+  keywords: Record<string, boolean>,
 ): SchemaCompletionTree {
   const root = new SchemaCompletionTree();
 
@@ -34,7 +41,10 @@ function buildDatabaseCompletionTree(
       boost: 1,
     });
 
-    root.addChild(table.name, buildTableCompletionTree(table));
+    root.addChild(
+      table.name,
+      buildTableCompletionTree(table, dialect, keywords),
+    );
   }
 
   return root;
@@ -70,7 +80,10 @@ function buildCompletionTree(
         boost: 1,
       });
 
-      root.addChild(table.name, buildTableCompletionTree(table));
+      root.addChild(
+        table.name,
+        buildTableCompletionTree(table, dialect, keywords),
+      );
     }
   }
 
@@ -82,7 +95,10 @@ function buildCompletionTree(
       detail: 'database',
     });
 
-    root.addChild(database.name, buildDatabaseCompletionTree(database));
+    root.addChild(
+      database.name,
+      buildDatabaseCompletionTree(database, dialect, keywords),
+    );
   }
 
   return root;
