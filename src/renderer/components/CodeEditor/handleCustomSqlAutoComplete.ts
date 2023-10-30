@@ -14,7 +14,7 @@ function getNodeString(context: CompletionContext, node: SyntaxNode) {
 
 function allowNodeWhenSearchForIdentify(
   context: CompletionContext,
-  node: SyntaxNode
+  node: SyntaxNode,
 ) {
   if (node.type.name === 'Operator') return true;
   if (node.type.name === 'Keyword') {
@@ -25,14 +25,14 @@ function allowNodeWhenSearchForIdentify(
 
 function getIdentifierParentPath(
   context: CompletionContext,
-  node: SyntaxNode | null
+  node: SyntaxNode | null,
 ): string[] {
   const result: string[] = [];
   let prev = node;
 
   while (prev) {
     if (prev.type.name !== '.') {
-      const currentStr = getNodeString(context, prev);
+      const currentStr = getNodeString(context, prev).trim();
       if (currentStr[currentStr.length - 1] !== '.') break;
     } else {
       prev = prev.prevSibling;
@@ -41,12 +41,12 @@ function getIdentifierParentPath(
 
     if (
       !['Identifier', 'QuotedIdentifier', 'CompositeIdentifier'].includes(
-        prev.type.name
+        prev.type.name,
       )
     )
       break;
 
-    result.push(getNodeString(context, prev).replaceAll('.', ''));
+    result.push(getNodeString(context, prev).trim().replaceAll('.', ''));
     prev = prev.prevSibling;
   }
 
@@ -56,7 +56,7 @@ function getIdentifierParentPath(
 
 function searchForIdentifier(
   context: CompletionContext,
-  node: SyntaxNode
+  node: SyntaxNode,
 ): string | null {
   let currentNode = node.prevSibling;
   while (currentNode) {
@@ -85,7 +85,7 @@ function handleEnumAutoComplete(
   node: SyntaxNode,
   schema: DatabaseSchemaList,
   currentDatabase: string | undefined,
-  exposedTable: TableSchema[]
+  exposedTable: TableSchema[],
 ): CompletionResult | null {
   let currentNode = node;
 
@@ -109,7 +109,7 @@ function handleEnumAutoComplete(
     schema,
     currentDatabase,
     exposedTable,
-    identifier
+    identifier,
   );
 
   if (
@@ -123,7 +123,7 @@ function handleEnumAutoComplete(
         label: value,
         type: 'enum',
         detail: 'enum',
-      })
+      }),
     );
 
     return {
@@ -137,13 +137,11 @@ function handleEnumAutoComplete(
 }
 
 function getSchemaSuggestionFromPath(
-  schema: DatabaseSchemaList | undefined,
-  currentDatabase: string | undefined,
-  path: string[]
+  tree: SchemaCompletionTree,
+  path: string[],
 ) {
-  if (!schema) return [];
+  if (tree.getLength() === 0) return [];
 
-  const tree = SchemaCompletionTree.build(schema, currentDatabase);
   let treeWalk: SchemaCompletionTree | undefined = tree;
 
   for (const currentPath of path) {
@@ -160,15 +158,16 @@ function getSchemaSuggestionFromPath(
 export default function handleCustomSqlAutoComplete(
   context: CompletionContext,
   tree: SyntaxNode,
+  schemaTree: SchemaCompletionTree,
   schema: DatabaseSchemaList | undefined,
-  currentDatabase: string | undefined
+  currentDatabase: string | undefined,
 ): CompletionResult | null {
   if (!schema) return null;
 
   if (tree.type.name === 'Script') {
     tree = tree.resolveInner(
       context.state.doc.sliceString(0, context.pos).trimEnd().length,
-      -1
+      -1,
     );
   }
 
@@ -176,9 +175,11 @@ export default function handleCustomSqlAutoComplete(
     tree = SqlCompletionHelper.resolveInner(tree, context.pos) || tree;
   }
 
+  console.log(tree);
+
   const currentSelectedTableNames = SqlCompletionHelper.fromTables(
     context,
-    tree
+    tree,
   );
 
   const currentSelectedTables = currentSelectedTableNames
@@ -186,8 +187,8 @@ export default function handleCustomSqlAutoComplete(
       SqlCompletionHelper.getTableFromIdentifier(
         schema,
         currentDatabase,
-        tableName
-      )
+        tableName,
+      ),
     )
     .filter(Boolean) as TableSchema[];
 
@@ -201,7 +202,7 @@ export default function handleCustomSqlAutoComplete(
       type: 'property',
       detail: column.dataType,
       boost: 3,
-    })
+    }),
   );
 
   if (SqlCompletionHelper.isInsideFrom(context, tree)) {
@@ -213,13 +214,17 @@ export default function handleCustomSqlAutoComplete(
     tree,
     schema,
     currentDatabase,
-    currentSelectedTables
+    currentSelectedTables,
   );
   if (enumSuggestion) {
     return enumSuggestion;
   }
 
-  if (['Identifier', 'QuotedIdentifier'].includes(tree.type.name)) {
+  if (
+    ['Identifier', 'QuotedIdentifier', 'Keyword', 'Builtin'].includes(
+      tree.type.name,
+    )
+  ) {
     return {
       from: tree.type.name === 'QuotedIdentifier' ? tree.from + 1 : tree.from,
       to: tree.type.name === 'QuotedIdentifier' ? tree.to - 1 : tree.to,
@@ -228,9 +233,8 @@ export default function handleCustomSqlAutoComplete(
       options: [
         ...currentColumnCompletion,
         ...getSchemaSuggestionFromPath(
-          schema,
-          currentDatabase,
-          getIdentifierParentPath(context, tree.prevSibling)
+          schemaTree,
+          getIdentifierParentPath(context, tree.prevSibling),
         ),
       ],
     };
@@ -243,9 +247,8 @@ export default function handleCustomSqlAutoComplete(
       validFor: /^\w*$/,
       options: [
         ...getSchemaSuggestionFromPath(
-          schema,
-          currentDatabase,
-          getIdentifierParentPath(context, tree)
+          schemaTree,
+          getIdentifierParentPath(context, tree),
         ),
       ],
     };
@@ -257,7 +260,7 @@ export default function handleCustomSqlAutoComplete(
     from: context.pos,
     options: [
       ...currentColumnCompletion,
-      ...getSchemaSuggestionFromPath(schema, currentDatabase, []),
+      ...getSchemaSuggestionFromPath(schemaTree, []),
     ],
     validFor: /^\w*$/,
   };

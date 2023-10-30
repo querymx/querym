@@ -1,155 +1,50 @@
-import { EditorState } from '@codemirror/state';
 import {
-  CompletionContext,
-  CompletionResult,
-  CompletionSource,
-} from '@codemirror/autocomplete';
-import handleCustomSqlAutoComplete from './handleCustomSqlAutoComplete';
-import { MySQL, genericCompletion } from './../../../language/dist';
-import { DatabaseSchemaList } from 'types/SqlSchema';
+  create_test_schema,
+  get_test_autocomplete as get,
+  convert_autocomplete_to_string as str,
+} from './autocomplete_test_utils';
 
-function get(
-  doc: string,
-  {
-    schema,
-    currentDatabase,
-  }: { schema: DatabaseSchemaList; currentDatabase?: string }
-) {
-  const cur = doc.indexOf('|'),
-    dialect = MySQL;
-
-  doc = doc.slice(0, cur) + doc.slice(cur + 1);
-  const state = EditorState.create({
-    doc,
-    selection: { anchor: cur },
-    extensions: [
-      dialect,
-      dialect.language.data.of({
-        autocomplete: genericCompletion((context, tree) =>
-          handleCustomSqlAutoComplete(context, tree, schema, currentDatabase)
-        ),
-      }),
-    ],
-  });
-
-  const result = state.languageDataAt<CompletionSource>('autocomplete', cur)[0](
-    new CompletionContext(state, cur, false)
-  );
-  return result as CompletionResult | null;
-}
-
-function str(result: CompletionResult | null) {
-  return !result
-    ? ''
-    : result.options
-        .slice()
-        .sort(
-          (a, b) =>
-            (b.boost || 0) - (a.boost || 0) || (a.label < b.label ? -1 : 1)
-        )
-        .map((o) => o.apply || o.label)
-        .join(', ');
-}
-
-const schema1: DatabaseSchemaList = {
+const schema1 = create_test_schema({
   foo: {
-    name: 'foo',
-    events: [],
-    triggers: [],
-    tables: {
-      users: {
-        name: 'users',
-        constraints: [],
-        primaryKey: [],
-        type: 'TABLE',
-        columns: {
-          id: {
-            schemaName: '',
-            tableName: '',
-            name: 'id',
-            comment: '',
-            charLength: 0,
-            dataType: 'int',
-            nullable: false,
-          },
-          name: {
-            schemaName: '',
-            tableName: '',
-            name: 'name',
-            comment: '',
-            charLength: 0,
-            dataType: 'varchar',
-            nullable: false,
-          },
-          address: {
-            schemaName: '',
-            tableName: '',
-            name: 'address',
-            comment: '',
-            charLength: 0,
-            dataType: 'varchar',
-            nullable: false,
-          },
-        },
-      },
-      products: {
-        name: 'products',
-        constraints: [],
-        primaryKey: [],
-        type: 'TABLE',
-        columns: {
-          id: {
-            name: 'name',
-            comment: '',
-            charLength: 0,
-            dataType: 'varchar',
-            nullable: false,
-            schemaName: '',
-            tableName: ''
-          },
-          name: {
-            name: 'description',
-            comment: '',
-            charLength: 0,
-            dataType: 'varchar',
-            nullable: false,
-            schemaName: '',
-            tableName: ''
-          },
-          product_type: {
-            name: 'product_type',
-            comment: '',
-            charLength: 0,
-            dataType: 'enum',
-            enumValues: ['HOME', 'BOOK', 'FASHION'],
-            nullable: false,
-            schemaName: '',
-            tableName: ''
-          },
-        },
-      },
+    users: { id: 'int', name: 'varchar', address: 'varchar' },
+    products: {
+      name: 'varchar',
+      description: 'varchar',
+      product_type: "enum('HOME', 'BOOK', 'FASHION')",
     },
   },
-};
+});
 
 describe('SQL completion', () => {
   it('completes table names', () => {
     expect(
-      str(get('select u|', { schema: schema1, currentDatabase: 'foo' }))
+      str(get('select u|', { schema: schema1, currentDatabase: 'foo' })),
     ).toBe('products, users, foo');
   });
 
   it('completes column based on the FROM table', () => {
     expect(
       str(
-        get('select n| from users', { schema: schema1, currentDatabase: 'foo' })
-      )
+        get('select n| from users', {
+          schema: schema1,
+          currentDatabase: 'foo',
+        }),
+      ),
     ).toBe('address, id, name, products, users, foo');
+
+    expect(
+      str(
+        get('select users.|, name from users', {
+          schema: schema1,
+          currentDatabase: 'foo',
+        }),
+      ),
+    ).toBe('address, id, name');
   });
 
   it('completes column after specified table with .', () => {
     expect(
-      str(get('select users.|', { schema: schema1, currentDatabase: 'foo' }))
+      str(get('select users.|', { schema: schema1, currentDatabase: 'foo' })),
     ).toBe('address, id, name');
   });
 
@@ -159,8 +54,8 @@ describe('SQL completion', () => {
         get("select * from products where product_type = 'H|'", {
           schema: schema1,
           currentDatabase: 'foo',
-        })
-      )
+        }),
+      ),
     ).toBe('BOOK, FASHION, HOME');
   });
 });
