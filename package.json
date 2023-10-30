@@ -1,7 +1,7 @@
 {
   "name": "querym",
   "description": "just another database graphical client",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "keywords": [
     "database",
     "mysql",
@@ -256,7 +256,8 @@
     },
     "linux": {
       "target": [
-        "AppImage", "deb"
+        "AppImage",
+        "deb"
       ],
       "artifactName": "${name}-${version}-${platform}_${arch}.${ext}",
       "category": "Development"
