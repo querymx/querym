@@ -179,7 +179,12 @@ export default function useDataTableContextMenu({
         text: 'Insert new row',
         disabled: !rules.insertable,
         onClick: () => {
-          collector.createNewRow();
+          const newRow = new Array(headers.length)
+            .fill(undefined)
+            .map((_, idx) => {
+              return common.createTypeValue(headers[idx], undefined);
+            });
+          collector.createNewRow(newRow);
         },
         icon: <FontAwesomeIcon icon={faPlusCircle} color="#27ae60" />,
       },

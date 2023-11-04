@@ -34,8 +34,10 @@ function TableCellNumberEditor({
   );
 }
 
-function TableCellNumberContent({ value }: TableEditableContentProps) {
-  return <TableCellContent right value={value} />;
+function TableCellNumberContent({
+  value,
+}: TableEditableContentProps<NumberType>) {
+  return <TableCellContent right value={value.toNullableString()} />;
 }
 
 const TableCellNumber = createTableCellType({

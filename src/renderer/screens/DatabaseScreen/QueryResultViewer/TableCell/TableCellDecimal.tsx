@@ -32,8 +32,10 @@ function TableCellDecimalEditor({
   );
 }
 
-function TableCellDecimalContent({ value }: TableEditableContentProps) {
-  return <TableCellContent right value={value} />;
+function TableCellDecimalContent({
+  value,
+}: TableEditableContentProps<DecimalType>) {
+  return <TableCellContent right value={value.toNullableString()} />;
 }
 
 const TableCellDecimal = createTableCellType({

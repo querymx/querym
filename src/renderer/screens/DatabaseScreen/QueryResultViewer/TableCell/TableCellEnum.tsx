@@ -33,8 +33,10 @@ function TableCellStringEditor({
   );
 }
 
-function TableCellStringContent({ value }: TableEditableContentProps) {
-  return <TableCellContent value={value} />;
+function TableCellStringContent({
+  value,
+}: TableEditableContentProps<StringType>) {
+  return <TableCellContent value={value.toNullableString()} />;
 }
 
 const TableCellEnum = createTableCellType({

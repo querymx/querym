@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useEditableResult } from 'renderer/contexts/EditableQueryResultProvider';
 import BaseType from 'renderer/datatype/BaseType';
+import { useSqlExecute } from 'renderer/contexts/SqlExecuteProvider';
 
 export interface QuertResultTableSortedHeader {
   by: 'ASC' | 'DESC';
@@ -41,6 +42,7 @@ function QueryResultTable({
   onSortReset,
   sortedHeader,
 }: QueryResultTableProps) {
+  const { common } = useSqlExecute();
   const [stickyHeaderIndex, setStickyHeaderIndex] = useState<
     number | undefined
   >();
@@ -80,14 +82,17 @@ function QueryResultTable({
           return {
             rowIndex: -(newRowIndex + 1),
             data: headers.reduce(
-              (prev, header) => ({ ...prev, [header.name]: undefined }),
+              (prev, header) => ({
+                ...prev,
+                [header.name]: common.createTypeValue(header, undefined),
+              }),
               {},
             ),
           };
         });
 
       return [...newRows, ...result];
-    }, [result, newRowCount]);
+    }, [result, newRowCount, common]);
 
   const rules = useMemo<TableEditableRule>(() => {
     if (headers && currentDatabase && schema) {
