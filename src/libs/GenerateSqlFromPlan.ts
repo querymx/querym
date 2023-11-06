@@ -28,7 +28,7 @@ export default function generateSqlFromPlan(
     if (plan.where) {
       return qb(dialect)
         .table(plan.table)
-        .where(plan.where)
+        .where(convertUnsupportedValue(plan.where, dialect))
         .delete()
         .toRawSQL();
     }
