@@ -318,7 +318,7 @@ export class QueryBuilder {
           if (value instanceof QueryRaw) {
             fields.push(field);
             values.push(value.getRaw());
-          } else {
+          } else if (value !== undefined) {
             binding.push(value);
             fields.push(field);
             values.push('?');
