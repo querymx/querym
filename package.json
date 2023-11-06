@@ -115,7 +115,7 @@
     "@electron/rebuild": "^3.2.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@storybook/addon-essentials": "^7.3.2",
-    "@storybook/addon-interactions": "^7.3.2",
+    "@storybook/addon-interactions": "^7.5.2",
     "@storybook/addon-links": "^7.3.2",
     "@storybook/addon-onboarding": "^1.0.8",
     "@storybook/blocks": "^7.3.2",
