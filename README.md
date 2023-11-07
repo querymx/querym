@@ -64,7 +64,7 @@ Effortlessly move data in and out of your database:
 
 - ✅ Export data to CSV.
 - ✅ Export data to Microsoft Excel.
-- ❌ Export data to JSON (in progress).
+- ✅ Export data to JSON.
 - ❌ Export data to SQL (in progress).
 - ❌ Export data to XML (in progress).
 - ❌ Export to Clipboard (in progress).

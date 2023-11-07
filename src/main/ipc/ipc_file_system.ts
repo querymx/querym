@@ -9,6 +9,7 @@ import fs from 'fs';
 import saveCsvFile from '../../libs/SaveCSVFile';
 import saveExcelFile from '../../libs/SaveExcelFile';
 import CommunicateHandler from './../CommunicateHandler';
+import saveStructuredTextFile, { SupportedStructuredFileType } from '../../libs/StructuredTextFile';
 
 CommunicateHandler.handle(
   'show-message-box',
@@ -35,6 +36,9 @@ CommunicateHandler.handle(
       }
     },
   )
+  .handle('save-structured-text-file', ([fileName, type, records]: [string, string, object[]]) => {
+    saveStructuredTextFile(fileName, type as SupportedStructuredFileType, records);
+  })
   .handle('save-csv-file', ([fileName, records]: [string, object[]]) => {
     saveCsvFile(fileName, records);
   })
