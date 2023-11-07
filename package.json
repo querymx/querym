@@ -1,7 +1,7 @@
 {
   "name": "querym",
   "description": "just another database graphical client",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "keywords": [
     "database",
     "mysql",
