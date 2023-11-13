@@ -78,7 +78,7 @@
     "@uiw/codemirror-theme-bbedit": "^4.21.8",
     "@uiw/codemirror-theme-vscode": "^4.21.7",
     "@uiw/react-codemirror": "^4.19.9",
-    "axios": "^1.4.0",
+    "axios": "^1.6.1",
     "dbgate-query-splitter": "^4.9.3",
     "decimal.js": "^10.4.3",
     "deep-equal": "^2.2.1",
