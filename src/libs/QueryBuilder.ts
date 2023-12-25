@@ -139,6 +139,14 @@ export class QueryBuilder {
     return this;
   }
 
+  whereRaw(condition: string) {
+    this.states.where.push({
+      mode: 'AND',
+      raw: new QueryRaw(condition),
+    });
+    return this;
+  }
+
   select(...columns: (string | QueryRaw)[]) {
     this.states.select = this.states.select.concat(columns);
     return this;
@@ -169,14 +177,18 @@ export class QueryBuilder {
     const binding: unknown[] = [];
 
     for (const whereItem of where) {
+      if (previousMode) sql += ' ' + previousMode + ' ';
+
       if (whereItem.condition) {
-        if (previousMode) sql += ' ' + previousMode + ' ';
         sql +=
           this.dialect.escapeIdentifier(whereItem.condition.field) +
           whereItem.condition.op +
           '?';
         binding.push(whereItem.condition.value);
+      } else if (whereItem.raw) {
+        sql += whereItem.raw.getRaw();
       }
+
       previousMode = whereItem.mode;
     }
 

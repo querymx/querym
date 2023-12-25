@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode, useCallback } from 'react';
+import React, { PropsWithChildren, ReactNode, useCallback } from 'react';
 import styles from './styles.module.scss';
 import { ContextMenuItemProps } from '../ContextMenu';
 import AttachedContextMenu from '../ContextMenu/AttachedContextMenu';
@@ -90,19 +90,24 @@ interface ToolbarTextFieldProps {
   value?: string;
   placeholder?: string;
   onChange?: (v: string) => void;
+  grow?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 Toolbar.TextField = function ({
   placeholder,
   value,
   onChange,
+  onKeyDown,
+  grow,
 }: ToolbarTextFieldProps) {
   return (
-    <li className={styles.textfield}>
+    <li className={styles.textfield} style={{ flexGrow: grow ? 1 : undefined }}>
       <input
         spellCheck={false}
         autoCorrect="off"
         autoComplete="off"
+        onKeyDown={onKeyDown}
         type="text"
         placeholder={placeholder}
         value={value}

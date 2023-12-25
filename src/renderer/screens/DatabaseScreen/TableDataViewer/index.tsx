@@ -45,12 +45,16 @@ function TableDataViewerBody({
   sortedHeader,
   setSortedHeader,
   setPage,
+  initialFilter,
+  onFilterChange,
 }: {
   result: QueryResult<Record<string, BaseType>>;
   setResult: Dispatch<SetStateAction<QueryResult<Record<string, BaseType>>>>;
   totalRows: number | null;
   page: number;
   refresh: () => void;
+  initialFilter: string;
+  onFilterChange: (value: string) => void;
   sortedHeader?: QuertResultTableSortedHeader;
   setSortedHeader: React.Dispatch<
     React.SetStateAction<QuertResultTableSortedHeader | undefined>
@@ -65,6 +69,8 @@ function TableDataViewerBody({
       })),
     [result],
   );
+
+  const [rawFilter, setRawFilter] = useState(initialFilter);
 
   const headers = result.headers;
   const rowRange = {
@@ -117,6 +123,21 @@ function TableDataViewerBody({
   return (
     <EditableQueryResultProvider>
       <Layout>
+        <Layout.Fixed>
+          <Toolbar>
+            <Toolbar.TextField
+              placeholder="Enter a SQL expression to filter result"
+              value={rawFilter}
+              onChange={setRawFilter}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onFilterChange(e.currentTarget.value);
+                }
+              }}
+              grow
+            />
+          </Toolbar>
+        </Layout.Fixed>
         <Layout.Grow>
           <div style={{ width: '100%', height: '100%', display: 'flex' }}>
             <QueryResultTable
@@ -147,6 +168,7 @@ export default function TableDataViewer({
   const [loading, setLoading] = useState(true);
   const [sortedHeader, setSortedHeader] =
     useState<QuertResultTableSortedHeader>();
+  const [rawFilter, setRawFilter] = useState('');
   const [page, setPage] = useState(0);
 
   useEffect(() => {
@@ -157,6 +179,7 @@ export default function TableDataViewer({
     const builder = qb(dialect)
       .table(`${databaseName}.${tableName}`)
       .select()
+      .whereRaw(rawFilter)
       .offset(PAGE_SIZE * page)
       .limit(PAGE_SIZE);
 
@@ -185,6 +208,7 @@ export default function TableDataViewer({
     dialect,
     runner,
     page,
+    rawFilter,
     sortedHeader,
     setTotalRows,
     setLoading,
@@ -215,6 +239,8 @@ export default function TableDataViewer({
       totalRows={totalRows}
       page={page}
       setPage={setPage}
+      initialFilter={rawFilter}
+      onFilterChange={setRawFilter}
       // This will cause the code to refresh the result
       refresh={() => setRefreshCounter((prev) => prev + 1)}
       // Handle sorting
